@@ -1,0 +1,47 @@
+{
+  "name": "codespark",
+  "version": "1.0.0",
+  "description": "CodeSpark is a developer friendly contest platform which is built on Node, Express, React, Redux, Mongo, Redis",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grapecity/codespark.git"
+  },
+  "keywords": [
+    "GrapeCity",
+    "Contest",
+    "Node",
+    "JavaScript"
+  ],
+  "author": "Zhang Wenqing <winking.zhang@grapecity.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/grapecity/codespark/issues"
+  },
+  "homepage": "https://github.com/grapecity/codespark#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "connect-redis": "^3.1.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express-rate-limit": "^2.6.0",
+    "express-session": "^1.14.2",
+    "lodash": "^4.17.2",
+    "mongoose": "^4.7.0",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "rate-limit-redis": "^1.0.4",
+    "redis": "^2.6.3",
+    "winston": "^2.3.0",
+    "winston-daily-rotate-file": "^1.3.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^3.0.1",
+    "karma": "^1.3.0",
+    "mocha": "^3.1.2"
+  }
+}

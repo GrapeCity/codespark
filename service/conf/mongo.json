@@ -1,0 +1,9 @@
+{
+  "uri": "localhost:2306",
+  "options": {
+    "auth": {
+      "authSource": "admin"
+    }
+  },
+  "debug": false
+}
