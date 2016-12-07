@@ -171,7 +171,7 @@ Server.prototype = {
         var app = this.app;
         _.map(require('./controllers')(this), function (v) {
             var method = v['method'] || 'get',
-                url = v['url'] || '/',
+                url = '/sapi/' + v['url'] || '',
                 action = v['action'] || function (req, res) {
                         return res.json(404, {
                             err: 'Not Found: ' + method + ' ' + url
