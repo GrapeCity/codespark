@@ -1,0 +1,14 @@
+{
+  "name": "codespark.judge.javascript",
+  "version": "1.0.0",
+  "description": "The judge system for javascript (node) runtime",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zhang Wenqing <winking.zhang@grapecity.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "sandbox": "^0.8.6"
+  }
+}
