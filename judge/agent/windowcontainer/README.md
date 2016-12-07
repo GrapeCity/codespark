@@ -1,0 +1,1 @@
+the agent for manage windows container, only support windows server 2016
