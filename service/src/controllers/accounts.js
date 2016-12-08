@@ -6,8 +6,18 @@ var http = require('http'),
 
 module.exports = function (server) {
 
+    function info(req, res) {
+        if(!req.user){
+            return res.status(401).json({
+                err: true,
+                msg: '未登录或者未授权的访问'
+            });
+        }
+        return res.json(req.body);
+    }
+
     function login(req, res) {
-        return res.json("login with " + JSON.stringify(req.body));
+        return res.json(req.body);
     }
 
     function signup(req, res) {
@@ -45,7 +55,7 @@ module.exports = function (server) {
                     if (succeeded) {
                         try {
                             userInfo = JSON.parse(resBody);
-                        } catch (any){
+                        } catch (any) {
                             logger.warn('Response Error: ' + any)
                         }
                     } else {

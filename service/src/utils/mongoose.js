@@ -1,12 +1,4 @@
-/**
- * Created by JeffXiao on 2015/11/9.
- */
 
-'use strict';
-
-/**
- * Load module dependencies
- */
 var mongoose = require('mongoose'),
     config   = require('../config'),
     logger   = require('./winston').appLogger;
@@ -17,7 +9,7 @@ var mongoose = require('mongoose'),
  * @param callback
  */
 module.exports.connect = function (callback) {
-    var db = mongoose.connect(config.mongo.uri, config.mongo.options, function (err) {
+    mongoose.connect(config.mongo.uri, config.mongo.options, function (err) {
         if (err) {
             logger.warn('Could not connect to MongoDB.');
             logger.warn(err);
