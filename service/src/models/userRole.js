@@ -16,7 +16,7 @@ var UserRolesSchema = new Schema(
                 institution: Number,
                 roles: [{
                     type: String,
-                    enum: ['cs-user', 'cs-admin', 'gc-user']
+                    enum: ['cs-user', 'cs-gc-user', 'cs-admin']
                 }]
             }],
             default: [{
