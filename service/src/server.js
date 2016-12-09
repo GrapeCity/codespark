@@ -92,9 +92,9 @@ Server.prototype = {
             stream: stream
         }));
 
-        if(process.env.NODE_ENV === 'development'){
+        if (process.env.NODE_ENV === 'development') {
             var path = require('path');
-            app.use(express.static(path.resolve(process.cwd(), '../site')));
+            app.use(express.static(path.resolve(process.cwd(), '../site/dist')));
         }
 
         // limit api access rating
@@ -171,7 +171,7 @@ Server.prototype = {
         var app = this.app;
         _.map(require('./controllers')(this), function (v) {
             var method = v['method'] || 'get',
-                url = '/sapi/' + v['url'] || '',
+                url = '/sapi' + v['url'] || '',
                 action = v['action'] || function (req, res) {
                         return res.json(404, {
                             err: 'Not Found: ' + method + ' ' + url
@@ -216,8 +216,12 @@ Server.prototype = {
                 }
             });
         };
+        // posix, for linux, unix etc.
         process.on('SIGINT', prcessEndHandler);
+        // window, use CTRL+BREAK to gracefully shutdown
         process.on('SIGBREAK', prcessEndHandler);
+        // force kill
+        process.on('SIGTERM', prcessEndHandler);
     }
 };
 
@@ -230,10 +234,12 @@ module.exports = Server;
  */
 module.exports.run = function (onReady, onClose) {
     var server = new Server(express());
-    server.setupMiddlewares();
-    server.setupSession();
-    // server.setupPassport();
-    server.setupErrorRoutes();
-    server.loadServerRoutes();
-    server.bootstrap(onReady, onClose);
+    require('./utils/mongoose')(server, function () {
+        server.setupMiddlewares();
+        server.setupSession();
+        server.setupPassport();
+        server.setupErrorRoutes();
+        server.loadServerRoutes();
+        server.bootstrap(onReady, onClose);
+    });
 };

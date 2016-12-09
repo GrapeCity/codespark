@@ -13,7 +13,7 @@ var UserSchema = new Schema({
             type: String,
             trim: true
         },
-        email: {
+        mail: {
             type: String,
             unique: true,
             required: true,
@@ -21,6 +21,13 @@ var UserSchema = new Schema({
             lowercase: true,
             trim: true,
             validate: [validateLocalStrategyEmail, 'INVALID_EMAIL']
+        },
+        username: {
+            type: String,
+            unique: true,
+            required: true,
+            lowercase: true,
+            trim: true
         },
         password: {
             type: String,

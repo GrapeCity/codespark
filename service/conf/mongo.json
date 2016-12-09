@@ -1,5 +1,5 @@
 {
-  "uri": "localhost:2306",
+  "uri": "localhost:27017",
   "options": {
     "auth": {
       "authSource": "admin"

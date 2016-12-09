@@ -18,14 +18,15 @@ module.exports = function (app) {
      * 当有请求发送到应用程序时，必须保证用户已经登录。
      */
     passport.use(new LocalStrategy({
-            usernameField: 'credential',
+            usernameField: 'mail',
             passwordField: 'password'
         },
-        function (credential, password, done) {
-            if (!validator.isEmail(credential)) {
+        function (mail, password, done) {
+            console.log('validate passport: ' + mail);
+            if (!validator.isEmail(mail)) {
                 return done(null, false, {msg: 'WRONG_CREDENTIAL'});
             }
-            var queryParam = {email: credential.toLowerCase()};
+            var queryParam = {email: mail.toLowerCase()};
             User.findOne(queryParam, function (err, user) {
                 if (err) {
                     return done(err);

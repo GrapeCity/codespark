@@ -1,14 +1,11 @@
-
 var mongoose = require('mongoose'),
-    config   = require('../config'),
-    logger   = require('./winston').appLogger;
+    config = require('../config'),
+    logger = require('./winston').appLogger;
 
-/**
- * Connect to mongodb.
- *
- * @param callback
- */
-module.exports.connect = function (callback) {
+require('../models');
+
+// mongoose
+module.exports = function (server, callback) {
     mongoose.connect(config.mongo.uri, config.mongo.options, function (err) {
         if (err) {
             logger.warn('Could not connect to MongoDB.');
@@ -19,22 +16,20 @@ module.exports.connect = function (callback) {
             }
             // Enabling mongoose debug mode if required
             mongoose.set('debug', config.mongo.debug);
-            if (callback) {
-                callback(mongo);
-            }
-        }
-    });
-};
 
-/**
- * Disconnect from the mongodb.
- *
- * @param callback
- */
-module.exports.disconnect = function (callback) {
-    mongoose.disconnect(function (err) {
-        if (callback) {
-            callback(err);
+            server.resMgr.add('mongo', mongoose, function () {
+                mongoose.disconnect(function (err) {
+                    if (err) {
+                        logger.error('Error disconnect MongoDB: ' + err);
+                    } else {
+                        logger.info('Disconnected from MongoDB successfully');
+                    }
+                });
+            });
+
+            if(callback){
+                callback();
+            }
         }
     });
 };
