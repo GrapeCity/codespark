@@ -6,6 +6,80 @@ var http = require('http'),
     UserRoles = mongoose.model('UserRoles'),
     logger = require('../utils/winston').appLogger;
 
+/**
+ * login the user to GrapeCity AD system
+ * @param {string} mail the email, must be form like someone@grapecity.com
+ * @param {string} password the secure password
+ * @param {function(err, user)} done callback to notify login result
+ */
+function loginGrapeCityDomain(mail, password, done) {
+    var timeoutHandler,
+        req = http.request({
+            host: config.adAuth.host,
+            port: config.adAuth.port,
+            path: config.adAuth.path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }, function (res) {
+            // require accepted
+            clearTimeout(timeoutHandler);
+
+            timeoutHandler = setTimeout(function () {
+                res.destroy();
+                done(new Error("获取HTTP响应流超时"), null);
+            }, 5000);
+            var succeeded = (res.statusCode == 200);
+            res.setEncoding('utf8');
+            // all data must be less than 65535 strings
+            var resBody = "";
+            res.on('data', function (data) {
+                resBody += data;
+            });
+            res.on('end', function () {
+                // data ready
+                clearTimeout(timeoutHandler);
+
+                // process data
+                var userInfo = null;
+                if (succeeded) {
+                    try {
+                        userInfo = JSON.parse(resBody);
+                        done(null, userInfo);
+                    } catch (any) {
+                        logger.warn('Response Error: ' + any)
+                        done(any, userInfo);
+                    }
+                } else {
+                    logger.info(resBody);
+                    done(new Error(resBody), userInfo);
+                }
+            });
+        });
+    req.on('error', function (err) {
+        clearTimeout(timeoutHandler);
+        done(err, null);
+    });
+    req.write(JSON.stringify({mail: mail, password: password}));
+    req.end();
+
+    // performance: make sure require must be back in 5 seconds
+    timeoutHandler = setTimeout(function () {
+        req.abort();
+    }, 5000);
+}
+
+/**
+ *
+ * @param mail
+ * @param userName
+ * @param displayName
+ * @param done
+ */
+function createUser(mail, userName, displayName, done) {
+
+}
 
 module.exports = function (server) {
 
@@ -20,7 +94,16 @@ module.exports = function (server) {
     }
 
     function login(req, res) {
-        return res.json(req.body);
+        logger.debug(JSON.stringify(req.body));
+        if (!req.body.mail || !validator.isEmail(req.body.mail)) {
+            return res.status(400).json({
+                err: true,
+                msg: '用户邮箱为空或者不是合法邮箱',
+                timestamp: new Date().getTime()
+            });
+        }
+
+        return res.status(200).json(req.body);
     }
 
     function signup(req, res) {
@@ -37,7 +120,7 @@ module.exports = function (server) {
                 logger.error(err);
                 return res.status(500).json({
                     err: true,
-                    msg: '注册失败，请联系管理员!',
+                    msg: '内部错误导致注册失败，请联系管理员!',
                     timestamp: new Date().getTime()
                 });
             }
@@ -49,49 +132,22 @@ module.exports = function (server) {
                     timestamp: new Date().getTime()
                 });
             }
-        });
 
-        if (req.body.grapecity) {
-            var timeoutHandler,
-                post = http.request({
-                    host: config.adAuth.host,
-                    port: config.adAuth.port,
-                    path: config.adAuth.path,
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }, function (xhr) {
-                    // require accepted
-                    clearTimeout(timeoutHandler);
+            if (req.body.grapecity &&
+                req.body.mail.slice(-14) === '@grapecity.com') {
 
-                    timeoutHandler = setTimeout(function () {
-                        xhr.destroy();
-                    }, 5000);
-                    var succeeded = (xhr.statusCode == 200);
-                    xhr.setEncoding('utf8');
-                    // all data must be less than 65535 strings
-                    var resBody = "";
-                    xhr.on('data', function (data) {
-                        resBody += data;
-                    });
-                    xhr.on('end', function () {
-                        // data ready
-                        clearTimeout(timeoutHandler);
-
-                        // process data
-                        var userInfo = null;
-                        if (succeeded) {
-                            try {
-                                userInfo = JSON.parse(resBody);
-                            } catch (any) {
-                                logger.warn('Response Error: ' + any)
-                            }
-                        } else {
-                            logger.info(resBody);
+                loginGrapeCityDomain(req.body.mail,
+                    req.body.password,
+                    function (err, userInfo) {
+                        if (err) {
+                            logger.error('Internal Error: ' + err);
+                            return res.status(500).json({
+                                err: true,
+                                msg: '无法完成GrapeCity域验证，请和管理员联系',
+                                timestamp: new Date().getTime()
+                            });
                         }
                         if (!userInfo) {
-                            logger.info('Cannot login to GrapeCity');
                             return res.status(400).json({
                                 err: true,
                                 msg: '无法登陆用户（邮箱：' + req.body.mail + '）到GrapeCity域，请和管理员联系',
@@ -99,38 +155,22 @@ module.exports = function (server) {
                             })
                         }
 
-                        // write user into database, and login this user
-                        var user = new User();
-                        user.username = userInfo.userName;
-                        user.email = userInfo.mail;
-                        user.display = userInfo.displayName;
-                        // logger.info(JSON.stringify(userInfo));
-                        return res.json(userInfo);
-                    });
-                });
-            post.on('error', function (err) {
-                clearTimeout(timeoutHandler);
-                logger.error('Internal Error: ' + err);
-                return res.status(500).json({
-                    err: true,
-                    msg: '不能连接GrapeCity域验证服务器，请和管理员联系',
-                    timestamp: new Date().getTime()
-                });
-            });
-            post.write(JSON.stringify(req.body));
-            post.end();
+                        createUser(userInfo.mail,
+                            userInfo.userName,
+                            userInfo.displayName,
+                            function (err, user) {
 
-            // performance: make sure require must be back in 5 seconds
-            timeoutHandler = setTimeout(function () {
-                post.abort();
-            }, 5000);
-        } else { // normal sign up
-            return res.status(200).json("signup with " + JSON.stringify(req.body));
-        }
+                            });
+                    });
+            } else { // normal sign up
+                return res.status(200).json("signup with " + JSON.stringify(req.body));
+            }
+        });
     }
 
     return {
         login: login,
-        signup: signup
+        signup: signup,
+        info: info
     };
 };
