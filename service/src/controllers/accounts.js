@@ -1,10 +1,10 @@
 var http = require('http'),
+    crypto = require('crypto'),
+    mongoose = require('mongoose'),
     config = require('../config'),
     validator = require('../utils/validator'),
-    mongoose = require('mongoose'),
-    User = mongoose.model('User'),
-    UserRoles = mongoose.model('UserRoles'),
-    logger = require('../utils/winston').appLogger;
+    logger = require('../utils/winston').appLogger,
+    User = mongoose.model('User');
 
 /**
  * login the user to GrapeCity AD system
@@ -46,13 +46,12 @@ function loginGrapeCityDomain(mail, password, done) {
                 if (succeeded) {
                     try {
                         userInfo = JSON.parse(resBody);
+                        userInfo.grapecity = true;
                         done(null, userInfo);
                     } catch (any) {
-                        logger.warn('Response Error: ' + any)
                         done(any, userInfo);
                     }
                 } else {
-                    logger.info(resBody);
                     done(new Error(resBody), userInfo);
                 }
             });
@@ -71,14 +70,34 @@ function loginGrapeCityDomain(mail, password, done) {
 }
 
 /**
- *
- * @param mail
- * @param userName
+ * create a new user into contest system
+ * @param {string} mail user identity, unique
+ * @param {string} password user password, will hash by pbkdf2 10000 times
+ * @param username
  * @param displayName
+ * @param gcUser
  * @param done
  */
-function createUser(mail, userName, displayName, done) {
-
+function createUser(mail, password, username, displayName, gcUser, done) {
+    var user = new User({
+        provider: 'local',
+        mail: mail,
+        password: password,
+        username: username,
+        displayName: displayName,
+        activated: gcUser,
+        activeToken: crypto.randomBytes(12).toString('base64'), // 16 characters
+        activeExpires: new Date(new Date().getTime() + (2 * 24 * 60 * 60 * 1000)) // two days
+    });
+    user.save(function(err){
+        if(err){
+            done(err);
+        }
+        if(!gcUser){
+            // send mail
+        }
+        done(null, user);
+    })
 }
 
 module.exports = function (server) {
@@ -152,14 +171,20 @@ module.exports = function (server) {
                                 err: true,
                                 msg: '无法登陆用户（邮箱：' + req.body.mail + '）到GrapeCity域，请和管理员联系',
                                 timestamp: new Date().getTime()
-                            })
+                            });
                         }
 
                         createUser(userInfo.mail,
                             userInfo.userName,
                             userInfo.displayName,
                             function (err, user) {
-
+                                if (err) {
+                                    return res.status(400).json({
+                                        err: true,
+                                        msg: '无法登陆用户（邮箱：' + req.body.mail + '）到GrapeCity域，请和管理员联系',
+                                        timestamp: new Date().getTime()
+                                    });
+                                }
                             });
                     });
             } else { // normal sign up

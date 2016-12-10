@@ -21,10 +21,6 @@ var ContestSchema = new Schema(
             type: Date,
             required: true
         },
-        restricts :[{
-            type: String,
-            enum: ['cs-user', 'cs-gc-user', 'cs-admin']
-        }],
         problems: [{
         }]
     },
