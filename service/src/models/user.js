@@ -9,10 +9,6 @@ var validateLocalStrategyEmail = function (email) {
 };
 
 var UserSchema = new Schema({
-        displayName: {
-            type: String,
-            trim: true
-        },
         mail: {
             type: String,
             unique: true,
@@ -26,6 +22,10 @@ var UserSchema = new Schema({
             type: String,
             required: true,
             lowercase: true,
+            trim: true
+        },
+        displayName: {
+            type: String,
             trim: true
         },
         password: {
@@ -71,6 +71,12 @@ var UserSchema = new Schema({
         },
         activeExpires: {
             type: Date
+        },
+        contests:{
+            type:  [{
+                type: Schema.Types.ObjectId,
+                ref: 'Contest'
+            }]
         }
     },
     {collection: 'csUsers'}

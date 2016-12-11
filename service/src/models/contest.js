@@ -21,8 +21,12 @@ var ContestSchema = new Schema(
             type: Date,
             required: true
         },
-        problems: [{
-        }]
+        problems: {
+            type: [{
+                type: Schema.Types.ObjectId,
+                ref: 'Problem'
+            }]
+        }
     },
     {collection: 'csContest'}
 );
