@@ -2,8 +2,7 @@ var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     mongoose = require('mongoose'),
     validator = require('./validator'),
-    User = mongoose.model('User'),
-    UserRoles = mongoose.model('UserRoles');
+    User = mongoose.model('User');
 
 /**
  * Configure passport, add bearer strategy to verify access token.
@@ -22,11 +21,10 @@ module.exports = function (app) {
             passwordField: 'password'
         },
         function (mail, password, done) {
-            console.log('validate passport: ' + mail);
             if (!validator.isEmail(mail)) {
                 return done(null, false, {msg: 'WRONG_CREDENTIAL'});
             }
-            var queryParam = {email: mail.toLowerCase()};
+            var queryParam = {mail: mail.toLowerCase()};
             User.findOne(queryParam, function (err, user) {
                 if (err) {
                     return done(err);
@@ -36,15 +34,8 @@ module.exports = function (app) {
                 }
                 if (!user.authenticate(password)) {
                     return done(null, false, {msg: 'WRONG_CREDENTIAL'});
-                } else {
-                    UserRoles.findOne(queryParam, function (err, ur) {
-                        if (err) {
-                            return done(err);
-                        }
-                        user.roles = ur ? ur.roles : [];
-                        return done(null, user);
-                    });
                 }
+                return done(null, user);
             });
         }
     ));
@@ -75,18 +66,7 @@ module.exports = function (app) {
             if (!user) {
                 return done(null, false);
             }
-
-            var query = {mobile: user.mobile};
-            if (process.env.TAG_AREA === 'ja-jp') {
-                query = {email: user.email};
-            }
-            UserRoles.findOne(query, function (err, ur) {
-                if (err) {
-                    return done(err);
-                }
-                user.roles = ur ? ur.roles : [];
-                return done(null, user);
-            });
+            return done(null, user);
         });
     });
 

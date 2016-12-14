@@ -168,7 +168,12 @@ Server.prototype = {
         });
     },
     loadServerRoutes: function () {
-        var app = this.app;
+        var app = this.app,
+            passport = require('passport'),
+            accounts = require('./controllers/accounts')(this);
+
+        app.post('/sapi/accounts/login', passport.authenticate('local'), accounts.login);
+
         _.map(require('./controllers')(this), function (v) {
             var method = v['method'] || 'get',
                 url = '/sapi' + v['url'] || '',
@@ -177,7 +182,11 @@ Server.prototype = {
                             err: 'Not Found: ' + method + ' ' + url
                         });
                     };
-            app[method](url, action);
+            if(v['protect']){
+                app[method](url, accounts.protect, action);
+            } else {
+                app[method](url, action);
+            }
         });
     },
     bootstrap: function (onReady, onClose) {

@@ -48,7 +48,6 @@ var UserSchema = new Schema({
         },
         providerData: {},
         additionalProvidersData: {},
-        roles: [],
         updated: {
             type: Date
         },

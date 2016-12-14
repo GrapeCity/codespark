@@ -89,11 +89,11 @@ function createUser(mail, password, username, displayName, gcUser, done) {
         activeToken: crypto.randomBytes(12).toString('base64'), // 16 characters
         activeExpires: new Date(new Date().getTime() + (2 * 24 * 60 * 60 * 1000)) // two days
     });
-    user.save(function(err){
-        if(err){
+    user.save(function (err) {
+        if (err) {
             done(err);
         }
-        if(!gcUser){
+        if (!gcUser) {
             // send mail
         }
         done(null, user);
@@ -102,27 +102,56 @@ function createUser(mail, password, username, displayName, gcUser, done) {
 
 module.exports = function (server) {
 
+    function ensureAuthenticated(req, res, next) {
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.status(401).json({
+            err: true,
+            msg: '未登录或者未授权的访问'
+        });
+    }
+
     function info(req, res) {
-        if (!req.user) {
+        var user = req.user;
+        if (!user) {
             return res.status(401).json({
                 err: true,
                 msg: '未登录或者未授权的访问'
             });
         }
-        return res.json(req.body);
+        return res.status(200).json({
+            mail: user.mail,
+            username: user.username,
+            displayName: user.displayName,
+            profileImageURL: user.profileImageURL,
+            activated: user.activated,
+            contests: user.contests
+        });
     }
 
     function login(req, res) {
-        logger.debug(JSON.stringify(req.body));
-        if (!req.body.mail || !validator.isEmail(req.body.mail)) {
+        var user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                err: true,
+                msg: '未登录或者未授权的访问'
+            });
+        }
+        if (!user.activated) {
             return res.status(400).json({
                 err: true,
-                msg: '用户邮箱为空或者不是合法邮箱',
+                msg: '该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户',
                 timestamp: new Date().getTime()
             });
         }
 
-        return res.status(200).json(req.body);
+        return res.status(200).json({
+            mail: user.mail,
+            username: user.username,
+            displayName: user.displayName,
+            activated: user.activated
+        });
     }
 
     function signup(req, res) {
@@ -175,8 +204,10 @@ module.exports = function (server) {
                         }
 
                         createUser(userInfo.mail,
+                            req.body.password,
                             userInfo.userName,
                             userInfo.displayName,
+                            true,
                             function (err, user) {
                                 if (err) {
                                     return res.status(400).json({
@@ -185,6 +216,13 @@ module.exports = function (server) {
                                         timestamp: new Date().getTime()
                                     });
                                 }
+
+                                return res.status(201).json({
+                                    mail: user.mail,
+                                    username: user.username,
+                                    displayName: user.displayName,
+                                    activated: true
+                                });
                             });
                     });
             } else { // normal sign up
@@ -194,6 +232,7 @@ module.exports = function (server) {
     }
 
     return {
+        protect: ensureAuthenticated,
         login: login,
         signup: signup,
         info: info
