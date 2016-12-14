@@ -1,6 +1,7 @@
 var http = require('http'),
     crypto = require('crypto'),
     mongoose = require('mongoose'),
+    passport = require('passport'),
     config = require('../config'),
     validator = require('../utils/validator'),
     logger = require('../utils/winston').appLogger,
@@ -216,17 +217,41 @@ module.exports = function (server) {
                                         timestamp: new Date().getTime()
                                     });
                                 }
-
-                                return res.status(201).json({
-                                    mail: user.mail,
-                                    username: user.username,
-                                    displayName: user.displayName,
-                                    activated: true
+                                passport.authenticate('local')(req, res, function () {
+                                    return res.status(201).json({
+                                        mail: user.mail,
+                                        username: user.username,
+                                        displayName: user.displayName,
+                                        activated: true
+                                    });
                                 });
                             });
                     });
             } else { // normal sign up
-                return res.status(200).json("signup with " + JSON.stringify(req.body));
+                var username = req.body.username || req.body.mail.substr(0, req.body.mail.indexOf('@')).replace('.', '');
+                var displayName = req.body.displayName || username;
+                createUser(req.body.mail,
+                    req.body.password,
+                    username,
+                    displayName,
+                    false,
+                    function (err, user) {
+                        if (err) {
+                            return res.status(400).json({
+                                err: true,
+                                msg: '无法登陆用户（邮箱：' + req.body.mail + '）到GrapeCity域，请和管理员联系',
+                                timestamp: new Date().getTime()
+                            });
+                        }
+                        passport.authenticate('local')(req, res, function () {
+                            return res.status(201).json({
+                                mail: user.mail,
+                                username: user.username,
+                                displayName: user.displayName,
+                                activated: true
+                            });
+                        });
+                    });
             }
         });
     }
