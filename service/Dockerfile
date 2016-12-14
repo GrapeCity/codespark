@@ -6,7 +6,7 @@ ENV CODESPARK_SERVICE_VERSION 1.0~node4.6.2
 
 WORKDIR /app
 VOLUME /app/conf
-COPY dist /app
+COPY . /app
 
 # Install basic requirements and clean up cache folders
 RUN apt-get update -qq \
