@@ -136,7 +136,7 @@ module.exports = function (server) {
         if (!user) {
             return res.status(401).json({
                 err: true,
-                msg: '未登录或者未授权的访问'
+                msg: '用户名或者密码错误，请稍后重试！'
             });
         }
         if (!user.activated) {

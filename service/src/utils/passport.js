@@ -22,7 +22,7 @@ module.exports = function (app) {
         },
         function (mail, password, done) {
             if (!validator.isEmail(mail)) {
-                return done(null, false, {msg: 'WRONG_CREDENTIAL'});
+                return done(null, false, {msg: '邮箱不合法'});
             }
             var queryParam = {mail: mail.toLowerCase()};
             User.findOne(queryParam, function (err, user) {
@@ -30,10 +30,10 @@ module.exports = function (app) {
                     return done(err);
                 }
                 if (!user) {
-                    return done(null, false, {msg: 'WRONG_CREDENTIAL'});
+                    return done(null, false, {msg: '用户不存在'});
                 }
                 if (!user.authenticate(password)) {
-                    return done(null, false, {msg: 'WRONG_CREDENTIAL'});
+                    return done(null, false, {msg: '密码错误'});
                 }
                 return done(null, user);
             });

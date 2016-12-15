@@ -172,7 +172,26 @@ Server.prototype = {
             passport = require('passport'),
             accounts = require('./controllers/accounts')(this);
 
-        app.post('/sapi/accounts/login', passport.authenticate('local'), accounts.login);
+        app.post('/sapi/accounts/login', function (req, res, next) {
+            passport.authenticate('local', function (err, user, info) {
+                if (err) {
+                    return next(err);
+                }
+                if (!user) {
+                    logger.warn('user [%s] login failed from [%s], reason: [%s]',
+                        req.body.mail,
+                        (req.headers["X-Forwarded-For"] || req.headers["x-forwarded-for"] || '').split(',')[0] || req.client.remoteAddress,
+                        info && info.msg);
+                    return next();
+                }
+                req.logIn(user, function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    next();
+                });
+            })(req, res, next);
+        }, accounts.login);
 
         _.map(require('./controllers')(this), function (v) {
             var method = v['method'] || 'get',
@@ -182,7 +201,7 @@ Server.prototype = {
                             err: 'Not Found: ' + method + ' ' + url
                         });
                     };
-            if(v['protect']){
+            if (v['protect']) {
                 app[method](url, accounts.protect, action);
             } else {
                 app[method](url, action);
