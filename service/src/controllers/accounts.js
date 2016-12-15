@@ -115,12 +115,6 @@ module.exports = function (server) {
 
     function info(req, res) {
         var user = req.user;
-        if (!user) {
-            return res.status(401).json({
-                err: true,
-                msg: '未登录或者未授权的访问'
-            });
-        }
         return res.status(200).json({
             mail: user.mail,
             username: user.username,
@@ -155,6 +149,12 @@ module.exports = function (server) {
         });
     }
 
+    function logout(req, res) {
+        req.session.destroy();
+        req.logOut();
+        return res.status(200);
+    }
+
     function signup(req, res) {
         if (!req.body.mail || !validator.isEmail(req.body.mail)) {
             return res.status(400).json({
@@ -182,7 +182,7 @@ module.exports = function (server) {
                 });
             }
 
-            if (req.body.grapecity &&
+            if (req.body.grapecity ||
                 req.body.mail.slice(-14) === '@grapecity.com') {
 
                 loginGrapeCityDomain(req.body.mail,
@@ -259,6 +259,7 @@ module.exports = function (server) {
     return {
         protect: ensureAuthenticated,
         login: login,
+        logout: logout,
         signup: signup,
         info: info
     };

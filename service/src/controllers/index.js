@@ -23,9 +23,11 @@ function createRoute(url, action, method, protect){
 }
 
 module.exports = function (server) {
-    var accounts = require('./accounts')(server);
+    var accounts = require('./accounts')(server),
+        contests = require('./contests')(server);
     return [
         createRoute('/accounts/info', accounts.info),
+        createRoute('/accounts/logout', accounts.logout, POST),
         createRoute('/accounts/signup', accounts.signup, POST, false)
     ]
 };

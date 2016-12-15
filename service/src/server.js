@@ -157,7 +157,7 @@ Server.prototype = {
             }
 
             // Log it
-            logger.error('Error: ' + err.stack);
+            logger.error('Server Error: ' + err.stack);
 
             res.status(500).send({
                 msg: '抱歉，我们遇到了一些问题，请稍后再试!',
