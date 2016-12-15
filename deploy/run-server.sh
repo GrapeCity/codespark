@@ -2,7 +2,6 @@
 
 ./codespark-mongo.sh
 ./codespark-redis.sh
-./codespark-site.sh
 ./codespark-service.sh
+./codespark-site.sh
 ./codespark-management.sh
-./codespark-reverseproxy.sh
