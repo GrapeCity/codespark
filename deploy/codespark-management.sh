@@ -1,7 +1,7 @@
 #!/bin/sh
 
 docker run -d \
-    --name codespark-management \
+    --name management \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \

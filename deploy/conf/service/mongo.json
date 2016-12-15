@@ -1,0 +1,9 @@
+{
+  "uri": "mongo:27017",
+  "options": {
+    "auth": {
+      "authSource": "admin"
+    }
+  },
+  "debug": false
+}

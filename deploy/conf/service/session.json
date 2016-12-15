@@ -1,0 +1,7 @@
+{
+  "maxAge": 86400000,
+  "key": "sessionId",
+  "secret": "cs-session-secret-DSVyhDLOQUE3UGSsDRhuvDjVEO62VbFAsQeKsxLMK61GqoRTNt9b5OOFWgM5QNSE",
+  "secure": false,
+  "sessionCollection": "sessions"
+}
