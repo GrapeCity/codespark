@@ -37,5 +37,6 @@ module.exports = function (server) {
     server.resMgr.add('redis', client, function(){
         client.quit();
         logger.info('Redis client quit');
-    })
+    });
+    return client;
 };
