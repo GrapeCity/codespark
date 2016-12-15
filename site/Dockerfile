@@ -7,7 +7,9 @@ ENV CODESPARK_SITE_VERSION 1.0~nginx1.10.2
 WORKDIR /site
 COPY . /site
 
-RUN set -ex \
+RUN apt-get update -qq \
+    && apt-get install -y curl apt-utils build-essential \
+    && set -ex \
     && for key in \
         9554F04D7259F04124DE6B476D5A82AC7E37093B \
         94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
@@ -27,8 +29,6 @@ RUN set -ex \
     && tar -xJf "node-v4.6.2-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
     && rm "node-v4.6.2-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-    && apt-get update -qq \
-    && apt-get install -y apt-utils build-essential \
     && npm install -g gulp-cli \
     && npm install \
     && gulp \
@@ -36,8 +36,8 @@ RUN set -ex \
     && ln -s /site/dist /usr/share/nginx/html \
     && npm uninstall -g gulp-cli \
     && npm cache clean \
-    && apt-get remove -y apt-utils build-essential \
-    && apt-get autoclean \
+    && apt-get remove -y curl apt-utils build-essential \
+    && apt-get autoremove -y \
     && rm -rf node_modules \
     && rm /usr/local/CHANGELOG.md /usr/local/LICENSE /usr/local/README.md \
     && rm /usr/local/bin/node /usr/local/bin/nodejs /usr/local/bin/npm \

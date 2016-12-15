@@ -13,6 +13,8 @@ RUN apt-get update -qq \
     && apt-get install -y apt-utils build-essential \
     && npm install --production \
     && npm cache clean \
+    && apt-get remove -y apt-utils build-essential \
+    && apt-get autoremove -y \
     && rm -rf /tmp \
     && rm -rf ~/.cache \
     && rm -rf ~/.node-gyp \
