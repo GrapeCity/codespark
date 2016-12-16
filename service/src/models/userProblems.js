@@ -11,6 +11,10 @@ var UserProblemsSchema = new Schema(
             lowercase: true,
             trim: true
         },
+        contest: {
+            type: Schema.Types.ObjectId,
+            ref: 'Contest'
+        },
         problem: {
             type: Schema.Types.ObjectId,
             ref: 'Problem'
