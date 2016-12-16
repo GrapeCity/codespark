@@ -1,5 +1,11 @@
 #!/bin/sh
 
+BUILD_VERSION=$1
+if [ -z "$BUILD_VERSION" ]
+then
+    BUILD_VERSION=$(date +"%Y%m%d")
+fi
+
 docker run -d \
     --name site \
     -p 80:80 \
@@ -7,4 +13,4 @@ docker run -d \
     --link service2:service2 \
     -v $(pwd)/conf/site/nginx.conf:/etc/nginx/nginx.conf \
     -v $(pwd)/conf/site/conf.d:/etc/nginx/conf.d \
-    codespark-site:1.0-$(date +"%Y%m%d")
+    codespark-site:1.0-$BUILD_VERSION
