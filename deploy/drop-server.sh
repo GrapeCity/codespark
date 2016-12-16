@@ -4,8 +4,10 @@ docker rm -f management
 docker rm -f site
 docker rm -f service1
 docker rm -f service2
-docker rm -f redis
-docker rm -f mongo
+
+# don't drop basic database server
+#docker rm -f redis
+#docker rm -f mongo
 
 BUILD_VERSION=$2
 if [ -z "$BUILD_VERSION" ]
