@@ -24,10 +24,15 @@ function createRoute(url, action, method, protect){
 
 module.exports = function (server) {
     var accounts = require('./accounts')(server),
-        contests = require('./contests')(server);
+        contests = require('./contests')(server),
+        problems = require('./problems')(server);
     return [
+        createRoute('/accounts/signup', accounts.signup, POST, false),
         createRoute('/accounts/info', accounts.info),
         createRoute('/accounts/logout', accounts.logout, POST),
-        createRoute('/accounts/signup', accounts.signup, POST, false)
+        createRoute('/contests/all', contests.getAllContests, GET, false),
+        createRoute('/contests', contests.getAllContestsByUser),
+        createRoute('/contests/:contest/problems', problems.getAllProblemsByContest),
+        createRoute('/contests/:contest/problems/:problem', problems.getAllProblemByIdWithContest)
     ]
 };

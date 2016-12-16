@@ -1,5 +1,5 @@
 {
-  "uri": "mongo:27017",
+  "uri": "mongo:27017/codespark",
   "options": {
     "auth": {
       "authSource": "admin"
