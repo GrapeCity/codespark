@@ -3,6 +3,7 @@ FROM nginx:1.10.2
 MAINTAINER Zhang Wenqing "winking.zhang@grapecity.com"
 
 ENV CODESPARK_SITE_VERSION 1.0~nginx1.10.2
+ENV NODE_VERSION 6.9.2
 
 WORKDIR /site
 COPY . /site
@@ -22,12 +23,12 @@ RUN apt-get update -qq \
     ; do \
     gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
     done \
-    && curl -SLO "https://nodejs.org/dist/v4.6.2/node-v4.6.2-linux-x64.tar.xz" \
-    && curl -SLO "https://nodejs.org/dist/v4.6.2/SHASUMS256.txt.asc" \
+    && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
+    && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
     && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-    && grep " node-v4.6.2-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
-    && tar -xJf "node-v4.6.2-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
-    && rm "node-v4.6.2-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+    && grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+    && tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
+    && rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
     && npm install -g gulp-cli \
     && npm install \

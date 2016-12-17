@@ -1,8 +1,8 @@
-FROM node:4.6.2
+FROM node:6.9.2
 
 MAINTAINER Zhang Wenqing "winking.zhang@grapecity.com"
 
-ENV CODESPARK_SERVICE_VERSION 1.0~node4.6.2
+ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
 WORKDIR /app
 VOLUME /app/conf
