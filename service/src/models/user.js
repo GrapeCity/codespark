@@ -70,12 +70,6 @@ var UserSchema = new Schema({
         },
         activeExpires: {
             type: Date
-        },
-        contests:{
-            type:  [{
-                type: Schema.Types.ObjectId,
-                ref: 'Contest'
-            }]
         }
     },
     {collection: 'csUsers'}
