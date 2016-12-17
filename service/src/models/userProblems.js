@@ -3,13 +3,9 @@ var mongoose = require('mongoose'),
 
 var UserProblemsSchema = new Schema(
     {
-        email: {
-            type: String,
-            unique: true,
-            required: true,
-            sparse: true,
-            lowercase: true,
-            trim: true
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
         },
         contest: {
             type: Schema.Types.ObjectId,
@@ -22,6 +18,7 @@ var UserProblemsSchema = new Schema(
         solutions: {
             type: [{
                 id: Number,
+                status: String,
                 source: String,
                 result: {
                     type: {

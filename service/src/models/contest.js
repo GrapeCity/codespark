@@ -14,6 +14,14 @@ var ContestSchema = new Schema(
             type: String,
             trim: true
         },
+        title: {
+            type: String,
+            trim: true,
+            required: true
+        },
+        description: {
+            type: String
+        },
         begin: {
             type: Date,
             required: true

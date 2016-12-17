@@ -3,6 +3,11 @@ var mongoose = require('mongoose'),
 
 var ProblemSchema = new Schema(
     {
+        name: {
+            type: String,
+            unique: true,
+            required: true
+        },
         title: {
             type: String,
             trim: true,
