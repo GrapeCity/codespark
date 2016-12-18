@@ -6,8 +6,32 @@ then
     BUILD_VERSION=$(date +"%Y%m%d")
 fi
 
-#./codespark-mongo.sh $BUILD_VERSION
-#./codespark-redis.sh $BUILD_VERSION
-./codespark-service.sh $BUILD_VERSION
-./codespark-site.sh $BUILD_VERSION
-./codespark-management.sh $BUILD_VERSION
+docker run -d \
+    --name service1 \
+    --link mongo:mongo \
+    --link redis:redis \
+    -v $(pwd)/conf/service:/app/conf \
+    codespark-service:1.0-$BUILD_VERSION
+
+docker run -d \
+    --name service2 \
+    --link mongo:mongo \
+    --link redis:redis \
+    -v $(pwd)/conf/service:/app/conf \
+    codespark-service:1.0-$BUILD_VERSION
+
+docker run -d \
+    --name site \
+    -p 80:80 \
+    --link service1:service1 \
+    --link service2:service2 \
+    -v $(pwd)/conf/site/nginx.conf:/etc/nginx/nginx.conf \
+    -v $(pwd)/conf/site/conf.d:/etc/nginx/conf.d \
+    codespark-site:1.0-$BUILD_VERSION
+
+docker run -d \
+    --name management \
+    --link mongo:mongo \
+    --link redis:redis \
+    -v $(pwd)/conf/service:/app/conf \
+    codespark-management:1.0-$BUILD_VERSION
