@@ -10,6 +10,8 @@ COPY . /site
 
 RUN apt-get update -qq \
     && apt-get install -y curl apt-utils build-essential \
+    && cp -f conf/nginx.conf /etc/nginx/nginx.conf \
+    && cp -R -f conf/conf.d/* /etc/nginx/conf.d/ \
     && set -ex \
     && for key in \
         9554F04D7259F04124DE6B476D5A82AC7E37093B \
