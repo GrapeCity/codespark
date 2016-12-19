@@ -10,7 +10,7 @@ module.exports = function (server) {
 
     function getAllContests(req, res) {
         let cache = redisCache(server);
-        cache.getOrUpdate('contests:all', (err, next) => {
+        cache.getCache('contests:all', (next) => {
             console.log('no cache, hit original fetch');
             Contest.find()
                 .limit(parseInt(req.query.limit, 10) || 5)

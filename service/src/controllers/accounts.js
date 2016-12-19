@@ -120,7 +120,7 @@ module.exports = function (server) {
         let user = req.user,
             cache = redisCache(server);
 
-        cache.getOrUpdate(`user:${user._id}`, (err, next) => {
+        cache.getCache(`user:${user._id}`, (next) => {
             console.log('no cache, hit original fetch');
             UserContests.find({user: user._id})
                 .populate('contest')
