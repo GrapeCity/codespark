@@ -3,6 +3,7 @@ let http = require('http'),
     mongoose = require('mongoose'),
     passport = require('passport'),
     _ = require('lodash'),
+    redisCache = require('./../utils/redisCache'),
     config = require('../config'),
     validator = require('../utils/validator'),
     logger = require('../utils/winston').appLogger,
@@ -116,17 +117,54 @@ module.exports = function (server) {
     }
 
     function info(req, res) {
+        let user = req.user,
+            cache = redisCache(server);
+
+        cache.getCache(`user:${user._id}`, (err, next) => {
+            console.log('no cache, hit original fetch');
+            UserContests.find({user: user._id})
+                .populate('contest')
+                .exec((err, ucs) => {
+                    next(err, JSON.stringify({
+                        mail: user.mail,
+                        username: user.username,
+                        displayName: user.displayName,
+                        profileImageURL: user.profileImageURL,
+                        activated: user.activated,
+                        contests: ucs && _.map(ucs, uc => uc.contest)
+                    }));
+                });
+        }).then(data => res.status(200).json({
+            mail: data.mail,
+            username: data.username,
+            displayName: data.displayName,
+            profileImageURL: data.profileImageURL,
+            activated: data.activated,
+            contests: data.contest
+        }));
+    }
+
+    function info2(req, res) {
         let user = req.user;
         UserContests.find({user: user._id})
             .populate('contest')
-            .exec((err, ucs) => res.status(200).json({
-                mail: user.mail,
-                username: user.username,
-                displayName: user.displayName,
-                profileImageURL: user.profileImageURL,
-                activated: user.activated,
-                contests: ucs && _.map(ucs, uc => uc.contest)
-            }));
+            .exec((err, ucs) => {
+                if (err) {
+                    logger.error(`Read data from mongodb error: ${err}`);
+                    return res.status(500).json({
+                        err: true,
+                        msg: '读取用户元数据出错！'
+                    });
+                }
+                res.status(200).json({
+                    mail: user.mail,
+                    username: user.username,
+                    displayName: user.displayName,
+                    profileImageURL: user.profileImageURL,
+                    activated: user.activated,
+                    contests: ucs && _.map(ucs, uc => uc.contest)
+                });
+            });
     }
 
     function login(req, res) {
@@ -263,6 +301,7 @@ module.exports = function (server) {
         login: login,
         logout: logout,
         signup: signup,
-        info: info
+        info: info,
+        info2: info2
     };
 };

@@ -14,11 +14,6 @@ let ContestSchema = new Schema(
             type: String,
             trim: true
         },
-        title: {
-            type: String,
-            trim: true,
-            required: true
-        },
         description: {
             type: String
         },

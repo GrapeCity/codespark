@@ -39,9 +39,9 @@ module.exports = function (server) {
     }
 
     function getActiveContests(req, res) {
-        let now = new Date();
         Contest.find()
             .$where(function () {
+                let now = new Date();
                 return this.begin <= now && this.end >= now;
             })
             .limit(parseInt(req.query.limit, 10) || 5)
