@@ -8,7 +8,7 @@ var fs = require('fs'),
 
 var builtinConfigs = {
     mongo: {
-        uri: process.env.MONGOLAB_URI || process.env.MONGODB_URI + process.env.MONGODB_NAME + '?replicaSet=' + process.env.MONGODB_REPLICA_SET,
+        uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
         options: {
             auth: {
                 authSource: process.env.MONGODB_AUTH_SOURCE || 'admin'
@@ -21,8 +21,8 @@ var builtinConfigs = {
         password: '9GgF3XFfKYmaFNwX8fBEejejJpfD2JvkavS'
     },
     redis: {
-        host: process.env.REDIS_SERVER || '127.0.0.1',
-        port: process.env.REDIS_PORT || 6379
+        host: process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
+        port: process.env.REDIS_PORT_6379_TCP_PORT || 6379
     },
     session: {
         maxAge: 24 * (60 * 60 * 1000),
@@ -34,11 +34,11 @@ var builtinConfigs = {
     }
 };
 
-module.exports = (function () {
-    var config = {};
+module.exports = (() => {
+    let config = {};
 
     function loadConfigAsync(fullPath, callback) {
-        fs.readFile(fullPath, 'utf8', function (err, data) {
+        fs.readFile(fullPath, 'utf8', (err, data) => {
             if (err) {
                 callback(err, null);
             }
@@ -47,7 +47,12 @@ module.exports = (function () {
     }
 
     function loadConfigSync(file, fallback) {
-        var data = JSON.parse(fs.readFileSync(path.join(process.cwd(), file), 'utf8'));
+        let data = {};
+        try {
+            data = JSON.parse(fs.readFileSync(path.join(process.cwd(), file), 'utf8'));
+        } catch (any) {
+            logger.warn(`${file} is not existed, will use default`);
+        }
         return _.extend(fallback, data);
     }
 
@@ -63,10 +68,10 @@ module.exports = (function () {
     config.session = loadConfigSync('conf/session.json', builtinConfigs.session);
 
     // add watch for conf folder
-    config._watch = fs.watch(path.join(process.cwd(), 'conf'), function (evt, fn) {
+    config._watch = fs.watch(path.join(process.cwd(), 'conf'), (evt, fn) => {
         if (fn && fn.substr(fn.length - 5, 5) === '.json') {
-            var confPart = fn.substr(0, fn.length - 5);
-            loadConfigAsync('conf/' + fn, function (err, data) {
+            let confPart = fn.substr(0, fn.length - 5);
+            loadConfigAsync('conf/' + fn, (err, data) => {
                 if (!err && data) {
                     logger.info('reload config for [' + confPart + ']');
                     config[confPart] = _.extend(builtinConfigs[confPart], data);

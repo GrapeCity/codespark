@@ -1,4 +1,4 @@
-var mongoose = require('mongoose'),
+let mongoose = require('mongoose'),
     config = require('../config'),
     logger = require('../utils/winston').appLogger,
     User = mongoose.model('User'),
@@ -11,9 +11,9 @@ module.exports = function (server) {
         Contest.find()
             .limit(parseInt(req.query.limit, 10) || 5)
             .skip(parseInt(req.query.skip, 10) || 0)
-            .exec(function (err, contests) {
+            .exec((err, contests) => {
                 if (err) {
-                    logger.error('Read data from mongodb error: %s', err);
+                    logger.error(`Read data from mongodb error: ${err}`);
                     return res.status(500).json({
                         err: true,
                         msg: '读取编程竞赛元数据出错！'
@@ -26,9 +26,9 @@ module.exports = function (server) {
     function getAllContestsByUser(req, res) {
         User.findById(req.user._id)
             .populate('contests')
-            .exec(function (err, user) {
+            .exec((err, user) => {
                 if (err) {
-                    logger.error('Read data from mongodb error: %s', err);
+                    logger.error(`Read data from mongodb error: ${err}`);
                     return res.status(500).json({
                         err: true,
                         msg: '读取编程竞赛元数据出错！'
@@ -39,16 +39,16 @@ module.exports = function (server) {
     }
 
     function getActiveContests(req, res) {
-        var now = new Date();
+        let now = new Date();
         Contest.find()
             .$where(function () {
                 return this.begin <= now && this.end >= now;
             })
             .limit(parseInt(req.query.limit, 10) || 5)
             .skip(parseInt(req.query.skip, 10) || 0)
-            .exec(function(err, contests){
+            .exec((err, contests) => {
                 if (err) {
-                    logger.error('Read data from mongodb error: %s', err);
+                    logger.error(`Read data from mongodb error: ${err}`);
                     return res.status(500).json({
                         err: true,
                         msg: '读取编程竞赛元数据出错！'

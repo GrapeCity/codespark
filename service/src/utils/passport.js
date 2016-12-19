@@ -1,4 +1,4 @@
-var passport = require('passport'),
+let passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     mongoose = require('mongoose'),
     validator = require('./validator'),
@@ -20,20 +20,28 @@ module.exports = function (app) {
             usernameField: 'mail',
             passwordField: 'password'
         },
-        function (mail, password, done) {
+        (mail, password, done) => {
             if (!validator.isEmail(mail)) {
-                return done(null, false, {msg: '邮箱不合法'});
+                return done(null, false, {
+                    msg: '邮箱不合法'
+                });
             }
-            var queryParam = {mail: mail.toLowerCase()};
-            User.findOne(queryParam, function (err, user) {
+            let queryParam = {
+                mail: mail.toLowerCase()
+            };
+            User.findOne(queryParam, (err, user) => {
                 if (err) {
                     return done(err);
                 }
                 if (!user) {
-                    return done(null, false, {msg: '用户不存在'});
+                    return done(null, false, {
+                        msg: '用户不存在'
+                    });
                 }
                 if (!user.authenticate(password)) {
-                    return done(null, false, {msg: '密码错误'});
+                    return done(null, false, {
+                        msg: '密码错误'
+                    });
                 }
                 return done(null, user);
             });
@@ -51,15 +59,13 @@ module.exports = function (app) {
     /**
      * 注册序列化函数
      */
-    passport.serializeUser(function (user, done) {
-        done(null, user.id);
-    });
+    passport.serializeUser((user, done) => done(null, user.id));
 
     /**
      * 注册反序列化函数
      */
-    passport.deserializeUser(function (id, done) {
-        User.findById(id, '-salt -password', function (err, user) {
+    passport.deserializeUser((id, done) => {
+        User.findById(id, '-salt -password', (err, user) => {
             if (err) {
                 return done(err);
             }

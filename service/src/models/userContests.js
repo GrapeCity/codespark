@@ -1,7 +1,7 @@
-var mongoose = require('mongoose'),
+let mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var UserContestsSchema = new Schema(
+let UserContestsSchema = new Schema(
     {
         user: {
             type: Schema.Types.ObjectId,

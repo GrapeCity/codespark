@@ -1,20 +1,22 @@
-var http = require('http'),
+let http = require('http'),
     crypto = require('crypto'),
     mongoose = require('mongoose'),
     passport = require('passport'),
+    _ = require('lodash'),
     config = require('../config'),
     validator = require('../utils/validator'),
     logger = require('../utils/winston').appLogger,
-    User = mongoose.model('User');
+    User = mongoose.model('User'),
+    UserContests = mongoose.model('UserContests');
 
 /**
  * login the user to GrapeCity AD system
  * @param {string} mail the email, must be form like someone@grapecity.com
  * @param {string} password the secure password
- * @param {function(err, user)} done callback to notify login result
+ * @param {function(Error, user)} done callback to notify login result
  */
 function loginGrapeCityDomain(mail, password, done) {
-    var timeoutHandler,
+    let timeoutHandler,
         req = http.request({
             host: config.adAuth.host,
             port: config.adAuth.port,
@@ -23,7 +25,7 @@ function loginGrapeCityDomain(mail, password, done) {
             headers: {
                 'Content-Type': 'application/json'
             }
-        }, function (res) {
+        }, res => {
             // require accepted
             clearTimeout(timeoutHandler);
 
@@ -31,19 +33,19 @@ function loginGrapeCityDomain(mail, password, done) {
                 res.destroy();
                 done(new Error("获取HTTP响应流超时"), null);
             }, 5000);
-            var succeeded = (res.statusCode == 200);
+            let succeeded = (res.statusCode == 200);
             res.setEncoding('utf8');
             // all data must be less than 65535 strings
-            var resBody = "";
-            res.on('data', function (data) {
+            let resBody = "";
+            res.on('data', data => {
                 resBody += data;
             });
-            res.on('end', function () {
+            res.on('end', () => {
                 // data ready
                 clearTimeout(timeoutHandler);
 
                 // process data
-                var userInfo = null;
+                let userInfo = null;
                 if (succeeded) {
                     try {
                         userInfo = JSON.parse(resBody);
@@ -57,7 +59,7 @@ function loginGrapeCityDomain(mail, password, done) {
                 }
             });
         });
-    req.on('error', function (err) {
+    req.on('error', err => {
         clearTimeout(timeoutHandler);
         done(err, null);
     });
@@ -80,7 +82,7 @@ function loginGrapeCityDomain(mail, password, done) {
  * @param done
  */
 function createUser(mail, password, username, displayName, gcUser, done) {
-    var user = new User({
+    let user = new User({
         provider: 'local',
         mail: mail,
         password: password,
@@ -114,19 +116,21 @@ module.exports = function (server) {
     }
 
     function info(req, res) {
-        var user = req.user;
-        return res.status(200).json({
-            mail: user.mail,
-            username: user.username,
-            displayName: user.displayName,
-            profileImageURL: user.profileImageURL,
-            activated: user.activated,
-            contests: user.contests
-        });
+        let user = req.user;
+        UserContests.find({user: user._id})
+            .populate('contest')
+            .exec((err, ucs) => res.status(200).json({
+                mail: user.mail,
+                username: user.username,
+                displayName: user.displayName,
+                profileImageURL: user.profileImageURL,
+                activated: user.activated,
+                contests: ucs && _.map(ucs, uc => uc.contest)
+            }));
     }
 
     function login(req, res) {
-        var user = req.user;
+        let user = req.user;
         if (!user) {
             return res.status(401).json({
                 err: true,
@@ -164,7 +168,7 @@ module.exports = function (server) {
             });
         }
 
-        User.findOne({mail: req.body.mail}, function (err, existedUser) {
+        User.findOne({mail: req.body.mail}, (err, existedUser) => {
             if (err) {
                 logger.error(err);
                 return res.status(500).json({
@@ -187,9 +191,9 @@ module.exports = function (server) {
 
                 loginGrapeCityDomain(req.body.mail,
                     req.body.password,
-                    function (err, userInfo) {
+                    (err, userInfo) => {
                         if (err) {
-                            logger.error('Internal Error: ' + err);
+                            logger.error(`Internal Error: ${err}`);
                             return res.status(500).json({
                                 err: true,
                                 msg: '无法完成GrapeCity域验证，请和管理员联系',
@@ -199,7 +203,7 @@ module.exports = function (server) {
                         if (!userInfo) {
                             return res.status(400).json({
                                 err: true,
-                                msg: '无法登陆用户（邮箱：' + req.body.mail + '）到GrapeCity域，请和管理员联系',
+                                msg: `无法登陆用户（邮箱：${req.body.mail}）到GrapeCity域，请和管理员联系`,
                                 timestamp: new Date().getTime()
                             });
                         }
@@ -209,7 +213,7 @@ module.exports = function (server) {
                             userInfo.userName,
                             userInfo.displayName,
                             true,
-                            function (err, user) {
+                            (err, user) => {
                                 if (err) {
                                     return res.status(400).json({
                                         err: true,
@@ -217,25 +221,24 @@ module.exports = function (server) {
                                         timestamp: new Date().getTime()
                                     });
                                 }
-                                passport.authenticate('local')(req, res, function () {
-                                    return res.status(201).json({
+                                passport.authenticate('local')(req, res,
+                                    () => res.status(201).json({
                                         mail: user.mail,
                                         username: user.username,
                                         displayName: user.displayName,
                                         activated: true
-                                    });
-                                });
+                                    }));
                             });
                     });
             } else { // normal sign up
-                var username = req.body.username || req.body.mail.substr(0, req.body.mail.indexOf('@')).replace('.', '');
-                var displayName = req.body.displayName || username;
+                let username = req.body.username || req.body.mail.substr(0, req.body.mail.indexOf('@')).replace('.', '');
+                let displayName = req.body.displayName || username;
                 createUser(req.body.mail,
                     req.body.password,
                     username,
                     displayName,
                     false,
-                    function (err, user) {
+                    (err, user) => {
                         if (err) {
                             return res.status(400).json({
                                 err: true,
@@ -243,14 +246,13 @@ module.exports = function (server) {
                                 timestamp: new Date().getTime()
                             });
                         }
-                        passport.authenticate('local')(req, res, function () {
-                            return res.status(201).json({
+                        passport.authenticate('local')(req, res,
+                            () => res.status(201).json({
                                 mail: user.mail,
                                 username: user.username,
                                 displayName: user.displayName,
                                 activated: true
-                            });
-                        });
+                            }));
                     });
             }
         });

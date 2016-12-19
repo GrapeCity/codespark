@@ -1,16 +1,16 @@
-var redis = require('redis'),
+let redis = require('redis'),
     config = require('../config'),
     logger = require('./winston').appLogger;
 
 module.exports = function (server) {
-    var client;
-    if(server.resMgr && (client = server.resMgr.get('redis'))){
+    let client;
+    if (server.resMgr && (client = server.resMgr.get('redis'))) {
         return client;
     }
-    var redisOpts = {
+    let redisOpts = {
         host: config.redis.host,
         port: config.redis.port,
-        retry_strategy: function (options) {
+        retry_strategy: options => {
             if (options.error && options.error.code === 'ECONNREFUSED') {
                 // End reconnecting on a specific error and flush all commands with a individual error
                 return new Error('The server refused the connection');
@@ -27,14 +27,12 @@ module.exports = function (server) {
             return Math.min(options.attempt * 100, 3000);
         }
     };
-    if(config.redis.password){
+    if (config.redis.password) {
         redisOpts.password = config.redis.password;
     }
     client = redis.createClient(redisOpts);
-    client.on('error', function(err){
-        logger.error('Redis Error: ' + err);
-    });
-    server.resMgr.add('redis', client, function(){
+    client.on('error', err => logger.error(`Redis Error: ${err}`));
+    server.resMgr.add('redis', client, () => {
         client.quit();
         logger.info('Redis client quit');
     });

@@ -1,78 +1,25 @@
 /**
  * Load module dependencies
  */
-var express = require('express'),
+let express = require('express'),
     _ = require('lodash'),
+    ResourceManager = require('./utils/resourceManager'),
     config = require('./config'),
     logger = require('./utils/winston').appLogger;
 
-/**
- * Create an instance which wraps current application, and manage all inner resources
- * @param app
- * @constructor
- */
-function Server(app) {
-    this.app = app;
-    this.resMgr = {
-        /**
-         * Get the resource instance by the key
-         * @param key the global unique key for the resource instance
-         * @return {Object} the resource instance if existed, otherwise undefined
-         */
-        get: function (key) {
-            return (_.find(this._inner, function (i) {
-                return i.key === key;
-            }) || {}).instance;
-        },
-        /**
-         * Add the managed resource to queue
-         * @param {String} key the key to indicate resource globally
-         * @param {Object} instance the resource to be managed
-         * @param {Function} closeHandler the resource dispose handler function
-         */
-        add: function (key, instance, closeHandler) {
-            this._inner = this._inner || [];
-            this._inner.push({
-                key: key,
-                instance: instance,
-                close: closeHandler
-            })
-        },
-        /**
-         * remove resource instance by key
-         * @param {String} key
-         */
-        remove: function (key) {
-            var removed = _.remove(this._inner, function (i) {
-                return i.key === key;
-            });
-            if (removed) {
-                _.each(removed, function (v) {
-                    v.close();
-                });
-            }
-        },
-        /**
-         * Dispose all managed resources
-         */
-        close: function () {
-            var inner = this._inner;
-            if (!inner || inner.length <= 0) {
-                return;
-            }
-            while (this._inner.length > 0) {
-                var item = this._inner.pop();
-                if (item.close) {
-                    item.close.call(item.instance);
-                }
-            }
-        }
+class Server {
+    /**
+     * Create an instance which wraps current application, and manage all inner resources
+     * @param app
+     * @constructor
+     */
+    constructor(app) {
+        this.app = app;
+        this.resMgr = new ResourceManager();
     }
-}
-Server.prototype = {
-    setupMiddlewares: function () {
-        var app = this.app,
-            morgan = require('morgan'),
+
+    setupMiddlewares() {
+        let morgan = require('morgan'),
             RateLimit = require('express-rate-limit'),
             RateRedisStore = require('rate-limit-redis'),
             bodyParser = require('body-parser'),
@@ -80,27 +27,27 @@ Server.prototype = {
             stream = require('./utils/winston').stream;
 
         // Showing stack errors
-        app.set('showStackError', true);
-        app.set('trust proxy', true);
+        this.app.set('showStackError', true);
+        this.app.set('trust proxy', true);
 
         // Logging with Morgan and winston(https://github.com/expressjs/morgan) format
         // for morgan can specify one of 'combined', 'common', 'dev', 'short', 'tiny'
-        // app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
+        // this.app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
         //     stream: stream
         // }));
-        app.use(morgan('combined', {
+        this.app.use(morgan('combined', {
             stream: stream
         }));
 
         if (process.env.NODE_ENV === 'development') {
-            var path = require('path');
-            app.use(express.static(path.resolve(process.cwd(), '../site/dist')));
+            let path = require('path');
+            this.app.use(express.static(path.resolve(process.cwd(), '../site/dist')));
         }
 
         // limit api access rating
 
         //  apply to all accounts requests
-        var apiLimit = new RateLimit({
+        let apiLimit = new RateLimit({
             windowMs: 60 * 1000, // 1 minutes
             max: 60, // limit each IP to 100 requests per windowMs
             delayMs: 0, // disable delaying - full speed until the max limit is reached
@@ -109,30 +56,30 @@ Server.prototype = {
             }),
             message: "当前IP尝试访问API次数过多，请1分钟后重试"
         });
-        app.use(apiLimit);
+        this.app.use(apiLimit);
 
         // Request body parsing middleware should be above methodOverride
-        app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
-        app.use(bodyParser.json({limit: '5mb'}));
+        this.app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
+        this.app.use(bodyParser.json({limit: '5mb'}));
 
         // Add the cookie parser and flash middleware
-        app.use(cookieParser());
-    },
-    setupSession: function () {
-        var app = this.app,
-            session = require('express-session'),
+        this.app.use(cookieParser());
+    }
+
+    setupSession() {
+        let session = require('express-session'),
             RedisStore = require('connect-redis')(session),
             sessionStorage = new RedisStore({
                 client: require('./utils/redis')(this)
             });
 
         if (!sessionStorage) {
-            var MemoryStore = session.MemoryStore;
+            let MemoryStore = session.MemoryStore;
             sessionStorage = new MemoryStore();
             logger.warn('Fallback : Using MemoryStore for the Session.');
         }
 
-        app.use(session({
+        this.app.use(session({
             saveUninitialized: true,
             resave: true,
             secret: config.session.secret,
@@ -145,12 +92,14 @@ Server.prototype = {
                 secure: config.session.secure
             }
         }));
-    },
-    setupPassport: function () {
+    }
+
+    setupPassport() {
         require('./utils/passport')(this.app);
-    },
-    setupErrorRoutes: function () {
-        this.app.use(function (err, req, res, next) {
+    }
+
+    setupErrorRoutes() {
+        this.app.use((err, req, res, next) => {
             // If the error object doesn't exists
             if (!err) {
                 return next();
@@ -166,14 +115,14 @@ Server.prototype = {
                 }
             });
         });
-    },
-    loadServerRoutes: function () {
-        var app = this.app,
-            passport = require('passport'),
+    }
+
+    loadServerRoutes() {
+        let passport = require('passport'),
             accounts = require('./controllers/accounts')(this);
 
-        app.post('/sapi/accounts/login', function (req, res, next) {
-            passport.authenticate('local', function (err, user, info) {
+        this.app.post('/sapi/accounts/login', (req, res, next) => {
+            passport.authenticate('local', (err, user, info) => {
                 if (err) {
                     return next(err);
                 }
@@ -184,7 +133,7 @@ Server.prototype = {
                         info && info.msg);
                     return next();
                 }
-                req.logIn(user, function (err) {
+                req.logIn(user, err => {
                     if (err) {
                         return next(err);
                     }
@@ -193,45 +142,43 @@ Server.prototype = {
             })(req, res, next);
         }, accounts.login);
 
-        _.map(require('./controllers')(this), function (v) {
-            var method = v['method'] || 'get',
+        _.map(require('./controllers')(this), (v) => {
+            let method = v['method'] || 'get',
                 url = '/sapi' + v['url'] || '',
-                action = v['action'] || function (req, res) {
-                        return res.json(404, {
-                            err: 'Not Found: ' + method + ' ' + url
-                        });
-                    };
+                action = v['action'] || ((req, res) => res.json(404, {
+                        err: 'Not Found: ' + method + ' ' + url
+                    }));
             if (v['protect']) {
-                app[method](url, accounts.protect, action);
+                this.app[method](url, accounts.protect, action);
             } else {
-                app[method](url, action);
+                this.app[method](url, action);
             }
         });
-    },
-    bootstrap: function (onReady, onClose) {
-        var self = this,
-            httpServer = self.app.listen(process.env.PORT || 5000, function () {
-                if (onReady) {
-                    onReady(self);
-                }
-            });
-        httpServer.on('close', function () {
-            if (self._closed) {
+    }
+
+    bootstrap(onReady, onClose) {
+        let httpServer = this.app.listen(process.env.PORT || 5000, () => {
+            if (onReady) {
+                onReady(this);
+            }
+        });
+        httpServer.on('close', () => {
+            if (this._closed) {
                 return;
             }
             logger.info('Clean up all managed resources');
-            if (self.resMgr) {
-                self.resMgr.close();
+            if (this.resMgr) {
+                this.resMgr.close();
             }
-            self._closed = true;
+            this._closed = true;
         });
-        process.on('exit', function () {
-            if (!self._closed) {
+        process.on('exit', () => {
+            if (!this._closed) {
                 logger.warn('The http server is not shutdown gracefully');
                 httpServer.close();
             }
         });
-        var prcessEndHandler = function () {
+        let prcessEndHandler = () => {
             httpServer.close(function (err) {
                 if (onClose) {
                     onClose();
@@ -251,7 +198,8 @@ Server.prototype = {
         // force kill
         process.on('SIGTERM', prcessEndHandler);
     }
-};
+}
+
 
 module.exports = Server;
 
@@ -261,8 +209,8 @@ module.exports = Server;
  * @param {Function} onClose
  */
 module.exports.run = function (onReady, onClose) {
-    var server = new Server(express());
-    require('./utils/mongoose')(server, function () {
+    let server = new Server(express());
+    require('./utils/mongoose')(server, () => {
         server.setupMiddlewares();
         server.setupSession();
         server.setupPassport();

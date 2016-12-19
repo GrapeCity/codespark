@@ -1,4 +1,4 @@
-var GET = 'get',
+const GET = 'get',
     POST = 'post',
     PUT = 'put',
     DELETE = 'delete';
@@ -6,7 +6,7 @@ var GET = 'get',
 function noop(req, res) {
     return res.status(501).json({
         err: true,
-        msg: '"' + req.url + '" is not implemented in the server'
+        msg: `"${req.url}" is not implemented in the server`
     });
 }
 
@@ -18,9 +18,7 @@ function noop(req, res) {
  * @param {boolean} [protect]
  * @return {{protect: boolean, method: string, url: string, action: function}}
  */
-function createRoute(url, action, method, protect) {
-    if (typeof(method) === 'undefined') method = GET;
-    if (typeof(protect) === 'undefined') protect = true;
+function createRoute(url, action, method = GET, protect = true) {
     return {
         protect: protect,
         method: method,
@@ -30,13 +28,13 @@ function createRoute(url, action, method, protect) {
 }
 
 module.exports = function (server) {
-    var accounts = require('./accounts')(server),
+    let accounts = require('./accounts')(server),
         contests = require('./contests')(server),
         problems = require('./problems')(server);
     return [
         createRoute('/accounts/signup', accounts.signup, POST, false),
         createRoute('/accounts/logout', accounts.logout, POST),
-        createRoute('/accounts/info', accounts.info),
+        createRoute('/accounts/me', accounts.info),
         createRoute('/contests/all', contests.getAllContests, GET),
         createRoute('/contests/active', contests.getActiveContests, GET),
         createRoute('/contests', contests.getAllContestsByUser),

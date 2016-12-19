@@ -1,8 +1,8 @@
-var mongoose = require('mongoose'),
+let mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 
-var ContestSchema = new Schema(
+let ContestSchema = new Schema(
     {
         name: {
             type: String,

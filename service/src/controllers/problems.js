@@ -1,4 +1,4 @@
-var mongoose = require('mongoose'),
+let mongoose = require('mongoose'),
     config = require('../config'),
     logger = require('../utils/winston').appLogger,
     User = mongoose.model('User'),
@@ -8,15 +8,15 @@ var mongoose = require('mongoose'),
 module.exports = function (server) {
 
     function getAllProblemsByContest(req, res) {
-        var contestName = req.params.contest || '';
+        let contestName = req.params.contest || '';
         if (contestName === '') {
             return res.status(200).json([]);
         }
         Contest.findOne({name: contestName})
             .populate('problems', 'title description')
-            .exec(function (err, contest) {
+            .exec((err, contest) => {
                 if (err) {
-                    logger.error('Read data from mongodb error: %s', err);
+                    logger.error(`Read data from mongodb error: ${err}`);
                     return res.status(500).json({
                         err: true,
                         msg: '读取编程竞赛题目元数据出错！'
@@ -33,16 +33,16 @@ module.exports = function (server) {
     }
 
     function getAllProblemByIdWithContest(req, res) {
-        var contestName = req.params.contest || '',
+        let contestName = req.params.contest || '',
             problemTitle = req.params.problem || '';
         if (contestName === '' || problemTitle === '') {
             return res.status(200).json({});
         }
         Contest.findOne({name: contestName})
             .populate('problems', 'title description', Problem, {title: problemTitle})
-            .exec(function (err, contest) {
+            .exec((err, contest) =>{
                 if (err) {
-                    logger.error('Read data from mongodb error: %s', err);
+                    logger.error(`Read data from mongodb error: ${err}`);
                     return res.status(500).json({
                         err: true,
                         msg: '读取编程竞赛题目元数据出错！'

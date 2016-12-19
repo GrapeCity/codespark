@@ -1,14 +1,14 @@
-var path = require('path'),
+let path = require('path'),
     validator = require('../utils/validator'),
     crypto = require('crypto'),
     mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var validateLocalStrategyEmail = function (email) {
-    return ((this.provider !== 'local' && !this.updated) || this.mobile || validator.isEmail(email));
-};
+function validateLocalStrategyEmail(email) {
+    return ((this.provider !== 'local' && !this.updated) || validator.isEmail(email));
+}
 
-var UserSchema = new Schema({
+let UserSchema = new Schema({
         mail: {
             type: String,
             unique: true,
