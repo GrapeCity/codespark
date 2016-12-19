@@ -120,19 +120,19 @@ module.exports = function (server) {
         let user = req.user,
             cache = redisCache(server);
 
-        cache.getCache(`user:${user._id}`, (err, next) => {
+        cache.getOrUpdate(`user:${user._id}`, (err, next) => {
             console.log('no cache, hit original fetch');
             UserContests.find({user: user._id})
                 .populate('contest')
                 .exec((err, ucs) => {
-                    next(err, JSON.stringify({
+                    next(err, {
                         mail: user.mail,
                         username: user.username,
                         displayName: user.displayName,
                         profileImageURL: user.profileImageURL,
                         activated: user.activated,
                         contests: ucs && _.map(ucs, uc => uc.contest)
-                    }));
+                    });
                 });
         }).then(data => res.status(200).json({
             mail: data.mail,

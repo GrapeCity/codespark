@@ -13,7 +13,7 @@ class RedisCache {
      * @param fallback
      * @return {Promise}
      */
-    getCache(key, fallback) {
+    getOrUpdate(key, fallback) {
         return new Promise((resolve, reject) => {
             this.client.get(key, (err, replies) => {
                 if (err) {
@@ -24,17 +24,28 @@ class RedisCache {
                         if (err) {
                             reject(err);
                         }
-                        this.client.setex(key, this.expiry, value, (err) => {
+                        this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {
                             if (err) {
                                 reject(err);
                             }
-                            resolve(JSON.parse(value));
-                        })
+                            resolve(value);
+                        });
                     });
                 } else {
                     resolve(JSON.parse(replies));
                 }
             })
+        });
+    }
+
+    remove(key) {
+        return new Promise((resolve, reject) => {
+            this.client.del(key, (err, count) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(count);
+            });
         });
     }
 }
