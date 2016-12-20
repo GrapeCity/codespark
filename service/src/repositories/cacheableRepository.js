@@ -33,10 +33,10 @@ class CacheableRepository {
                 if (err) {
                     return reject(err);
                 }
-                if(withCache){
+                if (withCache) {
                     this.redisCache.updateCache(`${this.cacheKeyPrefix}:${id}`, next => next(null, value))
-                        .then(()=> resolve(value))
-                        .catch((err)=> reject(err));
+                        .then(() => resolve(value))
+                        .catch((err) => reject(err));
                 } else {
                     resolve(value);
                 }
@@ -54,17 +54,26 @@ class CacheableRepository {
     readById(id, withCache = false) {
         if (withCache) {
             return this.redisCache.getCache(`${this.cacheKeyPrefix}:${id}`, (next) => {
-                this.model.findById(id, next);
+                this.readByIdCore(id, next);
             });
         }
         return new Promise((resolve, reject) => {
-            this.mode.findById(id, (err, value) => {
+            this.readByIdCore(id, (err, value) => {
                 if (err) {
                     return reject(err);
                 }
                 resolve(value);
             });
         });
+    }
+
+    /**
+     *
+     * @param {Number|mongoose.Schema.Types.ObjectId} id
+     * @param {function(Error, Object)} next
+     */
+    readByIdCore(id, next) {
+        this.model.findById(id, next);
     }
 
     /**

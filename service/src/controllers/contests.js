@@ -13,6 +13,7 @@ module.exports = function (server) {
         cache.getCache('contests:all', (next) => {
             console.log('no cache, hit original fetch');
             Contest.find()
+                .populate('problems')
                 .limit(parseInt(req.query.limit, 10) || 5)
                 .skip(parseInt(req.query.skip, 10) || 0)
                 .exec((err, contests) => next(err, contests));
