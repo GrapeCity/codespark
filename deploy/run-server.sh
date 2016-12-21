@@ -8,6 +8,7 @@ fi
 
 docker run -d \
     --name service1 \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \
@@ -15,6 +16,7 @@ docker run -d \
 
 docker run -d \
     --name service2 \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \
@@ -23,6 +25,7 @@ docker run -d \
 docker run -d \
     --name site \
     -p 80:80 \
+    --restart=always \
     --link service1:service1 \
     --link service2:service2 \
     -v $(pwd)/conf/site/nginx.conf:/etc/nginx/nginx.conf \
@@ -31,6 +34,7 @@ docker run -d \
 
 docker run -d \
     --name management \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \

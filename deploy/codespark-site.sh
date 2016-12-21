@@ -9,6 +9,7 @@ fi
 docker run -d \
     --name site \
     -p 80:80 \
+    --restart=always \
     --link service1:service1 \
     --link service2:service2 \
     -v $(pwd)/conf/site/nginx.conf:/etc/nginx/nginx.conf \

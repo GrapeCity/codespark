@@ -8,6 +8,7 @@ fi
 
 docker run -d \
     --name management \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \

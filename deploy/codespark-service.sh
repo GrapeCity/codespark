@@ -8,6 +8,7 @@ fi
 
 docker run -d \
     --name service1 \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \
@@ -15,6 +16,7 @@ docker run -d \
 
 docker run -d \
     --name service2 \
+    --restart=always \
     --link mongo:mongo \
     --link redis:redis \
     -v $(pwd)/conf/service:/app/conf \
