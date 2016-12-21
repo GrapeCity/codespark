@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<% include ../partial/head.ejs %>
+<body>
+<div class="wrapper">
+    <% include ../partial/sidebar.ejs %>
+    <div class="main-panel">
+        <% include ../partial/navbar.ejs %>
+        <div class="content" style="min-height: calc(100% - 152px);">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="card">
+                        <div class="card-content">
+                            <table class="table">
+                                <tbody>
+                                <% if(users && users.length > 0) { %>
+                                <% users.forEach(function(user){ %>
+                                <tr>
+                                    <td>
+                                        <%= JSON.stringify(user) %>
+                                    </td>
+                                    <td class="td-actions text-right">
+                                        <button type="button" rel="tooltip" title="Edit"
+                                                class="btn btn-primary btn-simple btn-xs">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button type="button" rel="tooltip" title="Remove"
+                                                class="btn btn-danger btn-simple btn-xs">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                <% } else { %>
+                                <span class="text-warning">There is no user</span>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% include ../partial/footer.ejs %>
+    </div>
+</div>
+</body>
+<% include ../partial/scripts.ejs %>
+</html>

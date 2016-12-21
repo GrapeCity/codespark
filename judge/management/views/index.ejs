@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<% include partial/head.ejs %>
+<body>
+<div class="wrapper">
+    <% include partial/sidebar.ejs %>
+    <div class="main-panel">
+        <% include partial/navbar.ejs %>
+        <div class="content" style="min-height: calc(100% - 152px);">
+            <div class="container-fluid">
+                <div class="row">
+                    <h3>Quick summary for active contest</h3>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="orange">
+                                <i class="fa fa-user-circle-o"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Online Users</p>
+                                <h3 class="title">49/50</h3>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="fa fa-warning text-warning"></i>
+                                    <a href="users">More...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="green">
+                                <i class="fa fa-file-code-o"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Solved Problems</p>
+                                <h3 class="title">1/8</h3>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="fa fa-info"></i> Last 24 Hours
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="red">
+                                <i class="fa fa-mortar-board"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Top score</p>
+                                <h3 class="title">751</h3>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="fa fa-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% include partial/footer.ejs %>
+    </div>
+</div>
+</body>
+<% include partial/scripts.ejs %>
+</html>

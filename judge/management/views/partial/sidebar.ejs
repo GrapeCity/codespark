@@ -1,0 +1,43 @@
+<div class="sidebar" data-color="purple">
+    <!--
+        Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+        Tip 2: you can also add an image using data-image tag
+    -->
+
+    <div class="logo">
+        <a href="http://cn.grapecity.com" class="simple-text">
+            <img src="img/logo.png" width="200" alt="GrapeCity">
+        </a>
+    </div>
+
+    <div class="sidebar-wrapper">
+        <ul class="nav">
+
+            <li <%= `${index === 1 ? 'class=active' : '' }` %>>
+                <a href="/">
+                    <i class="fa fa-dashboard"></i>
+                    <p>Dashboard</p>
+                </a>
+            </li>
+            <li <%= `${index === 2 ? 'class=active' : '' }` %>>
+                <a href="users">
+                    <i class="fa fa-users"></i>
+                    <p>User management</p>
+                </a>
+            </li>
+            <li <%= `${index === 3 ? 'class=active' : '' }` %>>
+                <a href="contests">
+                    <i class="fa fa-code"></i>
+                    <p>Contests</p>
+                </a>
+            </li>
+            <li <%= `${index === 4 ? 'class=active' : '' }` %>>
+                <a href="status">
+                    <i class="fa fa-battery"></i>
+                    <p>Server status</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

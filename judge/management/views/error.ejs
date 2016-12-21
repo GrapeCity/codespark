@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<% include partial/head.ejs %>
+<body>
+<div class="wrapper" style="padding: 20px 50px">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header" data-background-color="orange">
+                            <h4 class="title">Error description</h4>
+                            <p class="category">Here is the details of error for your request</p>
+                        </div>
+                        <div class="card-content table-responsive">
+                            <table class="table">
+                                <tbody>
+                                <tr>
+                                    <td>message</td>
+                                    <td class="text-primary"><%= message %></td>
+                                </tr>
+                                <tr>
+                                    <td>status</td>
+                                    <td class="text-primary"><%= error.status %></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-body">
+                            <pre><%= error.stack %></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2 text-center">
+                    <a class="btn btn-primary btn-lg" href="/">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

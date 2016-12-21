@@ -1,13 +1,35 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var express = require('express'),
+let path = require('path'),
+    express = require('express'),
+    mongoose = require('mongoose'),
     morgan = require('morgan'),
+    helmet = require('helmet'),
+    compression = require('compression'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     winston = require('./utils/winston'),
     stream = winston.stream,
     logger = winston.appLogger,
     app = express();
+
+// Use native Promise
+mongoose.Promise = global.Promise;
+mongoose.connect(`mongodb://${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
+    err => {
+        if (err) {
+            logger.warn(`Could not connect to MongoDB: ${err}`);
+        } else {
+            if (process.env.NODE_ENV !== 'development') {
+                logger.info('Connect to MongoDB success.');
+            }
+            // Enabling mongoose debug mode if debugging
+             mongoose.set('debug', process.env.NODE_ENV === 'development');
+        }
+    });
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Showing stack errors
 app.set('showStackError', true);
@@ -19,53 +41,83 @@ app.use(morgan('combined', {
     stream: stream
 }));
 
+app.use(compression());
+app.use(helmet());
+app.disable('x-powered-by');
+
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/fonts', express.static(path.join(__dirname, 'public/fonts')));
+app.use('/img', express.static(path.join(__dirname, 'public/img')));
+
 // Request body parsing middleware should be above methodOverride
-app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 
 // Add the cookie parser and flash middleware
 app.use(cookieParser());
 
-app.use(function (err, req, res, next) {
+// include models
+require('./models');
+
+// setup server controller
+require('./routers').forEach(elem => app.use(elem.key, elem.value));
+
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+    let err = new Error(`Not Found: ${req.url}`);
+    err.status = 404;
+    next(err);
+});
+
+app.use((err, req, res, next) => {
     // If the error object doesn't exists
     if (!err) {
         return next();
     }
 
+    res.locals.title = 'Error';
+    res.locals.message = err.message;
+    res.locals.error = app.get('env') === 'development' ? err : {};
+
     // Log it
     logger.error('Error: ' + err.stack);
 
-    res.status(500).send({
-        err: true,
-        msg: '抱歉，我们遇到了一些问题，请稍后再试!',
-        data: {
-            err: err.message
-        }
-    });
+    res.status(err.status || 500)
+        .render('error');
 });
 
-// setup server controller
-app.get("/", function (req, res) {
-    return res.status(200).json({
-    });
-});
 
 // bootstrap http server
-var httpServer = app.listen(process.env.PORT || 6000, function () {
+let httpServer = app.listen(process.env.PORT || 8000, function () {
     logger.info('\n================================================\n' +
         'Service run successful at ' + (new Date()).toLocaleString() + '\n' +
-        'Http Port   : ' + (process.env.PORT || 6000) + '\n' +
+        'Http Port   : ' + (process.env.PORT || 8000) + '\n' +
         '================================================');
 });
 
-httpServer.on('close', function () {
+httpServer.on('close', () => {
     if (app._closed) {
         return;
     }
     logger.info('Clean up all managed resources');
     app._closed = true;
 });
-process.on('exit', function () {
+
+let trackedConnections = [];
+httpServer.on('connection', (conn) => {
+    conn.on('close', () => {
+        trackedConnections.splice(trackedConnections.indexOf(conn));
+    });
+    trackedConnections.push(conn);
+    if (trackedConnections.length > 100) {
+        logger.warn(`Server concurrent connections includes to ${trackedConnections.length}`);
+    } else if (trackedConnections.length > 1000) {
+        logger.error(`Server concurrent connections includes to ${trackedConnections.length}`);
+    }
+});
+
+process.on('exit', () => {
     if (!app._closed) {
         logger.warn('The http server is not shutdown gracefully');
         httpServer.close();
@@ -73,7 +125,12 @@ process.on('exit', function () {
 });
 
 function prcessEndHandler() {
-    httpServer.close(function (err) {
+    console.log("Process event received, now will terminate server gracefully");
+    while (trackedConnections.length > 0) {
+        console.log(`there are ${trackedConnections.length} active connection remained`);
+        trackedConnections.pop().destroy();
+    }
+    httpServer.close(err => {
         if (err) {
             logger.error('Something wrong: ' + err);
             process.exit(1);
