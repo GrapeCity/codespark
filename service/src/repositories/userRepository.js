@@ -1,14 +1,13 @@
-let CacheableRepository = require('./cacheableRepository'),
-    _ = require('lodash');
+let mongoose = require('mongoose'),
+    _ = require('lodash'),
+    CacheableRepository = require('./cacheableRepository');
 
 class UserRepository extends CacheableRepository {
-    constructor(model, redisCache) {
+    constructor(server) {
+        let model = mongoose.model('User'),
+            redisCache = require('./../utils/redisCache')(server);
         super(model, redisCache, 'user:');
-        this.userModel = model;
-    }
-
-    withContest(userContestsModel) {
-        this.userContestsModel = userContestsModel;
+        this.userContestsModel = mongoose.model('UserContests');
     }
 
     /**
@@ -23,10 +22,11 @@ class UserRepository extends CacheableRepository {
             .populate('contest')
             .populate('contest.problems')
             .exec((err, data) => {
-                if(err){
+                if (err) {
                     return next(err);
                 }
-                if(data){
+                if (data && data.length > 0) {
+                    console.log(JSON.stringify(data));
                     let user = _.assign({}, data[0].user);
                     user.contests = _.map(data, (it) => {
                         let contest = _.assign({}, it.contest);

@@ -167,6 +167,20 @@ module.exports = function (server) {
             });
     }
 
+    function info3(req, res) {
+        var UserRepository = require('../repositories/userRepository'),
+            userRep = new UserRepository(server);
+        userRep.readById(req.user._id, true)
+            .then((user) => res.status(200).json(user))
+            .catch((err) => {
+                logger.error(`Read data from mongodb error: ${err}`);
+                res.status(500).json({
+                    err: true,
+                    msg: '读取用户元数据出错！'
+                })
+            });
+    }
+
     function login(req, res) {
         let user = req.user;
         if (!user) {
@@ -302,6 +316,7 @@ module.exports = function (server) {
         logout: logout,
         signup: signup,
         info: info,
-        info2: info2
+        info2: info2,
+        info3: info3
     };
 };

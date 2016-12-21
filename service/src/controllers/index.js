@@ -36,6 +36,7 @@ module.exports = function (server) {
         createRoute('/accounts/logout', accounts.logout, POST),
         createRoute('/accounts/me', accounts.info),
         createRoute('/accounts/me2', accounts.info2),
+        createRoute('/accounts/me3', accounts.info3),
         createRoute('/contests/all', contests.getAllContests),
         createRoute('/contests/active', contests.getActiveContests),
         createRoute('/contests', contests.getAllContestsByUser),
