@@ -24,7 +24,7 @@ mongoose.connect(`mongodb://${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.
                 logger.info('Connect to MongoDB success.');
             }
             // Enabling mongoose debug mode if debugging
-             mongoose.set('debug', process.env.NODE_ENV === 'development');
+            mongoose.set('debug', process.env.NODE_ENV === 'development');
         }
     });
 
@@ -76,6 +76,8 @@ app.use((err, req, res, next) => {
         return next();
     }
 
+    err.status = err.status || 500;
+    err.message = err.message || 'Something unknown error happened!';
     res.locals.title = 'Error';
     res.locals.message = err.message;
     res.locals.error = app.get('env') === 'development' ? err : {};
@@ -83,8 +85,7 @@ app.use((err, req, res, next) => {
     // Log it
     logger.error('Error: ' + err.stack);
 
-    res.status(err.status || 500)
-        .render('error');
+    res.status(err.status).render('error');
 });
 
 

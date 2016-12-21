@@ -24,12 +24,4 @@ router.get('/', (req, res, next) => {
 
 });
 
-/**
- * create a new user
- */
-/* POST users*/
-router.post('/', (req, res, next) => {
-
-});
-
 module.exports = router;
