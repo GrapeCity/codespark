@@ -58,10 +58,10 @@ app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 app.use(cookieParser());
 
 // include models
-require('./models');
+require('./models/index');
 
 // setup server controller
-require('./routers').forEach(elem => app.use(elem.key, elem.value));
+require('./routers/index').forEach(elem => app.use(elem.key, elem.value));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

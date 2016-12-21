@@ -14,6 +14,6 @@ cd ../service
 echo "==== Now building codespark-service at $(pwd) ====="
 docker build -t codespark-service:1.0-$BUILD_VERSION .
 
-cd ../judge/management
+cd ../management
 echo "==== Now building codespark-management at $(pwd) ====="
 docker build -t codespark-management:1.0-$BUILD_VERSION .
