@@ -1,5 +1,11 @@
 let http = require('http');
 
+/**
+ *
+ * @param {String|function(String, String, Function=null)} callback username or real validation callback
+ * @param {String} realm password if callback is string, otherwise authorization realm
+ * @return {Function}
+ */
 module.exports = function basicAuth(callback, realm) {
     let username, password;
 
@@ -71,7 +77,6 @@ module.exports = function basicAuth(callback, realm) {
  * @param {String} realm
  * @api private
  */
-
 function unauthorized(res, realm) {
     res.statusCode = 401;
     res.setHeader('WWW-Authenticate', 'Basic realm="' + realm + '"');
@@ -87,7 +92,6 @@ function unauthorized(res, realm) {
  * @return {Error}
  * @api private
  */
-
 function error(code, msg = null) {
     let err = new Error(msg || http.STATUS_CODES[code]);
     err.status = code;

@@ -3,7 +3,11 @@ let express = require('express'),
 
 /* GET status page. */
 router.get('/', function (req, res, next) {
-    res.render('status', {index: 4, title: 'Status'});
+    res.render('status', {
+        index: 4,
+        title: 'Status',
+        form: {}
+    });
 });
 
 module.exports = router;

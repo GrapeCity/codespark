@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<% include ../partial/head.ejs %>
+<body>
+<div class="wrapper">
+    <% include ../partial/sidebar.ejs %>
+    <div class="main-panel">
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="btn btn-white btn-lg" href="/users">
+                        <i class="fa fa-angle-left" style="font-size: x-large"></i></a>
+                </div>
+                <div class="collapse navbar-collapse">
+                </div>
+            </div>
+        </nav>
+        <div class="content" style="min-height: calc(100% - 152px);">
+            <div class="container-fluid">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="card">
+                        <div class="card-header" data-background-color="green">
+                            <h4 class="title">Add user</h4>
+                            <p class="category">Complete following user information, all fields marked with start (*)
+                                are required</p>
+                        </div>
+                        <div class="card-content">
+                            <form method="post">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Email address <span
+                                                        class="text-danger">*</span></label>
+                                            <input type="email" name="mail" class="form-control"
+                                                   value="<%= form.mail %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Password <span
+                                                        class="text-danger">*</span></label>
+                                            <input type="password" name="password" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Password Again <span
+                                                        class="text-danger">*</span></label>
+                                            <input type="password" name="passwordVerify" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">User Name</label>
+                                            <input type="text" name="username" class="form-control"
+                                                   value="<%= form.username %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Display Name</label>
+                                            <input type="text" name="displayName" class="form-control"
+                                                   value="<%= form.displayName %>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="activated"
+                                                            <%= form.activated ? 'checked' : '' %> >
+                                                    Mark user active <span
+                                                            class="text-danger">*</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary pull-right">Save</button>
+                                <button type="reset" class="btn btn-default pull-right">Reset</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% include ../partial/footer.ejs %>
+    </div>
+</div>
+</body>
+<% include ../partial/scripts.ejs %>
+<script>
+    $(document).ready(function () {
+        $('#addUserForm').on('submit', function (event) {
+
+            event.preventDefault();
+            return false;
+        });
+    });
+</script>
+</html>

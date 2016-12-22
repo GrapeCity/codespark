@@ -8,8 +8,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header" data-background-color="orange">
-                            <h4 class="title">Error description</h4>
+                        <div class="card-header"
+                             data-background-color="<%= (error && error.status == 404) ? 'orange' : 'red' %>">
+                            <h3 class="title">Error description</h3>
                             <p class="category">Here is the details of error for your request</p>
                         </div>
                         <div class="card-content table-responsive">

@@ -5,7 +5,8 @@ let express = require('express'),
 router.get('/', function (req, res, next) {
     res.render('index', {
         index: 1,
-        title: 'Contest Management'
+        title: 'Contest Management',
+        form: {}
     });
 });
 

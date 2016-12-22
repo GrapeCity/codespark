@@ -3,7 +3,11 @@ let express = require('express'),
 
 /* GET contests page. */
 router.get('/', function (req, res, next) {
-    res.render('contests/index', {index: 3, title: 'Contests'});
+    res.render('contests/index', {
+        index: 3,
+        title: 'Contests',
+        form: {}
+    });
 });
 
 module.exports = router;

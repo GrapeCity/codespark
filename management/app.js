@@ -131,6 +131,7 @@ function prcessEndHandler() {
         console.log(`there are ${trackedConnections.length} active connection remained`);
         trackedConnections.pop().destroy();
     }
+    console.log("All connections are closed, request http server shutdown");
     httpServer.close(err => {
         if (err) {
             logger.error('Something wrong: ' + err);
