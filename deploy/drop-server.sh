@@ -1,24 +1,37 @@
 #!/bin/sh
 
-docker rm -f management
-docker rm -f site
-docker rm -f service1
-docker rm -f service2
-
-# don't drop basic database server
-#docker rm -f redis
-#docker rm -f mongo
-
 BUILD_VERSION=$2
 if [ -z "$BUILD_VERSION" ]
 then
     BUILD_VERSION=$(date +"%Y%m%d")
 fi
 
+force_remove_container() {
+  local CONTAINER="$1"
+  local RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER 2> /dev/null)
+  if [ "$RUNNING" = "true" ]; then
+    docker rm -f $CONTAINER
+  fi
+}
+
+remove_image() {
+  local IMAGE="$1"
+  local STATE=$(docker images -q $IMAGE 2> /dev/null)
+  if [ ! -z "$STATE" ]; then
+    docker rmi $IMAGE
+  fi
+}
+
+force_remove_container "management"
+force_remove_container "site"
+force_remove_container "service1"
+force_remove_container "service2"
+
 DROP_IMAGES=$1
 if [ ! -z "DROP_IMAGES" ]
 then
-    docker rmi codespark-management:1.0-$BUILD_VERSION
-    docker rmi codespark-service:1.0-$BUILD_VERSION
-    docker rmi codespark-site:1.0-$BUILD_VERSION
+    remove_image "codespark-management:1.0-$BUILD_VERSION"
+    remove_image "codespark-service:1.0-$BUILD_VERSION"
+    remove_image "codespark-site:1.0-$BUILD_VERSION"
+    remove_image "codespark-runner-js:1.0-$BUILD_VERSION"
 fi

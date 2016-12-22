@@ -9,11 +9,19 @@ fi
 cd site
 echo "==== Now building codespark-site at $(pwd) ====="
 docker build -t codespark-site:1.0-$BUILD_VERSION .
+cd ..
 
-cd ../service
+cd service
 echo "==== Now building codespark-service at $(pwd) ====="
 docker build -t codespark-service:1.0-$BUILD_VERSION .
+cd ..
 
-cd ../management
+cd management
 echo "==== Now building codespark-management at $(pwd) ====="
 docker build -t codespark-management:1.0-$BUILD_VERSION .
+cd ..
+
+cd judge/runner/javascript
+echo "==== Now building codespark-runner-js at $(pwd) ====="
+docker build -t codespark-runner-js:1.0-$BUILD_VERSION .
+cd ../../../
