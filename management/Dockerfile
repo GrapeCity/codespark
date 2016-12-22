@@ -21,5 +21,5 @@ RUN apt-get update -qq \
     && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV production
-EXPOSE 6000
+EXPOSE 8000
 CMD [ "node", "app.js" ]

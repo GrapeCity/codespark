@@ -7,6 +7,7 @@ then
 fi
 
 docker run -d \
+    -p 8000:8000 \
     --name management \
     --restart=always \
     --link mongo:mongo \

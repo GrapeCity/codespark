@@ -33,6 +33,7 @@ docker run -d \
     codespark-site:1.0-$BUILD_VERSION
 
 docker run -d \
+    -p 8000:8000 \
     --name management \
     --restart=always \
     --link mongo:mongo \
