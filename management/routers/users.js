@@ -183,12 +183,8 @@ router.post('/edit', (req, res, next) => {
     if (req.body.username) {
         update.username = req.body.username;
     }
-    if (req.body.activated) {
-        update.activated = req.body.activated;
-    }
-    if (req.body.disabled) {
-        update.disabled = req.body.disabled;
-    }
+    update.activated = !!req.body.activated;
+    update.disabled = !!req.body.disabled;
     if (req.body.displayName) {
         update.displayName = req.body.displayName;
     }
