@@ -61,6 +61,10 @@ let UserSchema = new Schema({
         resetPasswordExpires: {
             type: Date
         },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
         activated: {
             type: Boolean,
             default: false
