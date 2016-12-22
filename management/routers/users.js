@@ -34,6 +34,8 @@ router.get('/', (req, res, next) => {
             });
             res.render('users/index', {
                 index: 2,
+                title: 'User List',
+                messages: [],
                 users: users || [],
                 form: {
                     search,
@@ -45,8 +47,7 @@ router.get('/', (req, res, next) => {
                         enable: users.length >= limit,
                         url: `/users${ nextUrl ? '?' + nextUrl : '' }`
                     }
-                },
-                title: 'Manage Users'
+                }
             });
         });
 
@@ -58,7 +59,8 @@ router.get('/', (req, res, next) => {
 router.get('/add', (req, res, next) => {
     res.render('users/add', {
         index: 2,
-        title: 'Manage Users',
+        title: 'Create Users',
+        messages: [],
         form: {
             activated: true
         }
@@ -88,7 +90,8 @@ router.post('/add', (req, res, next) => {
     if (validation.length > 0) {
         return res.render('users/add', {
             index: 2,
-            title: 'Manage Users',
+            title: 'Create Users',
+            messages: [],
             validation: validation,
             form: {
                 mail: req.body.mail,
@@ -105,7 +108,8 @@ router.post('/add', (req, res, next) => {
         if (existedUser) {
             return res.render('users/add', {
                 index: 2,
-                title: 'Manage Users',
+                title: 'Create Users',
+                messages: [],
                 validation: [{
                     msg: `Email "${req.body.mail}" is already registered`
                 }],
@@ -155,7 +159,8 @@ router.get('/edit', (req, res, next) => {
         }
         res.render('users/edit', {
             index: 2,
-            title: 'Manage Users',
+            title: 'Update User',
+            messages: [],
             form: user
         });
     });
@@ -166,17 +171,38 @@ router.get('/edit', (req, res, next) => {
  * save edited user info
  */
 router.post('/edit', (req, res, next) => {
-    let feature = req.body.feature,
-        uid = req.body.uid,
+    let mail = req.query.mail,
+        feature = req.body.feature,
+        _id = req.body._id,
         validation = [];
+    if (!mail || !validator.isEmail(mail)) {
+        return next(); // make a 404 response
+    }
     if (!feature || (feature !== 'basic' && feature !== 'password')) {
         validation.push({
             msg: 'illegal request, need valid parameter for feature'
         });
     }
-    if (!uid) {
+    if (!_id) {
         validation.push({
-            msg: 'missing used id to operated'
+            msg: 'missing user id to operated'
+        });
+    }
+    if (validation.length > 0) {
+        return User.findOne({mail: mail}, (err, user) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return next();
+            }
+            res.render('users/edit', {
+                index: 2,
+                title: 'Update Users',
+                messages: [],
+                validation: validation,
+                form: user
+            });
         });
     }
     let update = {};
@@ -191,7 +217,7 @@ router.post('/edit', (req, res, next) => {
     if (req.body.profileImageURL) {
         update.profileImageURL = req.body.profileImageURL;
     }
-    User.findByIdAndUpdate(uid, update, {new: true}, (err, user) => {
+    User.findByIdAndUpdate(_id, update, {new: true}, (err, user) => {
         if (err) {
             return next(err);
         }
@@ -200,7 +226,10 @@ router.post('/edit', (req, res, next) => {
         }
         res.render('users/edit', {
             index: 2,
-            title: 'Manage Users',
+            title: 'Update Users',
+            messages: [{
+                msg: `user "${user.mail}" have been updated`
+            }],
             form: user
         });
     });
@@ -208,17 +237,70 @@ router.post('/edit', (req, res, next) => {
 
 
 /**
- * begin edit the user
+ * begin remove the user
  */
 router.get('/remove', (req, res, next) => {
-
+    let mail = req.query.mail;
+    if (!mail || !validator.isEmail(mail)) {
+        return next(); // make a 404 response
+    }
+    User.findOne({mail: mail}, (err, user) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return next();
+        }
+        res.render('users/remove', {
+            index: 2,
+            title: 'Delete Users',
+            messages: [],
+            form: user
+        });
+    });
 });
 
 /**
- * save edited user info
+ * save remove user info
  */
 router.post('/remove', (req, res, next) => {
-
+    let _id = req.body._id,
+        mail = req.query.mail,
+        mailVerify = req.body.mail,
+        validation = [];
+    if (!_id) {
+        validation.push({
+            msg: 'missing user id to operated'
+        });
+    }
+    if (!mailVerify || !validator.isEmail(mailVerify) || mail !== mailVerify) {
+        validation.push({
+            msg: 'mismatch confirmed user email'
+        });
+    }
+    if (validation.length > 0) {
+        return User.findOne({mail: mail}, (err, user) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return next();
+            }
+            res.render('users/remove', {
+                index: 2,
+                title: 'Delete Users',
+                messages: [],
+                validation: validation,
+                form: user
+            });
+        });
+    }
+    User.findByIdAndRemove(_id, (err)=>{
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/users');
+    });
 });
 
 module.exports = router;
