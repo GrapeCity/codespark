@@ -8,8 +8,81 @@
         <% include ../partial/navbar.ejs %>
         <div class="content" style="min-height: calc(100% - 152px);">
             <div class="container-fluid">
+
                 <div class="row">
+                    <div class="card">
+                        <div class="card-header" data-background-color="purple">
+                            <h4 class="title">Contest List</h4>
+                            <p class="category">Include contests on <%= new Date().toLocaleString('zh-Hans-CN') %></p>
+                        </div>
+                        <div class="card-content">
+                            <div class="row">
+                                <a class="btn btn-success"
+                                   href="/contests/add"
+                                   style="margin-left: 40px;">
+                                    <i class="fa fa-plus"></i></a>
+                                <a class="btn btn-danger disabled"
+                                   href="/contests/remove">
+                                    <i class="fa fa-recycle"></i></a>
+                            </div>
+                            <table class="table table-hover">
+                                <% if(contests && contests.length > 0) { %>
+                                <thead class="text-gray">
+                                <th>&nbsp;</th>
+                                <th>Name</th>
+                                <!--<th style="width: 50px;">Activated</th>-->
+                                <!--<th style="width: 50px;">Disabled</th>-->
+                                <th>Display Name</th>
+                                <th style="width: 200px;">Description</th>
+                                <th>Begin Date</th>
+                                <th>End Date</th>
+                                </thead>
+                                <tbody class="small">
+                                <% contests.forEach(function(contest){ %>
+                                <tr id="<%= contest.name %>">
+                                    <td class="td-actions text-right">
+                                        <a type="button" rel="tooltip" title="Edit"
+                                           href="/contests/<%= contest.name %>/edit"
+                                           class="btn btn-primary btn-simple btn-xs">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a type="button" rel="tooltip" title="Remove"
+                                           href="/contests/<%= contest.name %>/remove"
+                                           class="btn btn-danger btn-simple btn-xs">
+                                            <i class="fa fa-remove"></i>
+                                        </a>
+                                    </td>
+                                    <td><a href="/contests/<%= contest.name %>"><%= contest.name %></a></td>
+                                    <td><%= contest.displayName %></td>
+                                    <td><%= contest.description %></td>
+                                    <td><%= contest.begin.toLocaleString('zh-Hans-CN') %></td>
+                                    <td><%= contest.end.toLocaleString('zh-Hans-CN') %></td>
+                                </tr>
+                                <% }) %>
+                                </tbody>
+                                <% } else { %>
+                                <div class="h3 text-warning">There is no contest</div>
+                                <% } %>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+                <% if(contests && contests.length > 0) { %>
+                <div class="row">
+                    <div class="pull-right">
+                        <div class="btn-group-xs">
+                            <a class="btn btn-xs btn-primary btn-round <%= form.prev.enable ? '' : 'disabled' %>"
+                               href="<%= form.prev.url %>">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a class="btn btn-xs btn-primary btn-round <%= form.next.enable ? '' : 'disabled' %>"
+                               href="<%= form.next.url %>">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
             </div>
         </div>
         <% include ../partial/footer.ejs %>

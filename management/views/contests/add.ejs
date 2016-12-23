@@ -14,7 +14,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="btn btn-white btn-lg" href="/users">
+                    <a class="btn btn-white btn-lg" href="/contests">
                         <i class="fa fa-angle-left" style="font-size: x-large"></i></a>
                 </div>
                 <div class="collapse navbar-collapse">
@@ -26,45 +26,18 @@
                 <div class="col-md-10 col-md-offset-1">
                     <div class="card">
                         <div class="card-header" data-background-color="green">
-                            <h4 class="title">Add user</h4>
-                            <p class="category">Complete following user information, all fields marked with star (*)
+                            <h4 class="title">Add contest</h4>
+                            <p class="category">Complete following contest information, all fields marked with star (*)
                                 are required</p>
                         </div>
                         <div class="card-content">
                             <form method="post">
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">Email address <span
-                                                        class="text-danger">*</span></label>
-                                            <input type="email" name="mail" class="form-control"
-                                                   value="<%= form.mail %>">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group label-floating">
-                                            <label class="control-label">Password <span
-                                                        class="text-danger">*</span></label>
-                                            <input type="password" name="password" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">Password Again <span
-                                                        class="text-danger">*</span></label>
-                                            <input type="password" name="passwordVerify" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">User Name</label>
-                                            <input type="text" name="username" class="form-control"
-                                                   value="<%= form.username %>">
+                                            <label class="control-label">Name</label>
+                                            <input type="text" name="name" class="form-control"
+                                                   value="<%= form.name %>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -79,14 +52,30 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="activated"
-                                                            <%= form.activated ? 'checked' : '' %> >
-                                                    Mark user active <span
-                                                            class="text-danger">*</span>
-                                                </label>
-                                            </div>
+                                            <label class="control-label">Description</label>
+                                            <div class="form-group label-floating is-empty">
+                                                <label class="control-label">Please fill some explanations of this
+                                                    contest </label>
+                                                <textarea class="form-control"
+                                                          rows="4"><%= form.description %></textarea>
+                                                <span class="material-input"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Start Date</label>
+                                            <input type="text" name="start" class="datepicker form-control"
+                                                   value="<%= form.start %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">End Date</label>
+                                            <input type="text" name="end" class="datepicker form-control"
+                                                   value="<%= form.end %>">
                                         </div>
                                     </div>
                                 </div>
