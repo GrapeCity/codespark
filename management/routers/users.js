@@ -145,8 +145,8 @@ router.post('/add', (req, res, next) => {
 /**
  * begin edit the user
  */
-router.get('/edit', (req, res, next) => {
-    let mail = req.query.mail;
+router.get('/:mail/edit', (req, res, next) => {
+    let mail = req.params.mail;
     if (!mail || !validator.isEmail(mail)) {
         return next(); // make a 404 response
     }
@@ -164,14 +164,13 @@ router.get('/edit', (req, res, next) => {
             form: user
         });
     });
-
 });
 
 /**
  * save edited user info
  */
-router.post('/edit', (req, res, next) => {
-    let mail = req.query.mail,
+router.post('/:mail/edit', (req, res, next) => {
+    let mail = req.params.mail,
         feature = req.body.feature,
         _id = req.body._id,
         validation = [];
@@ -239,8 +238,8 @@ router.post('/edit', (req, res, next) => {
 /**
  * begin remove the user
  */
-router.get('/remove', (req, res, next) => {
-    let mail = req.query.mail;
+router.get('/:mail/remove', (req, res, next) => {
+    let mail = req.params.mail;
     if (!mail || !validator.isEmail(mail)) {
         return next(); // make a 404 response
     }
@@ -263,9 +262,9 @@ router.get('/remove', (req, res, next) => {
 /**
  * save remove user info
  */
-router.post('/remove', (req, res, next) => {
-    let _id = req.body._id,
-        mail = req.query.mail,
+router.post('/:mail/remove', (req, res, next) => {
+    let mail = req.params.mail,
+        _id = req.body._id,
         mailVerify = req.body.mail,
         validation = [];
     if (!_id) {
@@ -295,7 +294,7 @@ router.post('/remove', (req, res, next) => {
             });
         });
     }
-    User.findByIdAndRemove(_id, (err)=>{
+    User.findByIdAndRemove(_id, (err) => {
         if (err) {
             return next(err);
         }
