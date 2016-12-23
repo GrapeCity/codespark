@@ -17,6 +17,9 @@ let ContestSchema = new Schema(
         description: {
             type: String
         },
+        open: {
+            type: Boolean
+        },
         begin: {
             type: Date,
             required: true

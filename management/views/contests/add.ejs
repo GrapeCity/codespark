@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <% include ../partial/head.ejs %>
-<body>
+<body class="app">
 <div class="wrapper">
     <% include ../partial/sidebar.ejs %>
     <div class="main-panel">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </nav>
-        <div class="content" style="min-height: calc(100% - 152px);">
+        <div class="content">
             <div class="container-fluid">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="card">
@@ -35,16 +35,51 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group label-floating">
-                                            <label class="control-label">Name</label>
+                                            <label class="control-label">Name<span
+                                                        class="text-danger">*</span></label>
                                             <input type="text" name="name" class="form-control"
                                                    value="<%= form.name %>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group label-floating">
-                                            <label class="control-label">Display Name</label>
+                                            <label class="control-label">Display Name<span
+                                                        class="text-danger">*</span></label>
                                             <input type="text" name="displayName" class="form-control"
                                                    value="<%= form.displayName %>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Start Date<span
+                                                        class="text-danger">*</span></label>
+                                            <input type="text" name="start" class="datepicker form-control"
+                                                   value="<%= form.start %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">End Date<span
+                                                        class="text-danger">*</span></label>
+                                            <input type="text" name="end" class="datepicker form-control"
+                                                   value="<%= form.end %>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="open"
+                                                            <%= form.open ? 'checked' : '' %> >
+                                                    Make the contest public to everyone
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -63,24 +98,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">Start Date</label>
-                                            <input type="text" name="start" class="datepicker form-control"
-                                                   value="<%= form.start %>">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">End Date</label>
-                                            <input type="text" name="end" class="datepicker form-control"
-                                                   value="<%= form.end %>">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary pull-right">Save</button>
+                                <button type="submit" class="btn btn-success pull-right">Save</button>
                                 <button type="reset" class="btn btn-default pull-right">Reset</button>
                                 <div class="clearfix"></div>
                             </form>
@@ -92,6 +110,6 @@
         <% include ../partial/footer.ejs %>
     </div>
 </div>
-</body>
 <% include ../partial/scripts.ejs %>
+</body>
 </html>

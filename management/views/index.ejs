@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <% include partial/head.ejs %>
-<body>
+<body class="app">
 <div class="wrapper">
     <% include partial/sidebar.ejs %>
     <div class="main-panel">
         <% include partial/navbar.ejs %>
-        <div class="content" style="min-height: calc(100% - 152px);">
+        <div class="content">
             <div class="container-fluid">
                 <div class="row">
                     <h3>Quick summary for active contest</h3>
@@ -67,6 +67,6 @@
         <% include partial/footer.ejs %>
     </div>
 </div>
-</body>
 <% include partial/scripts.ejs %>
+</body>
 </html>

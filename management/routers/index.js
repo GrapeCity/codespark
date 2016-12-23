@@ -1,6 +1,7 @@
 let home = require('./home'),
     users = require('./users'),
     contests = require('./contests'),
+    problems = require('./problems'),
     status = require('./status');
 
 module.exports = [
@@ -15,6 +16,10 @@ module.exports = [
     {
         key: '/contests',
         value: contests
+    },
+    {
+        key: '/problems',
+        value: problems
     },
     {
         key: '/status',

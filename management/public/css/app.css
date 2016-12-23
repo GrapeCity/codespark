@@ -1,0 +1,26 @@
+/* application fixing */
+.app .sidebar {
+    bottom: 10px;
+}
+
+.app .sidebar-wrapper {
+    overflow: hidden;
+    height: calc(100vh - 85px);
+}
+
+.app .main-panel {
+    height: calc(100vh - 85px);
+}
+
+.app .main-panel > .content {
+    min-height: calc(100% - 155px);
+}
+
+.card [data-background-color="white"] {
+    background: #ffffff;
+}
+
+.card [data-background-color="white"] .title,
+.card [data-background-color="white"] .category {
+    color: #666666;
+}

@@ -30,11 +30,11 @@ router.get('/', (req, res, next) => {
             let prevUrl = querystring.stringify({
                 search, page: page - 1, limit
             }), nextUrl = querystring.stringify({
-                search, page: page - 1, limit
+                search, page: page + 1, limit
             });
             res.render('users/index', {
                 index: 2,
-                title: 'User List',
+                title: 'Users List',
                 messages: [],
                 users: users || [],
                 form: {

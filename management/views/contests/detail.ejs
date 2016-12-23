@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <% include ../partial/head.ejs %>
-<body>
+<body class="app">
 <div class="wrapper">
     <% include ../partial/sidebar.ejs %>
     <div class="main-panel">
@@ -23,11 +23,11 @@
             </div>
         </nav>
 
-        <div class="content" style="min-height: calc(100% - 152px);">
+        <div class="content">
             <div class="container-fluid">
                 <div class="row">
                     <div class="card">
-                        <div class="card-header" data-background-color="purple">
+                        <div class="card-header" data-background-color="white">
                             <h4 class="title">Contest Details</h4>
                             <p class="category">Include contests on <%= new Date().toLocaleString('zh-Hans-CN') %></p>
                         </div>
@@ -116,6 +116,6 @@
         <% include ../partial/footer.ejs %>
     </div>
 </div>
-</body>
 <% include ../partial/scripts.ejs %>
+</body>
 </html>

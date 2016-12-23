@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <% include ../partial/head.ejs %>
-<body>
+<body class="app">
 <div class="wrapper">
     <% include ../partial/sidebar.ejs %>
     <div class="main-panel">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </nav>
-        <div class="content" style="min-height: calc(100% - 152px);">
+        <div class="content">
             <div class="container-fluid">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="card">
@@ -91,7 +91,7 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary pull-right">Save</button>
+                                <button type="submit" class="btn btn-success pull-right">Save</button>
                                 <button type="reset" class="btn btn-default pull-right">Reset</button>
                                 <div class="clearfix"></div>
                             </form>
@@ -103,6 +103,6 @@
         <% include ../partial/footer.ejs %>
     </div>
 </div>
-</body>
 <% include ../partial/scripts.ejs %>
+</body>
 </html>

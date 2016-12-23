@@ -26,7 +26,7 @@ router.get('/', (req, res, next) => {
             let prevUrl = querystring.stringify({
                 search, page: page - 1, limit
             }), nextUrl = querystring.stringify({
-                search, page: page - 1, limit
+                search, page: page + 1, limit
             });
             res.render('contests/index', {
                 index: 3,
@@ -71,7 +71,7 @@ router.get('/:name/', (req, res, next) => {
 
 router.get('/add', (req, res, next) => {
     res.render('contests/add', {
-        index: 2,
+        index: 3,
         title: 'Create Contest',
         messages: [],
         form: {}
@@ -79,7 +79,33 @@ router.get('/add', (req, res, next) => {
 });
 
 router.post('/add', (req, res, next) => {
-    res.send(`now create a new contest: ${JSON.stringify(req.body)}`);
+    //{"name":"GC2017Spring","displayName":"2017年新春编程挑战赛","start":"2016/12/23","end":"2017/01/20","open":"on"}
+    let {name, displayName, open, start, end} = req.body,
+        validation = [];
+    if(!name){
+        validation.push({msg: 'name must be provided'});
+    }
+    if(!displayName) {
+        validation.push({msg: 'displayName must be provided'});
+    }
+    if(!start) {
+        validation.push({msg: 'start must be provided'});
+    }
+    if(!end) {
+        validation.push({msg: 'end must be provided'});
+    }
+    if(validation.length > 0){
+        res.render('contests/add', {
+            index: 3,
+            title: 'Create Contest',
+            messages: [],
+            validation: validation,
+            form: req.body
+        });
+    }
+    Contest.findOne({name: name}, (err, existed) => {
+
+    });
 });
 
 router.get('/:name/edit', (req, res, next) => {

@@ -4,7 +4,7 @@ let express = require('express'),
 /* GET status page. */
 router.get('/', function (req, res, next) {
     res.render('status', {
-        index: 4,
+        index: 5,
         title: 'Status',
         form: {}
     });
