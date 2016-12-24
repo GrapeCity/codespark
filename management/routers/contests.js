@@ -82,20 +82,20 @@ router.post('/add', (req, res, next) => {
     //{"name":"GC2017Spring","displayName":"2017年新春编程挑战赛","start":"2016/12/23","end":"2017/01/20","open":"on"}
     let {name, displayName, open, start, end} = req.body,
         validation = [];
-    if(!name){
+    if (!name) {
         validation.push({msg: 'name must be provided'});
     }
-    if(!displayName) {
+    if (!displayName) {
         validation.push({msg: 'displayName must be provided'});
     }
-    if(!start) {
+    if (!start) {
         validation.push({msg: 'start must be provided'});
     }
-    if(!end) {
+    if (!end) {
         validation.push({msg: 'end must be provided'});
     }
-    if(validation.length > 0){
-        res.render('contests/add', {
+    if (validation.length > 0) {
+        return res.render('contests/add', {
             index: 3,
             title: 'Create Contest',
             messages: [],
@@ -104,7 +104,25 @@ router.post('/add', (req, res, next) => {
         });
     }
     Contest.findOne({name: name}, (err, existed) => {
-
+        if (err) {
+            return next(err);
+        }
+        if (existed) {
+            return res.render('contests/add', {
+                index: 3,
+                title: 'Create Contest',
+                messages: [],
+                validation: [{msg: `Contest with ${name} is already existed`}],
+                form: req.body
+            });
+        }
+        let one = new Contest({name, displayName, open, start, end});
+        one.save((err) => {
+            if (err) {
+                return next(err);
+            }
+            return res.redirect(`/contests/${name}`);
+        });
     });
 });
 
