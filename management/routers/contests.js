@@ -79,8 +79,8 @@ router.get('/add', (req, res, next) => {
 });
 
 router.post('/add', (req, res, next) => {
-    //{"name":"GC2017Spring","displayName":"2017年新春编程挑战赛","start":"2016/12/23","end":"2017/01/20","open":"on"}
-    let {name, displayName, open, start, end} = req.body,
+    //{"name":"GC2017Spring","displayName":"2017年新春编程挑战赛","begin":"2016/12/23","end":"2017/01/20","open":"on"}
+    let {name, displayName, open, begin, end} = req.body,
         validation = [];
     if (!name) {
         validation.push({msg: 'name must be provided'});
@@ -88,10 +88,10 @@ router.post('/add', (req, res, next) => {
     if (!displayName) {
         validation.push({msg: 'displayName must be provided'});
     }
-    if (!start) {
-        validation.push({msg: 'start must be provided'});
+    if (!begin || !(begin = new Date(Date.parse(begin.replace(/-/g, "/"))))) {
+        validation.push({msg: 'begin must be provided'});
     }
-    if (!end) {
+    if (!end || !(end = new Date(Date.parse(end.replace(/-/g, "/"))))) {
         validation.push({msg: 'end must be provided'});
     }
     if (validation.length > 0) {
@@ -116,7 +116,7 @@ router.post('/add', (req, res, next) => {
                 form: req.body
             });
         }
-        let one = new Contest({name, displayName, open, start, end});
+        let one = new Contest({name, displayName, open, begin, end});
         one.save((err) => {
             if (err) {
                 return next(err);
