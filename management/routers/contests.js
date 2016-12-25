@@ -128,20 +128,22 @@ router.post('/add', (req, res, next) => {
 });
 
 router.get('/:name/edit', (req, res, next) => {
-    Contest.findOne({name: req.params.name}, (err, contest) => {
-        if (err) {
-            return next(err);
-        }
-        if (!contest) {
-            return next(); //make a 404
-        }
-        res.render('contests/edit', {
-            index: 3,
-            title: 'Edit Contest',
-            messages: [],
-            form: contest
+    Contest.findOne({name: req.params.name})
+        .populate('problems')
+        .exec((err, contest) => {
+            if (err) {
+                return next(err);
+            }
+            if (!contest) {
+                return next(); //make a 404
+            }
+            res.render('contests/edit', {
+                index: 3,
+                title: 'Edit Contest',
+                messages: [],
+                form: contest
+            });
         });
-    });
 });
 
 router.post('/:name/edit', (req, res, next) => {
@@ -153,7 +155,7 @@ router.post('/:name/edit', (req, res, next) => {
         });
     }
     new Promise((resolve, reject) => {
-        if(name !== req.params.name) {
+        if (name !== req.params.name) {
             Contest.find({name: req.body.name}, (err, existed) => {
                 if (err) {
                     return reject(err);
@@ -167,23 +169,25 @@ router.post('/:name/edit', (req, res, next) => {
         } else {
             resolve(true);
         }
-    }).then( ok => {
+    }).then(ok => {
         if (validation.length > 0) {
-            return Contest.findOne({name: req.params.name}, (err, contest) => {
-                if (err) {
-                    return next(err);
-                }
-                if (!contest) {
-                    return next(); //make a 404
-                }
-                res.render('contests/edit', {
-                    index: 3,
-                    title: 'Edit Contest',
-                    messages: [],
-                    validation: [],
-                    form: contest
+            return Contest.findOne({name: req.params.name})
+                .populate('problems')
+                .exec((err, contest) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    if (!contest) {
+                        return next(); //make a 404
+                    }
+                    res.render('contests/edit', {
+                        index: 3,
+                        title: 'Edit Contest',
+                        messages: [],
+                        validation: [],
+                        form: contest
+                    });
                 });
-            });
         }
         let update = {};
         ['name', 'displayName', 'begin', 'end', 'description'].forEach(p => {
@@ -192,23 +196,25 @@ router.post('/:name/edit', (req, res, next) => {
             }
         });
         update.open = req.body.open;
-        Contest.findByIdAndUpdate(_id, update, {new: true}, (err, contest) => {
-            if (err) {
-                return next(err);
-            }
-            if (!contest) {
-                return next();
-            }
-            res.render('contests/edit', {
-                index: 3,
-                title: 'Edit Contest',
-                messages: [{
-                    msg: `contest "${contest.name}" have been updated`
-                }],
-                form: contest
+        Contest.findByIdAndUpdate(_id, update, {new: true})
+            .populate('problems')
+            .exec((err, contest) => {
+                if (err) {
+                    return next(err);
+                }
+                if (!contest) {
+                    return next();
+                }
+                res.render('contests/edit', {
+                    index: 3,
+                    title: 'Edit Contest',
+                    messages: [{
+                        msg: `contest "${contest.name}" have been updated`
+                    }],
+                    form: contest
+                });
             });
-        });
-    }).catch( err => {
+    }).catch(err => {
         next(err);
     });
 });
