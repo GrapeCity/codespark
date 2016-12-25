@@ -14,7 +14,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="btn btn-white btn-lg" href="/contests">
+                    <a class="btn btn-white btn-lg" href="/problems">
                         <i class="fa fa-angle-left" style="font-size: x-large"></i></a>
                 </div>
                 <div class="collapse navbar-collapse">
@@ -26,8 +26,8 @@
                 <div class="col-md-10 col-md-offset-1">
                     <div class="card">
                         <div class="card-header" data-background-color="green">
-                            <h4 class="title">Add contest</h4>
-                            <p class="category">Complete following contest information, all fields marked with star (*)
+                            <h4 class="title">Add problem</h4>
+                            <p class="category">Complete following problem information, all fields marked with star (*)
                                 are required</p>
                         </div>
                         <div class="card-content">
@@ -43,29 +43,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group label-floating">
-                                            <label class="control-label">Display Name<span
+                                            <label class="control-label">Title<span
                                                         class="text-danger">*</span></label>
-                                            <input type="text" name="displayName" class="form-control"
-                                                   value="<%= form.displayName %>">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">Start Date<span
-                                                        class="text-danger">*</span></label>
-                                            <input type="text" name="begin" class="datepicker form-control"
-                                                   value="<%= form.begin %>">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group label-floating">
-                                            <label class="control-label">End Date<span
-                                                        class="text-danger">*</span></label>
-                                            <input type="text" name="end" class="datepicker form-control"
-                                                   value="<%= form.end %>">
+                                            <input type="text" name="title" class="form-control"
+                                                   value="<%= form.title %>">
                                         </div>
                                     </div>
                                 </div>
@@ -73,24 +54,11 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="open"
-                                                            <%= form.open ? 'checked' : '' %> >
-                                                    Make the contest public to everyone
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="control-label">Description</label>
+                                            <label class="control-label">Description<span
+                                                        class="text-danger">*</span></label>
                                             <div class="form-group label-floating">
-                                                <label class="control-label">Please fill some explanations of this
-                                                    contest </label>
+                                                <label class="control-label">Please give explanations of this
+                                                    problem </label>
                                                 <textarea class="form-control" name="description"
                                                           rows="4"><%= form.description %></textarea>
                                                 <span class="material-input"></span></div>

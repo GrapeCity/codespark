@@ -49,4 +49,18 @@ router.get('/', function (req, res, next) {
         });
 });
 
+
+router.get('/add', (req, res, next) => {
+    res.render('problems/add', {
+        index: 4,
+        title: 'Create Problem',
+        messages: [],
+        form: {}
+    });
+});
+
+router.post('/add', (req, res, next) => {
+    res.send(JSON.stringify(req.body));
+});
+
 module.exports = router;
