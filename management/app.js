@@ -16,7 +16,8 @@ let path = require('path'),
 
 mongoose.setup({
     uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
-    debug: process.env.NODE_ENV === 'development'
+    options: {},
+    debug: (process.env.NODE_ENV === 'development')
 });
 
 app.set('views', path.join(__dirname, 'views'));
@@ -49,10 +50,13 @@ app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 app.use(cookieParser());
 
 // include models
-require('../common/models/index');
+require('../common/models');
 
 // setup server controller
-require('./routers/index').forEach(elem => app.use(elem.key, elem.value));
+require('./routers')(app);
+
+// setup backend web apis
+require('./mapi')(app);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
