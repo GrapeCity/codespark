@@ -13,6 +13,10 @@ let ContestSchema = new Schema(
             type: String,
             trim: true
         },
+        open: {
+            type: Boolean,
+            default: false
+        },
         description: {
             type: String
         },
