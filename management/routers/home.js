@@ -1,4 +1,7 @@
 let express = require('express'),
+    utils = require('../utils'),
+    // mongoose = utils.mongoose,
+    // logger = utils.winston.appLogger,
     router = express.Router();
 
 /* GET home page. */

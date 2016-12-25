@@ -1,8 +1,10 @@
 let express = require('express'),
-    mongoose = require('mongoose'),
     crypto = require('crypto'),
     querystring = require('querystring'),
-    validator = require('../utils/validator'),
+    validator = require('validator'),
+    utils = require('../utils'),
+    mongoose = utils.mongoose,
+    logger = utils.winston.appLogger,
     router = express.Router(),
     User = mongoose.model('User');
 

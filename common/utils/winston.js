@@ -11,7 +11,7 @@
  * https://www.npmjs.com/package/winston
  */
 
-var fs = require('fs'),
+let fs = require('fs'),
     winston = require('winston'),
     DailyRotateFile = require('winston-daily-rotate-file'),
     Logger = winston.Logger,
@@ -24,7 +24,7 @@ if (!fs.existsSync(logDir)) {
 
 winston.emitErrs = true;
 
-var appLogger = winston.loggers.add('application', {});
+let appLogger = winston.loggers.add('application', {});
 appLogger.transports = [];
 appLogger.exitOnError = false;
 
@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === 'development') {
     });
 }
 
-var accessLogger = winston.loggers.add('access', {});
+let accessLogger = winston.loggers.add('access', {});
 accessLogger.transports = [];
 accessLogger.exitOnError = false;
 accessLogger.add(DailyRotateFile, {

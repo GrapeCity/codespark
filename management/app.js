@@ -2,31 +2,22 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 let path = require('path'),
     express = require('express'),
-    mongoose = require('mongoose'),
     morgan = require('morgan'),
     helmet = require('helmet'),
     compression = require('compression'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
-    winston = require('./utils/winston'),
+    utils = require('./utils'),
+    mongoose = utils.mongoose,
+    winston = utils.winston,
     stream = winston.stream,
     logger = winston.appLogger,
     app = express();
 
-// Use native Promise
-mongoose.Promise = global.Promise;
-mongoose.connect(`mongodb://${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
-    err => {
-        if (err) {
-            logger.warn(`Could not connect to MongoDB: ${err}`);
-        } else {
-            if (process.env.NODE_ENV !== 'development') {
-                logger.info('Connect to MongoDB success.');
-            }
-            // Enabling mongoose debug mode if debugging
-            mongoose.set('debug', process.env.NODE_ENV === 'development');
-        }
-    });
+mongoose.setup({
+    uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
+    debug: process.env.NODE_ENV === 'development'
+});
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -58,7 +49,7 @@ app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 app.use(cookieParser());
 
 // include models
-require('./models/index');
+require('../common/models/index');
 
 // setup server controller
 require('./routers/index').forEach(elem => app.use(elem.key, elem.value));

@@ -1,7 +1,7 @@
 let path = require('path'),
-    validator = require('../utils/validator'),
+    validator = require('validator'),
     crypto = require('crypto'),
-    mongoose = require('mongoose'),
+    mongoose = require('../utils/mongoose'),
     Schema = mongoose.Schema;
 
 function validateLocalStrategyEmail(email) {

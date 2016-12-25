@@ -4,13 +4,18 @@ MAINTAINER Zhang Wenqing "winking.zhang@grapecity.com"
 
 ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
-WORKDIR /app
-VOLUME /app/conf
-COPY . /app
+WORKDIR /codespark/management
+VOLUME /codespark/management/conf
+VOLUME /codespark/management/logs
+COPY ../common /codespark/common
+COPY . /codespark/management
 
 # Install basic requirements and clean up cache folders
 RUN apt-get update -qq \
     && apt-get install -y apt-utils build-essential \
+    && cd /codespark/common \
+    && npm install --production \
+    && cd /codespark/management \
     && npm install --production \
     && npm cache clean \
     && apt-get remove -y apt-utils build-essential \

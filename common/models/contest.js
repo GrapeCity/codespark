@@ -1,6 +1,5 @@
-let mongoose = require('mongoose'),
+let mongoose = require('../utils/mongoose'),
     Schema = mongoose.Schema;
-
 
 let ContestSchema = new Schema(
     {
@@ -16,9 +15,6 @@ let ContestSchema = new Schema(
         },
         description: {
             type: String
-        },
-        open: {
-            type: Boolean
         },
         begin: {
             type: Date,

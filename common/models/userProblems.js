@@ -1,4 +1,4 @@
-let mongoose = require('mongoose'),
+let mongoose = require('../utils/mongoose'),
     Schema = mongoose.Schema;
 
 let UserProblemsSchema = new Schema(

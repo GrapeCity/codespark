@@ -1,6 +1,8 @@
 let express = require('express'),
-    mongoose = require('mongoose'),
     querystring = require('querystring'),
+    utils = require('../utils'),
+    mongoose = utils.mongoose,
+    logger = utils.winston.appLogger,
     router = express.Router(),
     Contest = mongoose.model('Contest');
 
