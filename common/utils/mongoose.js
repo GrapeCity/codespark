@@ -1,5 +1,5 @@
 let mongoose = require('mongoose')
-logger = require('./winston');
+logger = require('./winston').appLogger;
 
 // Use native Promise
 mongoose.Promise = global.Promise;
@@ -9,12 +9,10 @@ mongoose.setup = (config, resMgr) => {
         config.options,
         err => {
             if (err) {
-                logger.warn('Could not connect to MongoDB.');
-                logger.warn(err);
+                logger.warn(`Could not connect to MongoDB: ${err}`);
             } else {
-                if (process.env.NODE_ENV !== 'development') {
-                    logger.warn('Connect to MongoDB success.');
-                }
+                logger.info(`Connect to MongoDB [${config.uri}] success, with debug=${config.debug}.`);
+
                 // Enabling mongoose debug mode if required
                 mongoose.set('debug', config.debug);
 
