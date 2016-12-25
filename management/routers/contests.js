@@ -20,7 +20,7 @@ router.get('/', (req, res, next) => {
     q.sort('name')
         .skip(skip)
         .limit(limit)
-        .select('name displayName description begin end -_id')
+        .select('name displayName open description begin end -_id')
         .exec((err, contests) => {
             if (err) {
                 return next(err);
@@ -81,7 +81,6 @@ router.get('/add', (req, res, next) => {
 });
 
 router.post('/add', (req, res, next) => {
-    //{"name":"GC2017Spring","displayName":"2017年新春编程挑战赛","begin":"2016/12/23","end":"2017/01/20","open":"on"}
     let {name, displayName, open, begin, end} = req.body,
         validation = [];
     if (!name) {
@@ -129,11 +128,89 @@ router.post('/add', (req, res, next) => {
 });
 
 router.get('/:name/edit', (req, res, next) => {
-    res.send(`now edit: ${req.params.name}`);
+    Contest.findOne({name: req.params.name}, (err, contest) => {
+        if (err) {
+            return next(err);
+        }
+        if (!contest) {
+            return next(); //make a 404
+        }
+        res.render('contests/edit', {
+            index: 3,
+            title: 'Edit Contest',
+            messages: [],
+            form: contest
+        });
+    });
 });
 
 router.post('/:name/edit', (req, res, next) => {
-    res.send(`now edit: ${req.params.name}: ${JSON.stringify(req.body)}`);
+    let {_id, name} = req.body,
+        validation = [];
+    if (!_id) {
+        validation.push({
+            msg: 'missing contest id to operated'
+        });
+    }
+    new Promise((resolve, reject) => {
+        if(name !== req.params.name) {
+            Contest.find({name: req.body.name}, (err, existed) => {
+                if (err) {
+                    return reject(err);
+                }
+                if (existed) {
+                    validation.push({msg: `There is already exist a contest named "${req.body.name}"`});
+                    return resolve(false);
+                }
+                resolve(true);
+            });
+        } else {
+            resolve(true);
+        }
+    }).then( ok => {
+        if (validation.length > 0) {
+            return Contest.findOne({name: req.params.name}, (err, contest) => {
+                if (err) {
+                    return next(err);
+                }
+                if (!contest) {
+                    return next(); //make a 404
+                }
+                res.render('contests/edit', {
+                    index: 3,
+                    title: 'Edit Contest',
+                    messages: [],
+                    validation: [],
+                    form: contest
+                });
+            });
+        }
+        let update = {};
+        ['name', 'displayName', 'begin', 'end', 'description'].forEach(p => {
+            if (req.body[p]) {
+                update[p] = req.body[p];
+            }
+        });
+        update.open = req.body.open;
+        Contest.findByIdAndUpdate(_id, update, {new: true}, (err, contest) => {
+            if (err) {
+                return next(err);
+            }
+            if (!contest) {
+                return next();
+            }
+            res.render('contests/edit', {
+                index: 3,
+                title: 'Edit Contest',
+                messages: [{
+                    msg: `contest "${contest.name}" have been updated`
+                }],
+                form: contest
+            });
+        });
+    }).catch( err => {
+        next(err);
+    });
 });
 
 router.get('/:name/remove', (req, res, next) => {

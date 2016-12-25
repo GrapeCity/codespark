@@ -37,6 +37,7 @@
                                 <!--<th style="width: 50px;">Activated</th>-->
                                 <!--<th style="width: 50px;">Disabled</th>-->
                                 <th>Display Name</th>
+                                <th>Open</th>
                                 <th style="width: 200px;">Description</th>
                                 <th>Begin Date</th>
                                 <th>End Date</th>
@@ -58,6 +59,7 @@
                                     </td>
                                     <td><a href="/contests/<%= contest.name %>"><%= contest.name %></a></td>
                                     <td><%= contest.displayName %></td>
+                                    <td><%= contest.open ? 'yes' : 'no' %></td>
                                     <td><%= contest.description %></td>
                                     <td><%= contest.begin.toLocaleString('zh-Hans-CN') %></td>
                                     <td><%= contest.end.toLocaleString('zh-Hans-CN') %></td>

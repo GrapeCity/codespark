@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<% include ../partial/head.ejs %>
+<body class="app">
+<div class="wrapper">
+    <% include ../partial/sidebar.ejs %>
+    <div class="main-panel">
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="btn btn-white btn-lg" href="/contests">
+                        <i class="fa fa-angle-left" style="font-size: x-large"></i></a>
+                </div>
+                <div class="collapse navbar-collapse">
+                </div>
+            </div>
+        </nav>
+        <div class="content">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header" data-background-color="purple">
+                        <h4 class="title">Edit contest</h4>
+                        <p class="category">Complete following contest information, all fields marked with start (*)
+                            are required</p>
+                    </div>
+                    <div class="card-content">
+                        <form method="post">
+                            <input type="hidden" name="_id" value="<%= form._id %>">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label">Name<span
+                                                    class="text-danger">*</span></label>
+                                        <input type="text" name="name" class="form-control"
+                                               value="<%= form.name %>">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label">Display Name<span
+                                                    class="text-danger">*</span></label>
+                                        <input type="text" name="displayName" class="form-control"
+                                               value="<%= form.displayName %>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label">Start Date<span
+                                                    class="text-danger">*</span></label>
+                                        <input type="text" name="begin" class="datepicker form-control"
+                                               value="<%= form.begin.toLocaleString('zh-Hans-CN') %>">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label">End Date<span
+                                                    class="text-danger">*</span></label>
+                                        <input type="text" name="end" class="datepicker form-control"
+                                               value="<%= form.end.toLocaleString('zh-Hans-CN') %>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="open"
+                                                        <%= form.open ? 'checked' : '' %> >
+                                                Make the contest public to everyone
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Description</label>
+                                        <div class="form-group label-floating">
+                                            <label class="control-label">Please fill some explanations of this
+                                                contest </label>
+                                            <textarea class="form-control" name="description"
+                                                      rows="4"><%= form.description %></textarea>
+                                            <span class="material-input"></span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary pull-right">Save</button>
+                            <button type="reset" class="btn btn-default pull-right">Reset</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% include ../partial/footer.ejs %>
+    </div>
+</div>
+<% include ../partial/scripts.ejs %>
+</body>
+</html>
