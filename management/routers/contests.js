@@ -85,6 +85,7 @@ router.get('/:name/', (req, res, next) => {
         });
 });
 
+
 router.get('/add', (req, res, next) => {
     res.render('contests/add', {
         index: 3,
@@ -140,6 +141,7 @@ router.post('/add', (req, res, next) => {
         });
     });
 });
+
 
 router.get('/:name/edit', (req, res, next) => {
     Contest.findOne({name: req.params.name})
@@ -233,12 +235,63 @@ router.post('/:name/edit', (req, res, next) => {
     });
 });
 
+
 router.get('/:name/remove', (req, res, next) => {
-    res.send(`now remove: ${req.params.name}`);
+    let name = req.params.name;
+    Contest.findOne({name}, (err, contest) => {
+        if (err) {
+            return next(err);
+        }
+        if (!contest) {
+            return next();
+        }
+        res.render('contests/remove', {
+            index: 2,
+            title: 'Delete Contest',
+            messages: [],
+            form: contest
+        });
+    });
 });
 
 router.post('/:name/remove', (req, res, next) => {
-    res.send(`now remove: ${req.params.name}: ${JSON.stringify(req.body)}`);
+    let name = req.params.name,
+        _id = req.body._id,
+        nameVerify = req.body.name,
+        validation = [];
+    if (!_id) {
+        validation.push({
+            msg: 'missing contest id to operated'
+        });
+    }
+    if (!nameVerify || name !== nameVerify) {
+        validation.push({
+            msg: 'mismatch confirmed contest name'
+        });
+    }
+    if (validation.length > 0) {
+        return Contest.findOne({name}, (err, contest) => {
+            if (err) {
+                return next(err);
+            }
+            if (!contest) {
+                return next();
+            }
+            res.render('contests/remove', {
+                index: 2,
+                title: 'Delete Contest',
+                messages: [],
+                validation: validation,
+                form: contest
+            });
+        });
+    }
+    Contest.findByIdAndRemove(_id, (err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/contests');
+    });
 });
 
 module.exports = router;
