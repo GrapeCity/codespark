@@ -44,8 +44,8 @@ app.use('/fonts', express.static(path.join(__dirname, 'public/fonts')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
 // Request body parsing middleware should be above methodOverride
-app.use(bodyParser.json({limit: '5mb'}));
-app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
+app.use(bodyParser.json({limit: '10mb'}));
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 
 // Add the cookie parser and flash middleware
 app.use(cookieParser());
