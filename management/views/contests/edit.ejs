@@ -110,29 +110,31 @@
                                     <% if(form.problems && form.problems.length > 0) { %>
                                     <table class="table table-hover">
                                         <thead>
-                                        <th></th>
                                         <th>Name</th>
                                         <th>Title</th>
+                                        <th style="width:120px"></th>
                                         </thead>
                                         <tbody>
                                         <% form.problems.forEach(p => { %>
                                         <tr>
-                                            <td class="td-actions text-right">
-                                                <a type="button" rel="tooltip" title="Move up"
-                                                   class="btn btn-primary btn-simple btn-xs">
-                                                    <i class="fa fa-arrow-up"></i>
-                                                </a>
-                                                <a type="button" rel="tooltip" title="Move down"
-                                                   class="btn btn-primary btn-simple btn-xs">
-                                                    <i class="fa fa-arrow-down"></i>
-                                                </a>
-                                                <a type="button" rel="tooltip" title="Remove"
-                                                   class="btn btn-danger btn-simple btn-xs">
-                                                    <i class="fa fa-remove"></i>
-                                                </a>
-                                            </td>
                                             <td><%= p.name %></td>
                                             <td><%= p.title %></td>
+                                            <td class="td-actions text-right">
+                                                <div class="btn-group-xs pull-right">
+                                                    <a type="button" rel="tooltip" title="Move up"
+                                                       class="btn btn-primary btn-simple btn-xs">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a type="button" rel="tooltip" title="Move down"
+                                                       class="btn btn-primary btn-simple btn-xs">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a>
+                                                    <a type="button" rel="tooltip" title="Remove"
+                                                       class="btn btn-danger btn-simple btn-xs">
+                                                        <i class="fa fa-remove"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
                                         </tr>
                                         <% }) %>
                                         </tbody>

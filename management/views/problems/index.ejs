@@ -36,8 +36,6 @@
                                 <th>Name</th>
                                 <th>Display Name</th>
                                 <th style="width: 200px;">Description</th>
-                                <th>Begin Date</th>
-                                <th>End Date</th>
                                 </thead>
                                 <tbody class="small">
                                 <% problems.forEach(function(problem){ %>
@@ -54,11 +52,9 @@
                                             <i class="fa fa-remove"></i>
                                         </a>
                                     </td>
-                                    <td><a href="/contests/<%= problem.name %>"><%= problem.name %></a></td>
-                                    <td><%= problem.displayName %></td>
+                                    <td><a href="/problems/<%= problem.name %>"><%= problem.name %></a></td>
+                                    <td><%= problem.title %></td>
                                     <td><%= problem.description %></td>
-                                    <td><%= problem.begin.toLocaleString('zh-Hans-CN') %></td>
-                                    <td><%= problem.end.toLocaleString('zh-Hans-CN') %></td>
                                 </tr>
                                 <% }) %>
                                 </tbody>

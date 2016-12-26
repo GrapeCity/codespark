@@ -1,4 +1,5 @@
-let _ = require('lodash');
+let _ = require('lodash'),
+    logger = require('./winston').appLogger;
 
 /**
  * managed resources pool
@@ -40,7 +41,7 @@ class ResourceManager {
         });
         if (removed) {
             _.each(removed, function (v) {
-                v.close();
+                v.close.call(v.instance);
             });
         }
     }
@@ -55,6 +56,7 @@ class ResourceManager {
         }
         while (this._inner.length > 0) {
             let item = this._inner.pop();
+            logger.info(`begin close resource: ${item.key}`);
             if (item.close) {
                 item.close.call(item.instance);
             }
