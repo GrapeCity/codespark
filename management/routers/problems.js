@@ -49,6 +49,24 @@ router.get('/', function (req, res, next) {
         });
 });
 
+router.get('/:name/', (req, res, next) => {
+    Problem.findOne({name: req.params.name})
+        .exec((err, problem) => {
+            if (err) {
+                return next(err);
+            }
+            if (!problem) {
+                return next();
+            }
+            res.render('problems/detail', {
+                index: 3,
+                title: 'Problem Details',
+                messages: [],
+                problem: problem,
+                form: {}
+            });
+        });
+});
 
 router.get('/add', (req, res, next) => {
     res.render('problems/add', {
@@ -60,7 +78,136 @@ router.get('/add', (req, res, next) => {
 });
 
 router.post('/add', (req, res, next) => {
-    res.send(JSON.stringify(req.body));
+    let {name, title, description, cases} = req.body,
+        validation = [];
+    if (!name) {
+        validation.push({msg: 'name must be provided'});
+    }
+    if (!title) {
+        validation.push({msg: 'title must be provided'});
+    }
+    if (!description) {
+        validation.push({msg: 'description must be provided'});
+    }
+    if (validation.length > 0) {
+        return res.render('problems/add', {
+            index: 4,
+            title: 'Create Problem',
+            messages: [],
+            validation: validation,
+            form: req.body
+        });
+    }
+    Problem.findOne({name}, (err, existed) => {
+        if (err) {
+            return next(err);
+        }
+        if (existed) {
+            return res.render('problems/add', {
+                index: 4,
+                title: 'Create Problem',
+                messages: [],
+                validation: [{msg: `Problem with ${name} is already existed`}],
+                form: req.body
+            });
+        }
+        let one = new Problem({name, title, description, cases});
+        one.save(err => {
+            if (err) {
+                return next(err);
+            }
+            return res.redirect(`/problems/${name}`);
+        });
+    });
+});
+
+
+router.get('/:name/edit', (req, res, next) => {
+    Problem.findOne({name: req.params.name})
+        .exec((err, problem) => {
+            if (err) {
+                return next(err);
+            }
+            if (!problem) {
+                return next(); //make a 404
+            }
+            res.render('problems/edit', {
+                index: 4,
+                title: 'Edit Problem',
+                messages: [],
+                form: problem
+            });
+        });
+});
+
+router.post('/:name/edit', (req, res, next) => {
+    let {_id, name} = req.body,
+        validation = [];
+    if (!_id) {
+        validation.push({
+            msg: 'missing problem id to operated'
+        });
+    }
+    new Promise((resolve, reject) => {
+        if (name !== req.params.name) {
+            Problem.find({name: req.body.name}, (err, existed) => {
+                if (err) {
+                    return reject(err);
+                }
+                if (existed && existed.length > 0) {
+                    validation.push({msg: `There is already exist a problem named "${req.body.name}"`});
+                    return resolve(false);
+                }
+                resolve(true);
+            });
+        } else {
+            resolve(true);
+        }
+    }).then(ok => {
+        if (validation.length > 0) {
+            return Problem.findOne({name: req.params.name})
+                .exec((err, problem) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    if (!problem) {
+                        return next(); //make a 404
+                    }
+                    res.render('problems/edit', {
+                        index: 4,
+                        title: 'Edit Problem',
+                        messages: [],
+                        validation: validation,
+                        form: problem
+                    });
+                });
+        }
+        let update = {};
+        ['name', 'title', 'description', 'cases'].forEach(p => {
+            if (req.body[p]) {
+                update[p] = req.body[p];
+            }
+        });
+        Problem.findByIdAndUpdate(_id, update, {new: true})
+            .exec((err, problem) => {
+                if (err) {
+                    return next(err);
+                }
+                if (!problem) {
+                    return next();
+                }
+                res.render('problems/edit', {
+                    index: 4,
+                    title: 'Edit Problem',
+                    messages: [{
+                        msg: `problem "${problem.name}" have been updated`
+                    }],
+                    form: problem
+                });
+            });
+    }).catch(err => {
+        next(err);
+    });
 });
 
 module.exports = router;

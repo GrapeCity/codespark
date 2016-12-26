@@ -34,7 +34,7 @@
                                 <thead class="text-gray">
                                 <th>&nbsp;</th>
                                 <th>Name</th>
-                                <th>Display Name</th>
+                                <th>Title</th>
                                 <th style="width: 200px;">Description</th>
                                 </thead>
                                 <tbody class="small">
@@ -42,12 +42,12 @@
                                 <tr id="<%= problem.name %>">
                                     <td class="td-actions text-right">
                                         <a type="button" rel="tooltip" title="Edit"
-                                           href="/contests/<%= problem.name %>/edit"
+                                           href="/problems/<%= problem.name %>/edit"
                                            class="btn btn-primary btn-simple btn-xs">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         <a type="button" rel="tooltip" title="Remove"
-                                           href="/contests/<%= problem.name %>/remove"
+                                           href="/problems/<%= problem.name %>/remove"
                                            class="btn btn-danger btn-simple btn-xs">
                                             <i class="fa fa-remove"></i>
                                         </a>
