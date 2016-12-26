@@ -66,6 +66,45 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label">Cases</label>
+                                            <div>
+                                                <div id="casesContainer">
+                                                    <% if(form.cases) { %>
+                                                    <% form.cases.forEach((c) => { %>
+                                                    <div class="row" <%= c.id % 2 ? 'style="background: #eee;"' : '' %>>
+                                                        <input type="hidden" name="cases.id" value="<%= c.id %>">
+                                                        <div class="col-md-2 label label-info"><%= c.id %></div>
+                                                        <div class="col-md-5">
+                                                            <div class="form-group label-floating">
+                                                                <label class="control-label">The input</label>
+                                                                <textarea class="form-control" name="cases.input"
+                                                                          rows="4"><%= c.input %></textarea>
+                                                                <span class="material-input"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <div class="form-group label-floating">
+                                                                <label class="control-label">The expect</label>
+                                                                <textarea class="form-control" name="cases.expect"
+                                                                          rows="4"><%= c.expect %></textarea>
+                                                                <span class="material-input"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% }); %>
+                                                    <% } %>
+                                                </div>
+                                                <button id="addCase" class="btn btn-xs btn-primary">
+                                                    <i class="fa fa-plus"></i> add
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-success pull-right">Save</button>
                                 <button type="reset" class="btn btn-default pull-right">Reset</button>
                                 <div class="clearfix"></div>
@@ -79,5 +118,32 @@
     </div>
 </div>
 <% include ../partial/scripts.ejs %>
+<script>
+
+    $(document).ready(function () {
+        $('#addCase').click(function (evt) {
+            evt.preventDefault();
+
+            var count = $('#casesContainer').children().length,
+                fieldtag = $('<div class="row" ' + (count % 2 ? '' : 'style="background: #eee;"' ) + ' ></div>');
+            fieldtag.append('<input type="hidden" name="cases[' + count + '][id]" value="' + (count + 1) + '">')
+                .append('<div class="col-md-2"><div class="form-group">' + (count + 1) + '</div></div>')
+                .append(createFormField('cases[' + count + '][input]', 'Inputs', 'Please give the inputs'))
+                .append(createFormField('cases[' + count + '][expect]', 'Expects', 'Please give the expects'));
+            $('#casesContainer').append(fieldtag);
+            return false;
+        });
+    });
+
+    function createFormField(name, label, tip) {
+        var coltag = $('<div class="col-md-5"></div>'),
+            formtag = $('<div class="form-group label-floating"></div>');
+        formtag.append('<label class="control-label">' + tip + '</label>')
+            .append('<textarea class="form-control" name="' + name + '" rows="4"></textarea>')
+            .append('<span class="material-input"></span>');
+        coltag.append(formtag);
+        return coltag;
+    }
+</script>
 </body>
 </html>
