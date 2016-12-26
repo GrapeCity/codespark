@@ -1,10 +1,24 @@
 let express = require('express'),
     querystring = require('querystring'),
+    _ = require('lodash'),
+    moment = require('moment'),
     utils = require('../utils'),
     mongoose = utils.mongoose,
     logger = utils.winston.appLogger,
     router = express.Router(),
     Contest = mongoose.model('Contest');
+
+
+function formatContest(contest) {
+    return {
+        name: contest.name,
+        displayName: contest.displayName,
+        open: contest.open,
+        description: contest.description,
+        begin: moment(contest.begin).format('YYYY/MM/DD HH:mm:ss'),
+        end: moment(contest.end).format('YYYY/MM/DD HH:mm:ss')
+    };
+}
 
 /* GET contests list. */
 router.get('/', (req, res, next) => {
@@ -34,7 +48,7 @@ router.get('/', (req, res, next) => {
                 index: 3,
                 title: 'Contests List',
                 messages: [],
-                contests: contests || [],
+                contests: _.map(contests || [], formatContest),
                 form: {
                     search,
                     prev: {
@@ -65,7 +79,7 @@ router.get('/:name/', (req, res, next) => {
                 index: 3,
                 title: 'Contest Details',
                 messages: [],
-                contest: contest,
+                contest: formatContest(contest),
                 form: {}
             });
         });
@@ -89,10 +103,10 @@ router.post('/add', (req, res, next) => {
     if (!displayName) {
         validation.push({msg: 'displayName must be provided'});
     }
-    if (!begin || !(begin = new Date(Date.parse(begin.replace(/-/g, "/"))))) {
+    if (!begin || !(begin = moment(begin, 'YYYY/MM/DD HH:mm:ss').toDate())) {
         validation.push({msg: 'begin must be provided'});
     }
-    if (!end || !(end = new Date(Date.parse(end.replace(/-/g, "/"))))) {
+    if (!end || !(end = moment(end, 'YYYY/MM/DD HH:mm:ss').toDate())) {
         validation.push({msg: 'end must be provided'});
     }
     if (validation.length > 0) {
@@ -104,7 +118,7 @@ router.post('/add', (req, res, next) => {
             form: req.body
         });
     }
-    Contest.findOne({name: name}, (err, existed) => {
+    Contest.findOne({name}, (err, existed) => {
         if (err) {
             return next(err);
         }
@@ -141,7 +155,7 @@ router.get('/:name/edit', (req, res, next) => {
                 index: 3,
                 title: 'Edit Contest',
                 messages: [],
-                form: contest
+                form: formatContest(contest)
             });
         });
 });
@@ -160,7 +174,7 @@ router.post('/:name/edit', (req, res, next) => {
                 if (err) {
                     return reject(err);
                 }
-                if (existed) {
+                if (existed && existed.length > 0) {
                     validation.push({msg: `There is already exist a contest named "${req.body.name}"`});
                     return resolve(false);
                 }
@@ -184,8 +198,8 @@ router.post('/:name/edit', (req, res, next) => {
                         index: 3,
                         title: 'Edit Contest',
                         messages: [],
-                        validation: [],
-                        form: contest
+                        validation: validation,
+                        form: formatContest(contest)
                     });
                 });
         }
@@ -211,7 +225,7 @@ router.post('/:name/edit', (req, res, next) => {
                     messages: [{
                         msg: `contest "${contest.name}" have been updated`
                     }],
-                    form: contest
+                    form: formatContest(contest)
                 });
             });
     }).catch(err => {
