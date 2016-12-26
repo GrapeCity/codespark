@@ -110,13 +110,16 @@
                                     <% if(form.problems && form.problems.length > 0) { %>
                                     <table class="table table-hover">
                                         <thead>
+                                        <th>Order</th>
                                         <th>Name</th>
                                         <th>Title</th>
                                         <th style="width:120px"></th>
                                         </thead>
                                         <tbody>
-                                        <% form.problems.forEach(p => { %>
+                                        <% for(let i = 0; i < form.problems.length; i++ ) { %>
+                                        <% let p = form.problems[i]; %>
                                         <tr>
+                                            <td><%= i + 1 %></td>
                                             <td><%= p.name %></td>
                                             <td><%= p.title %></td>
                                             <td class="td-actions text-right">
@@ -136,7 +139,7 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                        <% }) %>
+                                        <% } %>
                                         </tbody>
                                     </table>
                                     <% } else { %>
