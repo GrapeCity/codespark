@@ -1,15 +1,11 @@
-let _ = require('lodash'),
-    moment = require('moment'),
-    allowedUsers = (process.env.MAPI_USERS || 'mapi.admin' ).split(',').map(u => u.trim()),
-    passwordPrefix = process.env.MAPI_PASSWORD_PRE || 'gC',
-    passwordPostfix = process.env.MAPI_PASSWORD_POST || '';
+let express = require('express'),
+    _ = require('lodash'),
+    mapiSecurity = require('../utils/mapiSecurity'),
+    users = require('./users');
+
+
 let basicAuth = require('../utils/basicAuth')((user, password, next) => {
-    if (!_.find(allowedUsers, (au) => au === user)) {
-        return next(new Error(`${user} is not found`));
-    }
-    let now = moment(),
-        realPassword = `${passwordPrefix}${now.format('YYYYMMdd')}${passwordPostfix}`;
-    if (realPassword !== password) {
+    if (!mapiSecurity.authorize(user, password)) {
         return next(new Error(`user name or password is not matched`));
     }
     next(null, {name: user});
@@ -18,8 +14,20 @@ let basicAuth = require('../utils/basicAuth')((user, password, next) => {
 module.exports = (app) => {
     [
         {
+            key: '/users',
+            value: users
+        },
+        // {
+        //     key: '/problems',
+        //     value: problems
+        // },
+        /* all supported mapi must be placed before error fallback */
+        {
             key: '',
-            value: (req, res) => res.status(404).json({err: true, msg: 'iterating api list is not supported'})
+            value: (req, res, next) => res.status(404).json({
+                err: true,
+                msg: `api "${req.url}" is not found or iterating is not supported`
+            })
         },
     ].forEach(elem => app.use(`/mapi${elem.key}`, basicAuth, elem.value));
 };

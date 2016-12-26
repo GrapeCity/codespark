@@ -23,7 +23,7 @@ config.setup('mongo', {
     debug: (process.env.NODE_ENV === 'development')
 });
 config.setup('basicAuth', {
-    user: process.env.MANAGE_USERS || require('crypto').randomBytes(6).toString('base64'),
+    user: process.env.MANAGE_USER || require('crypto').randomBytes(6).toString('base64'),
     password: process.env.MANAGE_PASSWORD || require('crypto').randomBytes(12).toString('base64')
 });
 mongoose.setup(config.mongo, resMgr);
@@ -60,11 +60,11 @@ app.use(cookieParser());
 // include models
 require('../common/models');
 
-// setup server controller
-require('./routers')(app, config);
-
 // setup backend web apis
 require('./mapi')(app);
+
+// setup server controller
+require('./routers')(app, config);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
