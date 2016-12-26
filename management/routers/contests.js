@@ -6,7 +6,8 @@ let express = require('express'),
     mongoose = utils.mongoose,
     logger = utils.winston.appLogger,
     router = express.Router(),
-    Contest = mongoose.model('Contest');
+    Contest = mongoose.model('Contest'),
+    Problem = mongoose.model('Problem');
 
 
 function formatContest(contest) {
@@ -153,12 +154,26 @@ router.get('/:name/edit', (req, res, next) => {
             if (!contest) {
                 return next(); //make a 404
             }
-            res.render('contests/edit', {
-                index: 3,
-                title: 'Edit Contest',
-                messages: [],
-                form: formatContest(contest)
-            });
+
+            Problem.find()
+                .nin('name', contest.problems.map(p => p.name))
+                .exec((err, aps) => {
+                    let available = [];
+                    if (!err && aps && aps.length > 0) {
+                        available = aps.map(ap => ({
+                            _id: ap._id,
+                            name: ap.name,
+                            title: ap.title
+                        }))
+                    }
+                    res.render('contests/edit', {
+                        index: 3,
+                        title: 'Edit Contest',
+                        messages: [],
+                        form: formatContest(contest),
+                        problems: available
+                    });
+                });
         });
 });
 
@@ -246,7 +261,7 @@ router.get('/:name/remove', (req, res, next) => {
             return next();
         }
         res.render('contests/remove', {
-            index: 2,
+            index: 3,
             title: 'Delete Contest',
             messages: [],
             form: contest
@@ -278,7 +293,7 @@ router.post('/:name/remove', (req, res, next) => {
                 return next();
             }
             res.render('contests/remove', {
-                index: 2,
+                index: 3,
                 title: 'Delete Contest',
                 messages: [],
                 validation: validation,

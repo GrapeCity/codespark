@@ -59,7 +59,7 @@ router.get('/:name/', (req, res, next) => {
                 return next();
             }
             res.render('problems/detail', {
-                index: 3,
+                index: 4,
                 title: 'Problem Details',
                 messages: [],
                 problem: problem,
@@ -221,7 +221,7 @@ router.get('/:name/remove', (req, res, next) => {
             return next();
         }
         res.render('problems/remove', {
-            index: 2,
+            index: 4,
             title: 'Delete Problem',
             messages: [],
             form: problem
@@ -253,7 +253,7 @@ router.post('/:name/remove', (req, res, next) => {
                 return next();
             }
             res.render('problems/remove', {
-                index: 2,
+                index: 4,
                 title: 'Delete Problem',
                 messages: [],
                 validation: validation,
