@@ -12,13 +12,14 @@ let path = require('path'),
     winston = utils.winston,
     stream = winston.stream,
     logger = winston.appLogger,
-    app = express();
+    app = express(),
+    resMgr = new utils.ResourceManager();
 
 mongoose.setup({
     uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
     options: {},
     debug: (process.env.NODE_ENV === 'development')
-});
+}, resMgr);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -97,6 +98,7 @@ httpServer.on('close', () => {
         return;
     }
     logger.info('Clean up all managed resources');
+    resMgr.close();
     app._closed = true;
 });
 
