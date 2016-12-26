@@ -6,7 +6,7 @@ ENV CODESPARK_SITE_VERSION 1.0~nginx1.10.2
 ENV NODE_VERSION 6.9.2
 
 WORKDIR /site
-COPY . /site
+COPY ./site /site
 
 RUN apt-get update -qq \
     && apt-get install -y curl apt-utils build-essential \

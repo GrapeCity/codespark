@@ -6,7 +6,7 @@ ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
 WORKDIR /app
 VOLUME /app/data
-COPY . /app
+COPY ./judge/runner/javascript /app
 
 RUN npm install --production
 
