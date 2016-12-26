@@ -3,5 +3,6 @@
   "key": "sessionId",
   "secret": "kr-session-secret-DSVyhDLOQUE3UGSsDRhuvDjVEO62VbFAsQeKsxLMK61GqoRTNt9b5OOFWgM5QNSE",
   "secure": false,
+  "httpOnly": true,
   "sessionCollection": "sessions"
 }

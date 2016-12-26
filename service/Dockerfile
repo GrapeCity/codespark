@@ -13,7 +13,9 @@ COPY ./service /codespark/serice
 # Install basic requirements and clean up cache folders
 RUN apt-get update -qq \
     && apt-get install -y apt-utils build-essential \
+    && cd /codespark/common \
     && npm install --production \
+    && cd /codespark/serice
     && npm cache clean \
     && apt-get remove -y apt-utils build-essential \
     && apt-get autoremove -y \

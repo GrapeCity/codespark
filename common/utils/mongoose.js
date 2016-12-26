@@ -1,5 +1,5 @@
-let mongoose = require('mongoose')
-logger = require('./winston').appLogger;
+let mongoose = require('mongoose'),
+    logger = require('./winston').appLogger;
 
 // Use native Promise
 mongoose.Promise = global.Promise;
