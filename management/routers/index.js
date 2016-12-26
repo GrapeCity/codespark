@@ -2,9 +2,11 @@ let home = require('./home'),
     users = require('./users'),
     contests = require('./contests'),
     problems = require('./problems'),
-    status = require('./status');
+    status = require('./status'),
+    basicAuth = require('../utils/basicAuth');
 
-module.exports = (app) => {
+module.exports = (app, config) => {
+    let protect = basicAuth(config.basicAuth.user, config.basicAuth.password);
     [
         {
             key: '/',
@@ -26,5 +28,5 @@ module.exports = (app) => {
             key: '/status',
             value: status
         }
-    ].forEach(elem => app.use(elem.key, elem.value));
+    ].forEach(elem => app.use(elem.key, protect, elem.value));
 };

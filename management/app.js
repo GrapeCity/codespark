@@ -13,13 +13,20 @@ let path = require('path'),
     stream = winston.stream,
     logger = winston.appLogger,
     app = express(),
+    config = new utils.Configure(),
     resMgr = new utils.ResourceManager();
 
-mongoose.setup({
+resMgr.add('config', config, () => config.close());
+config.setup('mongo', {
     uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
     options: {},
     debug: (process.env.NODE_ENV === 'development')
-}, resMgr);
+});
+config.setup('basicAuth', {
+    user: process.env.MANAGE_USERS || require('crypto').randomBytes(6).toString('base64'),
+    password: process.env.MANAGE_PASSWORD || require('crypto').randomBytes(12).toString('base64')
+});
+mongoose.setup(config.mongo, resMgr);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -54,7 +61,7 @@ app.use(cookieParser());
 require('../common/models');
 
 // setup server controller
-require('./routers')(app);
+require('./routers')(app, config);
 
 // setup backend web apis
 require('./mapi')(app);
@@ -90,6 +97,8 @@ let httpServer = app.listen(process.env.PORT || 8000, function () {
     logger.info('\n================================================\n' +
         'Service run successful at ' + (new Date()).toLocaleString() + '\n' +
         'Http Port   : ' + (process.env.PORT || 8000) + '\n' +
+        'Mongo       : ' + config.mongo.uri + '\n' +
+        'Http Basic  : ' + config.basicAuth.user + ' ' + config.basicAuth.password + '\n' +
         '================================================');
 });
 
