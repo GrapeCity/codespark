@@ -210,4 +210,63 @@ router.post('/:name/edit', (req, res, next) => {
     });
 });
 
+
+router.get('/:name/remove', (req, res, next) => {
+    let name = req.params.name;
+    Problem.findOne({name}, (err, problem) => {
+        if (err) {
+            return next(err);
+        }
+        if (!problem) {
+            return next();
+        }
+        res.render('problems/remove', {
+            index: 2,
+            title: 'Delete Problem',
+            messages: [],
+            form: problem
+        });
+    });
+});
+
+router.post('/:name/remove', (req, res, next) => {
+    let name = req.params.name,
+        _id = req.body._id,
+        nameVerify = req.body.name,
+        validation = [];
+    if (!_id) {
+        validation.push({
+            msg: 'missing problem id to operated'
+        });
+    }
+    if (!nameVerify || name !== nameVerify) {
+        validation.push({
+            msg: 'mismatch confirmed problem name'
+        });
+    }
+    if (validation.length > 0) {
+        return Problem.findOne({name}, (err, problem) => {
+            if (err) {
+                return next(err);
+            }
+            if (!problem) {
+                return next();
+            }
+            res.render('problems/remove', {
+                index: 2,
+                title: 'Delete Problem',
+                messages: [],
+                validation: validation,
+                form: problem
+            });
+        });
+    }
+    Problem.findByIdAndRemove(_id, (err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/problems');
+    });
+});
+
 module.exports = router;
