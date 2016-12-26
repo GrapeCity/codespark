@@ -4,9 +4,11 @@ MAINTAINER Zhang Wenqing "winking.zhang@grapecity.com"
 
 ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
-WORKDIR /app
-VOLUME /app/conf
-COPY . /app
+WORKDIR /codespark/serice
+VOLUME /codespark/serice/conf
+VOLUME /codespark/serice/logs
+COPY ./common /codespark/common
+COPY ./service /codespark/serice
 
 # Install basic requirements and clean up cache folders
 RUN apt-get update -qq \
