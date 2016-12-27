@@ -7,7 +7,7 @@ let _ = require('lodash'),
 
 class UserRepository extends CacheableRepository {
     constructor() {
-        super(User, 'user:');
+        super(User, 'user');
     }
 
     /**
@@ -39,14 +39,14 @@ class UserRepository extends CacheableRepository {
         });
     }
 
-    findByMail(mail, withCache = false) {
+    findOneByMail(mail, withCache = false) {
         if (withCache) {
             return redisCache.getCache(`${this.cacheKeyPrefix}:${mail}`, (next) => {
-                User.find({mail}, next);
+                User.findOne({mail}, next);
             });
         }
         return new Promise((resolve, reject) => {
-            User.find({mail}, (err, user) => {
+            User.findOne({mail}, (err, user) => {
                 if (err) {
                     return reject(err);
                 }

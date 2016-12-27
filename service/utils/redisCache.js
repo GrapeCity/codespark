@@ -22,8 +22,8 @@ module.exports = {
                             reject(err);
                         }
                         if (!value) {
-                            return this.client.del(key, (err, count) => {
-                                reject(err || new Error('Not found'));
+                            return this.client.del(key, (err) => {
+                                reject(err || (err = new Error('Not found'), err.code = 404 ) && err);
                             });
                         }
                         this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {

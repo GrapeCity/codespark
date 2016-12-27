@@ -1,4 +1,5 @@
 let passport = require('passport'),
+    crypto = require('crypto'),
     LocalStrategy = require('passport-local').Strategy,
     validator = require('validator'),
     UserRepository = require('../repositories/userRepository');
@@ -28,14 +29,14 @@ module.exports = function (app) {
                 });
             }
 
-            userRepo.findByMail(mail.toLowerCase())
+            userRepo.findOneByMail(mail.toLowerCase())
                 .then(user => {
                     if (!user) {
                         return next(null, false, {
                             msg: '用户不存在'
                         });
                     }
-                    if (!user.authenticate(password)) {
+                    if (!authenticate(user, password)) {
                         return next(null, false, {
                             msg: '密码错误'
                         });
@@ -47,6 +48,16 @@ module.exports = function (app) {
                 });
         }
     ));
+
+    function authenticate(user, password) {
+        if (user.salt && password) {
+            return user.password === crypto.pbkdf2Sync(password,
+                    new Buffer(user.salt, 'base64'),
+                    10000, 64, 'sha1').toString('base64');
+        } else {
+            return user.password === password;
+        }
+    }
 
     /**
      * 注册序列化和反序列化函数
