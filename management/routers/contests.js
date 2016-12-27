@@ -97,7 +97,7 @@ router.get('/add', (req, res, next) => {
 });
 
 router.post('/add', (req, res, next) => {
-    let {name, displayName, open, begin, end} = req.body,
+    let {name, displayName, open, begin, end, description} = req.body,
         validation = [];
     if (!name) {
         validation.push({msg: 'name must be provided'});
@@ -133,7 +133,7 @@ router.post('/add', (req, res, next) => {
                 form: req.body
             });
         }
-        let one = new Contest({name, displayName, open, begin, end});
+        let one = new Contest({name, displayName, open, begin, end, description});
         one.save((err) => {
             if (err) {
                 return next(err);
@@ -211,13 +211,26 @@ router.post('/:name/edit', (req, res, next) => {
                     if (!contest) {
                         return next(); //make a 404
                     }
-                    res.render('contests/edit', {
-                        index: 3,
-                        title: 'Edit Contest',
-                        messages: [],
-                        validation: validation,
-                        form: formatContest(contest)
-                    });
+                    Problem.find()
+                        .nin('name', contest.problems.map(p => p.name))
+                        .exec((err, aps) => {
+                            let available = [];
+                            if (!err && aps && aps.length > 0) {
+                                available = aps.map(ap => ({
+                                    _id: ap._id,
+                                    name: ap.name,
+                                    title: ap.title
+                                }))
+                            }
+                            res.render('contests/edit', {
+                                index: 3,
+                                title: 'Edit Contest',
+                                messages: [],
+                                validation: validation,
+                                form: formatContest(contest),
+                                problems: available
+                            });
+                        });
                 });
         }
         let update = {};
@@ -236,14 +249,27 @@ router.post('/:name/edit', (req, res, next) => {
                 if (!contest) {
                     return next();
                 }
-                res.render('contests/edit', {
-                    index: 3,
-                    title: 'Edit Contest',
-                    messages: [{
-                        msg: `contest "${contest.name}" have been updated`
-                    }],
-                    form: formatContest(contest)
-                });
+                Problem.find()
+                    .nin('name', contest.problems.map(p => p.name))
+                    .exec((err, aps) => {
+                        let available = [];
+                        if (!err && aps && aps.length > 0) {
+                            available = aps.map(ap => ({
+                                _id: ap._id,
+                                name: ap.name,
+                                title: ap.title
+                            }))
+                        }
+                        res.render('contests/edit', {
+                            index: 3,
+                            title: 'Edit Contest',
+                            messages: [{
+                                msg: `contest "${contest.name}" have been updated`
+                            }],
+                            form: formatContest(contest),
+                            problems: available
+                        });
+                    });
             });
     }).catch(err => {
         next(err);
