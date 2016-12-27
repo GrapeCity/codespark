@@ -1,11 +1,8 @@
-let redis = require('./redis'),
-    logger = require('./winston').appLogger;
-
-class RedisCache {
-    constructor(client, expiry = 60 * 60) {
-        this.client = client;
+module.exports = {
+    setup(redisClient, expiry = 60 * 60) {
+        this.client = redisClient;
         this.expiry = expiry;
-    }
+    },
 
     /**
      * Get the item from cache if hit, otherwise use callback to retrieve origin
@@ -24,6 +21,11 @@ class RedisCache {
                         if (err) {
                             reject(err);
                         }
+                        if (!value) {
+                            return this.client.del(key, (err, count) => {
+                                reject(err || new Error('Not found'));
+                            });
+                        }
                         this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {
                             if (err) {
                                 reject(err);
@@ -32,11 +34,15 @@ class RedisCache {
                         });
                     });
                 } else {
-                    resolve(JSON.parse(replies));
+                    try {
+                        resolve(JSON.parse(replies));
+                    } catch (any) {
+                        reject(any);
+                    }
                 }
             })
         });
-    }
+    },
 
     /**
      * Update the item to cache storage with the origin returned from callback
@@ -58,7 +64,7 @@ class RedisCache {
                 });
             });
         });
-    }
+    },
 
     /**
      * Remove the item from cache
@@ -81,8 +87,4 @@ class RedisCache {
             });
         });
     }
-}
-
-module.exports = function (server) {
-    return new RedisCache(redis(server));
 };

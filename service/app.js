@@ -9,6 +9,7 @@ let path = require('path'),
     RateRedisStore = require('rate-limit-redis'),
     session = require('express-session'),
     SessionRedisStore = require('connect-redis')(session),
+    redisCache = require('./utils/redisCache'),
     utils = require('./utils'),
     mongoose = utils.mongoose,
     redis = utils.redis,
@@ -47,6 +48,7 @@ config.setup('adAuth', {
 // database connection
 mongoose.setup(config.mongo, resMgr);
 redis.setup(config.redis, resMgr);
+redisCache.setup(redis.client());
 
 // Showing stack errors
 app.set('showStackError', true);

@@ -1,8 +1,7 @@
 let passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     validator = require('validator'),
-    utils = require('./index'),
-    User = utils.mongoose.model('User');
+    UserRepository = require('../repositories/userRepository');
 
 /**
  * Configure passport, add bearer strategy to verify access token.
@@ -10,6 +9,8 @@ let passport = require('passport'),
  * @param app
  */
 module.exports = function (app) {
+    let userRepo = new UserRepository();
+
     /**
      * LocalStrategy
      *
@@ -20,31 +21,30 @@ module.exports = function (app) {
             usernameField: 'mail',
             passwordField: 'password'
         },
-        (mail, password, done) => {
+        (mail, password, next) => {
             if (!validator.isEmail(mail)) {
-                return done(null, false, {
+                return next(null, false, {
                     msg: '邮箱不合法'
                 });
             }
-            let queryParam = {
-                mail: mail.toLowerCase()
-            };
-            User.findOne(queryParam, (err, user) => {
-                if (err) {
-                    return done(err);
-                }
-                if (!user) {
-                    return done(null, false, {
-                        msg: '用户不存在'
-                    });
-                }
-                if (!user.authenticate(password)) {
-                    return done(null, false, {
-                        msg: '密码错误'
-                    });
-                }
-                return done(null, user);
-            });
+
+            userRepo.findByMail(mail.toLowerCase())
+                .then(user => {
+                    if (!user) {
+                        return next(null, false, {
+                            msg: '用户不存在'
+                        });
+                    }
+                    if (!user.authenticate(password)) {
+                        return next(null, false, {
+                            msg: '密码错误'
+                        });
+                    }
+                    return next(null, user);
+                })
+                .catch(err => {
+                    return next(err);
+                });
         }
     ));
 
@@ -59,21 +59,24 @@ module.exports = function (app) {
     /**
      * 注册序列化函数
      */
-    passport.serializeUser((user, done) => done(null, user.id));
+    passport.serializeUser((user, next) => next(null, user.id));
 
     /**
      * 注册反序列化函数
      */
-    passport.deserializeUser((id, done) => {
-        User.findById(id, '-salt -password', (err, user) => {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false);
-            }
-            return done(null, user);
-        });
+    passport.deserializeUser((id, next) => {
+        userRepo.findById(id, '-salt -password', true)
+            .then(user => {
+                if (!user) {
+                    return next(null, false);
+                }
+                return next(null, user);
+            })
+            .catch(err => {
+                if (err) {
+                    return next(err);
+                }
+            });
     });
 
     app.use(passport.initialize());
