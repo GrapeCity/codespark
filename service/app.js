@@ -107,6 +107,7 @@ require('../common/models');
 // setup passport
 require('./utils/passport')(app);
 
+// error handler
 app.use((err, req, res, next) => {
     // If the error object doesn't exists
     if (!err) {
@@ -124,12 +125,11 @@ app.use((err, req, res, next) => {
     });
 });
 
-let accounts = require('./routers/accounts');
-app.post('/sapi/accounts/login', accounts.login, accounts.postLogin);
-app.post('/sapi/accounts/signup', accounts.signup);
+// setup auth
+require('./utils/auth').setup(app, config.adAuth);
 
 // setup server router
-require('./routers')(app);
+require('./sapi')(app);
 
 // bootstrap http server
 let httpServer = app.listen(process.env.PORT || 5000, function () {
