@@ -15,7 +15,7 @@ RUN apt-get update -qq \
     && apt-get install -y apt-utils build-essential \
     && cd /codespark/common \
     && npm install --production \
-    && cd /codespark/serice
+    && cd /codespark/serice \
     && npm cache clean \
     && apt-get remove -y apt-utils build-essential \
     && apt-get autoremove -y \
