@@ -103,6 +103,9 @@ function createSignupHandle(config) {
                         false, resolve, reject);
                 }
             }).then((user) => {
+
+                // send mail
+
                 passport.authenticate('local')(req, res, () =>
                     res.status(201).json({
                         mail: user.mail,
@@ -121,6 +124,31 @@ function createSignupHandle(config) {
     };
 }
 
+function createActivateLink(host, mail, activeToken) {
+    return new Promise((resolve, reject) => {
+        try {
+            let nonce = crypto.randomBytes(24).toString('hex'),
+                random = crypto.randomBytes(12).toString('base64'),
+                cipher = crypto.createCipher('aes192', nonce),
+                encrypted = '';
+            cipher.on('readable', () => {
+                let data = cipher.read();
+                if (data) {
+                    encrypted += data.toString('hex');
+                }
+            });
+            cipher.on('end', () => {
+                resolve(`${host}/active?token=${encrypted}&nonce=${nonce}`);
+            });
+
+            cipher.write(JSON.stringify({mail, activeToken, random}));
+            cipher.end();
+        } catch (any) {
+            reject(any);
+        }
+    });
+}
+
 function createLocalUser(mail, password, username, displayName, adUser, resolve, reject) {
     let user = new User({
         provider: 'local',
@@ -135,9 +163,6 @@ function createLocalUser(mail, password, username, displayName, adUser, resolve,
     user.save(function (err) {
         if (err) {
             reject(err);
-        }
-        if (!adUser) {
-            // send mail
         }
         resolve(user);
     })
