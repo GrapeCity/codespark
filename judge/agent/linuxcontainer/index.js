@@ -40,8 +40,11 @@ queue.process('judge', 5, (job, done) => {
         // create options
         {
             NetworkDisabled: true,
-            Memory: 1024 * 1024 * 250,
-            NetworkMode: 'none'
+            HostConfig: {
+                binds: ['/data/user_id/contest_id/problem_id/solution_id:/app/data'],
+                Memory: 1024 * 1024 * 250,
+                NetworkMode: 'none'
+            }
         },
         // start options
         {},
