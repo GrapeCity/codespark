@@ -1,15 +1,11 @@
-// let Docker = require('dockerode'),
-//     docker = new Docker(),
-//     util = require('util');
-//
-// docker.info((err, info) => {
-//     console.log(util.inspect(info));
-// });
-
-let express = require('express'),
+let crypto = require('crypto'),
+    express = require('express'),
     redis = require('redis'),
+    kue = require('kue'),
+    Docker = require('dockerode'),
+    docker = new Docker(),
     app = express(),
-    redisSubClient = redis.createClient({
+    redisOption = {
         host: process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
         port: process.env.REDIS_PORT_6379_TCP_PORT || '6379',
         password: process.env.REDIS_PASSWORD,
@@ -29,26 +25,42 @@ let express = require('express'),
             // reconnect after
             return Math.min(opt.attempt * 100, 3000);
         }
+    },
+    redisDataClient = redis.createClient(redisOption),
+    queue = kue.createQueue({
+        prefix: crypto.randomBytes(3).toString('base64'),
+        redis: redisOption
     });
 
-redisSubClient.on('error', err => console.log(`Redis Error: ${err}`));
-
-redisSubClient.on('subscribe', (channel, count) => {
-    console.log(`channel [${channel}] is now ready to subscribe message`)
-});
-
-redisSubClient.on('message', (channel, message) => {
-    console.log(`channel [${channel}]: ${message}`);
+queue.process('judge', 5, (job, done) => {
+    // 1. get the judge basic info: {user._id, contest._id, problem._id, {solution} }
+    docker.run(process.env.JUDGE_IMAGE || 'codespark-runner-js',
+        ['node', 'index.js'],
+        [],
+        // create options
+        {
+            NetworkDisabled: true,
+            Memory: 1024 * 1024 * 250,
+            NetworkMode: 'none'
+        },
+        // start options
+        {},
+        (err, data, container) => {
+            if (err) {
+                // report running in error
+                //
+            }
+            // container is now stopped
+            // safe to check result of the solution
+        });
 });
 
 app.get('/', (req, res) => {
-   res.send('This worker is working')
+    res.send('This worker is working')
 });
 
 // bootstrap http server
 let httpServer = app.listen(process.env.PORT || 8001, function () {
-    redisSubClient.subscribe('judge');
-
     console.log('\n================================================\n' +
         'Service run successful at ' + (new Date()).toLocaleString() + '\n' +
         'Http Port   : ' + (process.env.PORT || 8001) + '\n' +
@@ -59,8 +71,6 @@ httpServer.on('close', () => {
         return;
     }
     console.log('Worker is now shutting down, and close redis subscribe channel');
-    redisSubClient.unsubscribe();
-    redisSubClient.quit();
     app._closed = true;
 });
 

@@ -11,7 +11,7 @@ var fs = require('fs'),
 //   |- source.js      * the source code of solution
 //   |- result.json    * the result (score and outputs)
 
-var defaultTimeout = 2000,
+var defaultTimeout = 1000,
     datadir = 'data',
     casedir = datadir + '/cases',
     caseInPostfix = '.in',
