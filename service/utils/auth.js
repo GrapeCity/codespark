@@ -105,6 +105,15 @@ function createSignupHandle(config) {
             }).then((user) => {
 
                 // send mail
+                createActivateLink(
+                    `${req.header('X-Forwarded-Proto') || req.protocol || 'http'}://${req.header('host')}`,
+                    mail,
+                    user.activeToken
+                ).then(link => {
+                    sendActivateEmail(mail, link);
+                }).catch(err => {
+                    logger.warn(`there is an error: ${err}`);
+                });
 
                 passport.authenticate('local')(req, res, () =>
                     res.status(201).json({
@@ -124,12 +133,16 @@ function createSignupHandle(config) {
     };
 }
 
+function sendActivateEmail(mail, link) {
+    console.log(`mail=${mail}, linnk=${link}`)
+}
+
 function createActivateLink(host, mail, activeToken) {
     return new Promise((resolve, reject) => {
         try {
-            let nonce = crypto.randomBytes(24).toString('hex'),
-                random = crypto.randomBytes(12).toString('base64'),
-                cipher = crypto.createCipher('aes192', nonce),
+            let nonce = crypto.randomBytes(4).toString('hex'),
+                random = crypto.randomBytes(3).toString('base64'),
+                cipher = crypto.createCipher('rc4', nonce),
                 encrypted = '';
             cipher.on('readable', () => {
                 let data = cipher.read();
@@ -138,10 +151,10 @@ function createActivateLink(host, mail, activeToken) {
                 }
             });
             cipher.on('end', () => {
-                resolve(`${host}/active?token=${encrypted}&nonce=${nonce}`);
+                resolve(`${host}/users/active?token=${encrypted}&nonce=${nonce}`);
             });
 
-            cipher.write(JSON.stringify({mail, activeToken, random}));
+            cipher.write(JSON.stringify({m:mail, a:activeToken, r: random}));
             cipher.end();
         } catch (any) {
             reject(any);
@@ -234,6 +247,9 @@ module.exports = {
         app.post('/sapi/accounts/signup', createSignupHandle(config));
     },
     ensureAuthenticated(req, res, next) {
+        console.log('req.headers.host:%s', req.headers.host);
+        console.log('req.protocol:%s, req.host:%s, req.subdomains:%s', req.protocol, req.host, req.subdomains);
+        console.log('req.originalUrl:%s, req.url:%s', req.originalUrl, req.url);
         if (req.isAuthenticated()) {
             return next();
         }

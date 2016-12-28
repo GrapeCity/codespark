@@ -10,7 +10,7 @@ router.get('/active', (req, res) => {
     if (!token || !nonce) {
         return res.send('参数不正确，请重新输入');
     }
-    let decipher = crypto.createDecipher('aes192', nonce),
+    let decipher = crypto.createDecipher('rc4', nonce),
         decrypted = '';
     decipher.on('readable', () => {
         let data = decipher.read();
@@ -21,7 +21,9 @@ router.get('/active', (req, res) => {
     decipher.on('end', () => {
         // Prints: some clear text data
         try {
-            let {mail, activeToken} = JSON.parse(decrypted),
+            let data = JSON.parse(decrypted),
+                mail = data.m,
+                activeToken = data.a,
                 userRepo = new UserRepository();
             userRepo.findOneByMail(mail)
                 .then(user => {

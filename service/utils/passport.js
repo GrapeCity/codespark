@@ -84,9 +84,7 @@ module.exports = function (app) {
                 return next(null, user);
             })
             .catch(err => {
-                if (err) {
-                    return next(err);
-                }
+                return next(null, null);
             });
     });
 
