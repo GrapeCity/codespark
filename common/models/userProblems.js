@@ -18,7 +18,16 @@ let UserProblemsSchema = new Schema(
         solutions: {
             type: [{
                 id: Number,
-                status: String,
+                runtime: {
+                    type: String,
+                    enum: ['javascript', 'java', 'csharp', 'cpp', 'python'],
+                    default: 'javascript'
+                },
+                status: {
+                    type: String,
+                    enum: ['none', 'submitted', 'accepted', 'rejected', 'judged'],
+                    default: 'none'
+                },
                 source: String,
                 result: {
                     type: {
