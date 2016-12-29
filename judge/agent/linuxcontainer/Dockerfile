@@ -14,4 +14,6 @@ RUN cd /codespark/common \
     && cd /codespark/judge/agent/linuxcontainer \
     && npm install --production
 
+EXPOSE 8001
+
 CMD [ "node", "index.js" ]

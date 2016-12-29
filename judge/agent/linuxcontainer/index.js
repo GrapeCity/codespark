@@ -1,5 +1,6 @@
 let fs = require('fs'),
     crypto = require('crypto'),
+    exec = require('child_process').exec,
     express = require('express'),
     redis = require('redis'),
     kue = require('kue'),
@@ -89,20 +90,20 @@ queue.process('judge', maxConcurrent, (job, done) => {
             return done(any);
         }
 
-        let image = process.env.JUDGE_IMAGE_JAVASCRIPT || 'codespark-runner-js',
+        let image = process.env.JUDGE_IMAGE_JAVASCRIPT || 'codespark-judge-javascript',
             cmd = ['node', 'index.js'];
         switch (data.runtime) {
             case 'java':
-                image = process.env.JUDGE_IMAGE_JAVA || 'codespark-runner-java';
+                image = process.env.JUDGE_IMAGE_JAVA || 'codespark-judge-java';
                 break;
             case 'csharp':
-                image = process.env.JUDGE_IMAGE_CSHARP || 'codespark-runner-csharp';
+                image = process.env.JUDGE_IMAGE_CSHARP || 'codespark-judge-csharp';
                 break;
             case 'cpp':
-                image = process.env.JUDGE_IMAGE_CPP || 'codespark-runner-cpp';
+                image = process.env.JUDGE_IMAGE_CPP || 'codespark-judge-cpp';
                 break;
             case 'python':
-                image = process.env.JUDGE_IMAGE_PYTHON || 'codespark-runner-python';
+                image = process.env.JUDGE_IMAGE_PYTHON || 'codespark-judge-python';
                 break;
         }
 
@@ -175,6 +176,35 @@ queue.process('judge', maxConcurrent, (job, done) => {
 
 app.get('/', (req, res) => {
     res.send('This worker is working')
+});
+
+function invoke(cmd) {
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout/*, stderr*/) => {
+            if (error) {
+                return reject(error);
+            }
+            resolve(stdout);
+        });
+    });
+}
+
+app.get('/health', (req, res) => {
+    Promise.all(
+        invoke(`grep 'cpu ' /host/proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`),
+        invoke(`grep 'MemAvailable' /host/proc/meminfo | awk '{usage=$2/1024} END {print usage "MB"}'`)
+    ).then(datas => {
+        res.status(200).json({
+            cpu: datas[0],
+            memory: datas[1]
+        })
+    }).catch(errors => {
+        res.status(500).json({
+            err: true,
+            msg: JSON.stringify(errors),
+            timestamp: new Date().getTime()
+        });
+    });
 });
 
 // bootstrap http server

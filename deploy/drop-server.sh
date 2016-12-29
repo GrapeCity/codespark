@@ -22,10 +22,11 @@ remove_image() {
   fi
 }
 
-force_remove_container "management"
 force_remove_container "site"
 force_remove_container "service1"
 force_remove_container "service2"
+force_remove_container "management"
+force_remove_container "agent"
 
 DROP_IMAGES=$1
 if [ ! -z "DROP_IMAGES" ]
@@ -33,5 +34,6 @@ then
     remove_image "codespark-management:1.0-$BUILD_VERSION"
     remove_image "codespark-service:1.0-$BUILD_VERSION"
     remove_image "codespark-site:1.0-$BUILD_VERSION"
-    remove_image "codespark-runner-js:1.0-$BUILD_VERSION"
+    remove_image "codespark-runner-agent:1.0-$BUILD_VERSION"
+    remove_image "codespark-runner-javascript:1.0-$BUILD_VERSION"
 fi
