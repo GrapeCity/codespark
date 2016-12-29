@@ -1,4 +1,5 @@
 let mongoose = require('../../common/utils/mongoose'),
+    redis = require('../../common/utils/redis'),
     winston = require('../../common/utils/winston'),
     mapiSecurity = require('../../common/utils/mapiSecurity'),
     Configure = require('../../common/utils/configure'),
@@ -6,6 +7,7 @@ let mongoose = require('../../common/utils/mongoose'),
 
 module.exports = {
     mongoose,
+    redis,
     winston,
     mapiSecurity,
     Configure,

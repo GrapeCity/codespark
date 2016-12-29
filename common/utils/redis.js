@@ -1,6 +1,5 @@
 let redis = require('redis'),
-    logger = require('./winston').appLogger,
-    redisClient;
+    logger = require('./winston').appLogger;
 
 module.exports = {
     redis,
@@ -28,15 +27,15 @@ module.exports = {
         if (config.password) {
             redisOpts.password = config.password;
         }
-        redisClient = redis.createClient(redisOpts);
-        redisClient.on('error', err => logger.error(`Redis Error: ${err}`));
+        this.redisClient = redis.createClient(redisOpts);
+        this.redisClient.on('error', err => logger.error(`Redis Error: ${err}`));
         if (resMgr) {
-            resMgr.add('redis', redisClient, () => {
-                redisClient.quit();
-                redisClient = null;
+            resMgr.add('redis', this.redisClient, () => {
+                this.redisClient.quit();
+                this.redisClient = null;
                 logger.info('Disconnected from Redis successfully');
             });
         }
     },
-    client: () => redisClient
+    client: () => this.redisClient
 };

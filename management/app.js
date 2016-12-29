@@ -10,6 +10,7 @@ let path = require('path'),
     kue = require('kue'),
     utils = require('./utils'),
     mongoose = utils.mongoose,
+    redis = utils.redis,
     winston = utils.winston,
     stream = winston.stream,
     logger = winston.appLogger,
@@ -35,6 +36,7 @@ config.setup('basicAuth', {
     password: process.env.MANAGE_PASSWORD || require('crypto').randomBytes(12).toString('base64')
 });
 mongoose.setup(config.mongo, resMgr);
+redis.setup(config.redis, resMgr);
 
 let queue = kue.createQueue({
     redis: config.redis
