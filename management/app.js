@@ -7,6 +7,7 @@ let path = require('path'),
     compression = require('compression'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
+    kue = require('kue'),
     utils = require('./utils'),
     mongoose = utils.mongoose,
     winston = utils.winston,
@@ -16,17 +17,37 @@ let path = require('path'),
     config = new utils.Configure(),
     resMgr = new utils.ResourceManager();
 
-resMgr.add('config', config, () => config.close());
+resMgr.add('config', config, () => config.close(() => {
+    logger.info('Config disposed successfully');
+}));
 config.setup('mongo', {
     uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
     options: {},
     debug: (process.env.NODE_ENV === 'development')
+});
+config.setup('redis', {
+    host: process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
+    port: process.env.REDIS_PORT_6379_TCP_PORT || '6379',
+    password: process.env.REDIS_PASSWORD || ''
 });
 config.setup('basicAuth', {
     user: process.env.MANAGE_USER || require('crypto').randomBytes(6).toString('base64'),
     password: process.env.MANAGE_PASSWORD || require('crypto').randomBytes(12).toString('base64')
 });
 mongoose.setup(config.mongo, resMgr);
+
+let queue = kue.createQueue({
+    redis: config.redis
+});
+resMgr.add('queue', queue, () => {
+    queue.shutdown(5000, (err) => {
+        if (err) {
+            logger.error(`Kue shutdown failed: ${err}`);
+            return;
+        }
+        logger.info('Kue shutdown successfully');
+    });
+});
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -61,7 +82,7 @@ app.use(cookieParser());
 require('../common/models');
 
 // setup backend web apis
-require('./mapi')(app);
+require('./mapi')(app, config);
 
 // setup server controller
 require('./routers')(app, config);

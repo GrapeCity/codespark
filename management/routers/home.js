@@ -1,5 +1,5 @@
 let express = require('express'),
-    mapiSecurity = require('../utils/mapiSecurity'),
+    mapiSecurity = require('../utils').mapiSecurity,
     router = express.Router();
 
 /* GET home page. */

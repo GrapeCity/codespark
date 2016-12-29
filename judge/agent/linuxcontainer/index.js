@@ -1,7 +1,12 @@
-let crypto = require('crypto'),
+let fs = require('fs'),
+    crypto = require('crypto'),
     express = require('express'),
     redis = require('redis'),
     kue = require('kue'),
+    request = require('request'),
+    mkdirp = require('mkdirp'),
+    mapiSecurity = require('../../../common/utils/mapiSecurity'),
+    logger = require('../../../common/utils/winston').appLogger,
     Docker = require('dockerode'),
     docker = new Docker(),
     app = express(),
@@ -26,36 +31,146 @@ let crypto = require('crypto'),
             return Math.min(opt.attempt * 100, 3000);
         }
     },
-    redisDataClient = redis.createClient(redisOption),
     queue = kue.createQueue({
-        prefix: crypto.randomBytes(3).toString('base64'),
         redis: redisOption
-    });
+    }),
+    maxConcurrent = parseInt(process.env.CONCURRENT, 10) || 4;
 
-queue.process('judge', 5, (job, done) => {
+queue.process('judge', maxConcurrent, (job, done) => {
     // 1. get the judge basic info: {user._id, contest._id, problem._id, {solution} }
-    docker.run(process.env.JUDGE_IMAGE || 'codespark-runner-js',
-        ['node', 'index.js'],
-        [],
-        // create options
-        {
-            NetworkDisabled: true,
-            HostConfig: {
-                binds: ['/data/user_id/contest_id/problem_id/solution_id:/app/data'],
-                Memory: 1024 * 1024 * 250,
-                NetworkMode: 'none'
-            }
-        },
-        // start options
-        {},
-        (err, data, container) => {
-            if (err) {
-                // report running in error
-                //
-            }
-            // container is now stopped
-            // safe to check result of the solution
-        });
+    let reqHost = process.env.MAPI_HOST || 'http://localhost:8000',
+        {userId, contestId, problemId, solutionId} = job.data,
+        accessToken = mapiSecurity.accessToken();
+    logger.info(`[${contestId}] [${problemId}] [${userId}] begin process judge`);
+    request({
+        method: 'GET',
+        uri: `${reqHost}/mapi/judge`,
+        qs: {userId, contestId, problemId, solutionId},
+        headers: {
+            'Authorization': `Basic ${accessToken}`
+        }
+    }, (err, res, data) => {
+        job.progress(5, 100, {msg: 'prepare data'});
+        if (err) {
+            logger.error(`[${contestId}] [${problemId}] [${userId}] prepare data error: ${err}`);
+            return done(err);
+        }
+
+        // 2. write users' data to /data/user_id/contest_id/problem_id/solution_id/source.js
+        try {
+            logger.info(`[${contestId}] [${problemId}] [${userId}] write judge data`);
+            mkdirp.sync(`/data/${userId}/${contestId}/${problemId}/${solutionId}/cases`);
+
+            data.cases.forEach(c => {
+                let {id, input, expect} = c;
+                fs.writeFileSync(
+                    `/data/${userId}/${contestId}/${problemId}/${solutionId}/cases/${id}.in`,
+                    input,
+                    'utf8'
+                );
+                fs.writeFileSync(
+                    `/data/${userId}/${contestId}/${problemId}/${solutionId}/cases/${id}.out`,
+                    expect,
+                    'utf8'
+                );
+            });
+            fs.writeFileSync(
+                `/data/${userId}/${contestId}/${problemId}/${solutionId}/source.js`,
+                data.source,
+                'utf8'
+            );
+            fs.writeFileSync(
+                `/data/${userId}/${contestId}/${problemId}/${solutionId}/result.json`,
+                JSON.stringify({score: 0}),
+                'utf8'
+            );
+        } catch (any) {
+            logger.error(`[${contestId}] [${problemId}] [${userId}] write judge data error: ${any}`);
+            return done(any);
+        }
+
+        let image = process.env.JUDGE_IMAGE_JAVASCRIPT || 'codespark-runner-js',
+            cmd = ['node', 'index.js'];
+        switch (data.runtime) {
+            case 'java':
+                image = process.env.JUDGE_IMAGE_JAVA || 'codespark-runner-java';
+                break;
+            case 'csharp':
+                image = process.env.JUDGE_IMAGE_CSHARP || 'codespark-runner-csharp';
+                break;
+            case 'cpp':
+                image = process.env.JUDGE_IMAGE_CPP || 'codespark-runner-cpp';
+                break;
+            case 'python':
+                image = process.env.JUDGE_IMAGE_PYTHON || 'codespark-runner-python';
+                break;
+        }
+
+        // 3. create a docker container and bind users' data folder, and running it
+        docker.run(image, cmd, [process.stdout, process.stderr],
+            // create options
+            {
+                Tty: false,
+                NetworkDisabled: true,
+                HostConfig: {
+                    binds: [`/data/${userId}/${contestId}/${problemId}/${solutionId}:/app/data`],
+                    Memory: 1024 * 1024 * 250,
+                    NetworkMode: 'none'
+                }
+            },
+            (err, data, container) => {
+                job.progress(80, 100, {msg: 'judge finished'});
+                try {
+                    if (err) {
+                        logger.error(`run docker error: ${err}`);
+                        if (container) {
+                            job.progress(95, 100, {msg: 'judge finished with error'});
+                            return container.remove((err2, data) => {
+                                done(err2 || err);
+                            });
+                        }
+                        return done(err);
+                    }
+
+                    // container is now stopped
+                    // safe to check result of the solution
+                    let out = fs.readFileSync(
+                        `/data/${userId}/${contestId}/${problemId}/${solutionId}/result.json`, 'utf8');
+                    request({
+                        method: 'GET',
+                        uri: `${reqHost}/mapi/judge`,
+                        qs: {userId, contestId, problemId, solutionId},
+                        headers: {
+                            'Authorization': `Basic ${accessToken}`
+                        },
+                        body: out,
+                        json: true
+                    }, (err /*, res, body*/) => {
+                        if (err) {
+                            // error while reporting
+                            job.progress(95, 100, {msg: 'judge report error'});
+                            return container.remove((err, data) => {
+                                done(err);
+                            });
+                        }
+                        container.remove((err, data) => {
+                            if (err) {
+                                return done(err);
+                            }
+                            done(null, {score: JSON.parse(out).score});
+                        });
+                    });
+                } catch (any) {
+                    return done(any);
+                }
+            })
+            .on('container', () => {
+                job.progress(20, 100, {msg: 'docker container is ready'})
+            })
+            .on('stream', () => {
+                job.progress(30, 100, {msg: 'judge started'})
+            });
+    });
 });
 
 app.get('/', (req, res) => {
