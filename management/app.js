@@ -83,6 +83,9 @@ app.use(cookieParser());
 // include models
 require('../common/models');
 
+// setup message subscriber
+require('./utils/subscriber')(config.redis, resMgr);
+
 // setup backend web apis
 require('./mapi')(app, config);
 
