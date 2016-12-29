@@ -53,30 +53,23 @@ class Configure {
     }
 
     watchFile() {
-        fs.stat(this.baseFolder, (err, stats) => {
-            if (err) {
-                // no watch due to fs error
-                logger.warn(`fs error: ${err}`);
-                return;
-            }
-            if (stats.isDirectory()) {
-                this.watches.push(fs.watch(this.baseFolder, (evt, fn) => {
-                    if (fn && fn.substr(fn.length - this.filePostfix.length, this.filePostfix.length) === this.filePostfix) {
-                        let module = fn.substr(0, fn.length - this.filePostfix.length);
-                        this.loadConfigAsync(fn)
-                            .then(data => {
-                                if (data) {
-                                    logger.info(`reload config for [${module}]`);
-                                    this.config[module] = this.fallback[module];
-                                }
-                            })
-                            .catch(err => {
-                                logger.warn(`Something wrong: ${err}`);
-                            })
-                    }
-                }));
-            }
-        });
+        if (fs.existsSync(this.baseFolder)) {
+            this.watches.push(fs.watch(this.baseFolder, (evt, fn) => {
+                if (fn && fn.substr(fn.length - this.filePostfix.length, this.filePostfix.length) === this.filePostfix) {
+                    let module = fn.substr(0, fn.length - this.filePostfix.length);
+                    this.loadConfigAsync(fn)
+                        .then(data => {
+                            if (data) {
+                                logger.info(`reload config for [${module}]`);
+                                this.config[module] = this.fallback[module];
+                            }
+                        })
+                        .catch(err => {
+                            logger.warn(`Something wrong: ${err}`);
+                        })
+                }
+            }));
+        }
     }
 
     setup(module, defaultValue) {
@@ -90,11 +83,12 @@ class Configure {
         });
     }
 
-    close() {
+    close(done) {
         while (this.watches.length > 0) {
             let watch = this.watches.pop();
             watch.close();
         }
+        done && done();
     }
 }
 
