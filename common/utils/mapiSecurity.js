@@ -14,7 +14,7 @@ module.exports = {
     },
     accessToken: () => {
         let now = moment(),
-            realPassword = `${passwordPrefix}${now.format('YYYYMMdd')}${passwordPostfix}`;
+            realPassword = `${passwordPrefix}${now.format('YYYYMMDD')}${passwordPostfix}`;
         return new Buffer(`${allowedUser}:${realPassword}`).toString('base64');
     }
 };
