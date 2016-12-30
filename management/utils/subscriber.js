@@ -5,32 +5,6 @@ let redis = require('redis'),
     mongoose = require('../../common/utils/mongoose'),
     UserProblems = mongoose.model('UserProblems');
 
-function updateSolution(userId, contestId, problemId, solutionId, result) {
-    UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
-        .exec((err, data) => {
-            if (err) {
-                logger.error(`Query UseProblems error: ${err}`);
-                return;
-            }
-            if (!data) {
-                logger.warn(`Solution [user: ${userId}, contest: ${contestId}, problem: ${problemId}] is not found`);
-                return;
-            }
-            let sid = parseInt(solutionId, 10),
-                solution = _.find(data.solutions, s => s.id === sid);
-            if (!solution) {
-                logger.warn(`Solution [user: ${userId}, contest: ${contestId}, problem: ${problemId}, solution: ${solutionId}] is not found`);
-                return;
-            }
-            solution.result = result;
-            data.save((err) => {
-                if (err) {
-                    logger.error(`Save UserProblems error: ${err}`);
-                }
-            });
-        });
-}
-
 module.exports = (config, resMgr) => {
     let client = redis.createClient(config),
         queue = kue.createQueue(config);
@@ -46,20 +20,67 @@ module.exports = (config, resMgr) => {
         console.log("sub channel " + channel + ": " + message);
         // message should like:
         // {userId, contestId, problemId, solutionId}
-        let data = JSON.parse(message),
-            judge = queue.create('judge', data)
-                .ttl(20 * 1000)
-                .delay(500)
-                .removeOnComplete(true);
-        judge.on('complete', function () {
-            console.log('Job', job.id, 'with name', job.data.name, 'is done');
-            // write data to db
-        }).on('failed', function () {
-            console.log('Job', job.id, 'with name', job.data.name, 'has failed');
-            // write data to db
+        let solutionData;
+        try {
+            solutionData = JSON.parse(message);
+        } catch (any) {
+            logger.error(`Error parse message: ${any}`);
+            return;
+        }
+        let {userId, contestId, problemId, solutionId} = solutionData;
+        if (!userId || !contestId || !problemId || !solutionId) {
+            logger.error(`Incorrect message: ${message}`);
+            return;
+        }
+        UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
+            .exec((err, data) => {
+                if (err) {
+                    logger.error(`Error read UserProblems: ${err}`);
+                    return;
+                }
+                let solution;
+                if (!data || !(solution = _.any(data.solutions, s => s.id === solutionId))) {
+                    logger.warn(`Solution [user:${userId}, contest:${contestId}, problem:${problemId}, solution:${solutionId}] is not found`);
+                    return;
+                }
 
-        });
-        judge.save();
+                let judge = queue.create('judge', solutionData)
+                    .ttl(20 * 1000)
+                    .delay(500)
+                    .attempts(3).backoff({delay: 2000, type: 'fixed'})
+                    .removeOnComplete(true);
+                judge.on('start', () => {
+                    // update status to judging
+                    solution.status = 'judging';
+                    data.save(err => {
+                        logger.error(`Error save UserProblems: ${err}`);
+                    });
+                }).on('complete', result => {
+                    console.log(`judge #${judge.id} is done, with result: ${result}`);
+                    // write data to db
+                    solution.status = 'judge succeeded';
+                    solution.result = result;
+                    data.save(err => {
+                        logger.error(`Error save UserProblems: ${err}`);
+                    });
+                }).on('failed attempt', function (errMessage, doneAttempts) {
+                    console.log(`judge #${judge.id} ${doneAttempts}th failed: ${errMessage}`);
+                    solution.status = 'judge retry';
+                    data.save(err => {
+                        logger.error(`Error save UserProblems: ${err}`);
+                    });
+                }).on('failed', errMessage => {
+                    console.log(`judge #${judge.id} has failed: ${errMessage}`);
+                    // write data to db
+                    solution.status = 'judge failed';
+                    data.save(err => {
+                        logger.error(`Error save UserProblems: ${err}`);
+                    });
+                }).on('progress', function (progress, data) {
+                    console.log(`\r  judge #${judge.id} ${progress}% complete with data: ${data}`);
+                });
+                judge.save();
+            });
     });
     client.subscribe('solution-ready');
 };

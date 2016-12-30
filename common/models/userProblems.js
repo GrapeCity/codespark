@@ -25,7 +25,8 @@ let UserProblemsSchema = new Schema(
                 },
                 status: {
                     type: String,
-                    enum: ['none', 'submitted', 'accepted', 'rejected', 'judged'],
+                    enum: ['none', 'submitted', 'accepted', 'rejected',
+                        'judging', 'judge retry', 'judge succeeded', 'judge failed'],
                     default: 'none'
                 },
                 source: String,
