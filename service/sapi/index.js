@@ -3,8 +3,8 @@ let ensureAuthenticated = require('../utils/auth').ensureAuthenticated,
     contests = require('./contests');
 
 module.exports = (app) => {
-    app.use('/sapi/contests/active', contests.getActive);
-    app.use('/sapi/contests/all', contests.getAll);
+    app.use('/sapi/contests/active', contests.getActiveContests);
+    app.use('/sapi/contests/all', contests.getAllContests);
     [
         {
             key: '/accounts',
