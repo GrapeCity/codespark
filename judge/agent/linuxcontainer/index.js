@@ -190,13 +190,13 @@ function invoke(cmd) {
 }
 
 app.get('/health', (req, res) => {
-    Promise.all(
+    Promise.all([
         invoke(`grep 'cpu ' /host/proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`),
         invoke(`grep 'MemAvailable' /host/proc/meminfo | awk '{usage=$2/1024} END {print usage "MB"}'`)
-    ).then(datas => {
+    ]).then(datas => {
         res.status(200).json({
-            cpu: datas[0],
-            memory: datas[1]
+            cpu: datas[0].trim(),
+            memory: datas[1].trim()
         })
     }).catch(errors => {
         res.status(500).json({
