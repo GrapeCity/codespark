@@ -19,16 +19,21 @@ module.exports = {
                 if (!replies) {
                     callback((err, value) => {
                         if (err) {
-                            reject(err);
+                            return reject(err);
                         }
                         if (!value) {
-                            return this.client.del(key, (err) => {
-                                reject(err || (err = new Error('Not found'), err.code = 404 ) && err);
+                            return this.client.del(key, (err, count) => {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                err = new Error('Not found');
+                                err.code = 404;
+                                return reject(err);
                             });
                         }
                         this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {
                             if (err) {
-                                reject(err);
+                                return reject(err);
                             }
                             resolve(value);
                         });
@@ -37,7 +42,7 @@ module.exports = {
                     try {
                         resolve(JSON.parse(replies));
                     } catch (any) {
-                        reject(any);
+                        return reject(any);
                     }
                 }
             })
@@ -54,14 +59,23 @@ module.exports = {
         return new Promise((resolve, reject) => {
             callback((err, value) => {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
-                this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(value);
-                });
+                if (!value) {
+                    this.client.del(key, (err, count) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve();
+                    });
+                } else {
+                    this.client.setex(key, this.expiry, JSON.stringify(value), (err) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve(value);
+                    });
+                }
             });
         });
     },
@@ -76,11 +90,11 @@ module.exports = {
         return new Promise((resolve, reject) => {
             callback((err, value) => {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
                 this.client.del(key, (err, count) => {
                     if (err) {
-                        reject(err);
+                        return reject(err);
                     }
                     resolve(count);
                 });
