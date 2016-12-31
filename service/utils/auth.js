@@ -247,9 +247,6 @@ module.exports = {
         app.post('/sapi/accounts/signup', createSignupHandle(config));
     },
     ensureAuthenticated(req, res, next) {
-        console.log('req.headers.host:%s', req.headers.host);
-        console.log('req.protocol:%s, req.host:%s, req.subdomains:%s', req.protocol, req.host, req.subdomains);
-        console.log('req.originalUrl:%s, req.url:%s', req.originalUrl, req.url);
         if (req.isAuthenticated()) {
             return next();
         }
