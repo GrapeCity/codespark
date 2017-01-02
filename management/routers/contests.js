@@ -12,12 +12,14 @@ let express = require('express'),
 
 function formatContest(contest) {
     return {
+        _id: contest._id,
         name: contest.name,
         displayName: contest.displayName,
         open: contest.open,
         description: contest.description,
         begin: moment(contest.begin).format('YYYY/MM/DD HH:mm:ss'),
-        end: moment(contest.end).format('YYYY/MM/DD HH:mm:ss')
+        end: moment(contest.end).format('YYYY/MM/DD HH:mm:ss'),
+        problems: contest.problems
     };
 }
 
@@ -234,7 +236,7 @@ router.post('/:name/edit', (req, res, next) => {
                 });
         }
         let update = {};
-        ['name', 'displayName', 'begin', 'end', 'description'].forEach(p => {
+        ['name', 'displayName', 'begin', 'end', 'description', 'problems'].forEach(p => {
             if (req.body[p]) {
                 update[p] = req.body[p];
             }
