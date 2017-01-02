@@ -11,6 +11,33 @@ class ContestRepository extends CacheableRepository {
         super(Contest, 'contest');
     }
 
+    createUserContest(user, contest) {
+        return new Promise((resolve, reject) => {
+            let obj = new UserContests({
+                user: user._id,
+                contest: contest._id,
+                score: 0,
+                begin: contest.begin,
+                end: contest.end
+            });
+            obj.save(err => {
+                if (err) {
+                    return reject(err);
+                }
+                let real = obj.toObject();
+                real.user = user;
+                real.contest = contest.toObject();
+                resolve(real);
+            });
+        });
+    }
+
+    findByIdCore(id, columns, next) {
+        this.model.findById(id, columns)
+            .populate('problems', '-cases')
+            .exec(next);
+    }
+
     findActiveContest(openOnly = true) {
         return new Promise((resolve, reject) => {
             Contest.find(openOnly ? {open: true} : null)
@@ -25,10 +52,10 @@ class ContestRepository extends CacheableRepository {
         });
     }
 
-    findAllContests() {
+    findAllContests(openOnly = true) {
         return redisCache.getCache(`${this.cacheKeyPrefix}:all`, next => {
-            Contest.find()
-                // .populate('problems')
+            Contest.find(openOnly ? {open: true} : null)
+            // .populate('problems')
                 .exec((err, contests) => {
                     if (err) {
                         return next(err);
@@ -38,23 +65,28 @@ class ContestRepository extends CacheableRepository {
         });
     }
 
-    findOneByIdWithUser(userId, contestId) {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:${userId}:${contestId}`, next => {
-            UserContests.findOne({user: userId, contest: contestId})
-                .populate('user')
-                .populate('contest')
+    findByUser(userId) {
+        return new Promise(
+            (resolve, reject) => UserContests.find({user: userId})
                 .exec((err, data) => {
                     if (err) {
-                        return next(err);
+                        return reject(err);
                     }
-                    if(!data) {
-                        let e = new Error('Not found');
-                        e.code = 404;
-                        return next(e);
+                    resolve(data);
+                }));
+    }
+
+    findOneByIdAndUser(userId, contestId) {
+        return new Promise(
+            (resolve, reject) => UserContests.findOne({user: userId, contest: contestId})
+            // .populate('user')
+            // .populate('contest')
+                .exec((err, data) => {
+                    if (err) {
+                        return reject(err);
                     }
-                    return next(null, data);
-                });
-        });
+                    resolve(data);
+                }));
     }
 }
 

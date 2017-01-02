@@ -1,18 +1,26 @@
 let ensureAuthenticated = require('../utils/auth').ensureAuthenticated,
     accounts = require('./accounts'),
-    contests = require('./contests');
+    workspaces = require('./workspaces'),
+    contests = require('./contests'),
+    problems = require('./problems');
 
 module.exports = (app) => {
-    app.use('/sapi/contests/active', contests.getActiveContests);
-    app.use('/sapi/contests/all', contests.getAllContests);
     [
         {
             key: '/accounts',
             value: accounts
         },
         {
+            key: '/workspaces',
+            value: workspaces
+        },
+        {
             key: '/contests',
             value: contests
+        },
+        {
+            key: '/problems',
+            value: problems
         }
     ].forEach(elem => app.use(`/sapi${elem.key}`, ensureAuthenticated, elem.value));
 };
