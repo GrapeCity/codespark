@@ -32,7 +32,7 @@ let ProblemSchema = new Schema(
             }
         }]
     },
-    {collection: 'csProblem'}
+    {collection: 'csProblems'}
 );
 
 mongoose.model('Problem', ProblemSchema);

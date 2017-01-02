@@ -35,7 +35,7 @@ let ContestSchema = new Schema(
             }]
         }
     },
-    {collection: 'csContest'}
+    {collection: 'csContests'}
 );
 
 mongoose.model('Contest', ContestSchema);
