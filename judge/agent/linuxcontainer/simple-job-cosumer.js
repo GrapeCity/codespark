@@ -8,9 +8,12 @@ jobs.process('judge', 5, function (job, done) {
 });
 
 function realWorker(job, i, sleep, done) {
-    console.log(`[${new Date().toLocaleDateString()}] [${job.data.name}]: ${i * 20}%`);
+    console.log(`[${new Date().toLocaleTimeString()}] [${job.id}] [${JSON.stringify(job.data)}]: ${i * 20}%`);
     if (i >= 5) {
-        return done();
+        return done(null, JSON.stringify({
+            score: crypto.randomBytes(1)[0] % 100,
+            console: ['test']
+        }));
     }
     setTimeout(() => {
         job.progress(i, 5);

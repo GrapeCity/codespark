@@ -76,11 +76,11 @@ class ContestRepository extends CacheableRepository {
                 }));
     }
 
-    findOneByIdAndUser(userId, contestId) {
+    findOneByIdAndUser(contestId, userId) {
         return new Promise(
             (resolve, reject) => UserContests.findOne({user: userId, contest: contestId})
             // .populate('user')
-            // .populate('contest')
+                .populate('contest')
                 .exec((err, data) => {
                     if (err) {
                         return reject(err);
