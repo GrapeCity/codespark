@@ -11,6 +11,21 @@ class ContestRepository extends CacheableRepository {
         super(Contest, 'contest');
     }
 
+    create(set, withCache = false) {
+        return new Promise((resolve, reject) => {
+            super.create(set, withCache)
+                .then(data => {
+                    redisCache.updateCache(`${this.cacheKeyPrefix}:latestActive`, next => {
+                        next(null, data);
+                    });
+                    resolve(data);
+                })
+                .catch(err => {
+                    reject(err);
+                })
+        });
+    }
+
     createUserContest(user, contest) {
         return new Promise((resolve, reject) => {
             let obj = new UserContests({
@@ -48,6 +63,21 @@ class ContestRepository extends CacheableRepository {
                         return reject(err);
                     }
                     return resolve(contests || []);
+                });
+        });
+    }
+
+    getLatestActiveInfo(openOnly = true) {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:latestActive`, (next) => {
+            Contest.findOne(openOnly ? {open: true} : null)
+                .gte('end', new Date())
+                .lte('begin', new Date())
+                .sort('begin')
+                .exec((err, contest) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    return next(null, contest || {});
                 });
         });
     }

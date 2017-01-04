@@ -32,51 +32,41 @@ function passportLogin(req, res, next) {
 function postLogin(req, res) {
     let user = req.user;
     if (!user) {
-        return res.status(401).json({
-            err: true,
-            msg: '用户名或者密码错误，请稍后重试！'
+        return res.render('users/login', {
+            err: new Error('用户名或者密码错误，请稍后重试！')
         });
     }
     if (!user.activated) {
-        return res.status(400).json({
-            err: true,
-            msg: '该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户',
-            timestamp: new Date().getTime()
+        return res.render('users/login', {
+            err: new Error('该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户')
         });
     }
 
-    return res.status(200).json({
-        mail: user.mail,
-        username: user.username,
-        displayName: user.displayName,
-        activated: user.activated
-    });
+    return res.redirect(req.query.returnUrl || '/');
 }
 
 function createSignupHandle(config) {
-    return function signup(req, res) {
+    return function signup(req, res, next) {
         let {mail, password, grapecity} = req.body;
         if (!mail || !validator.isEmail(mail)) {
-            return res.status(400).json({
-                err: true,
-                msg: '用户邮箱为空或者不是合法邮箱',
-                timestamp: new Date().getTime()
+            return res.render('users/signup', {
+                validation: [
+                    {msg: '用户邮箱为空或者不是合法邮箱'}
+                ],
+                form: req.body
             });
         }
         User.findOne({mail}, (err, existedUser) => {
             if (err) {
                 logger.error(`Database error: ${err}`);
-                return res.status(500).json({
-                    err: true,
-                    msg: '内部错误导致注册失败，请联系管理员!',
-                    timestamp: new Date().getTime()
-                });
+                return next(err);
             }
             if (existedUser) {
-                return res.status(400).json({
-                    err: true,
-                    msg: '该邮件已经被注册过',
-                    timestamp: new Date().getTime()
+                return res.render('users/signup', {
+                    validation: [
+                        {msg: '该邮件已经被注册过'}
+                    ],
+                    form: req.body
                 });
             }
 
@@ -104,29 +94,25 @@ function createSignupHandle(config) {
                 }
             }).then((user) => {
 
-                // send mail
-                createActivateLink(
-                    `${req.header('X-Forwarded-Proto') || req.protocol || 'http'}://${req.header('host')}`,
-                    mail,
-                    user.activeToken
-                ).then(link => {
-                    sendActivateEmail(mail, link);
-                }).catch(err => {
-                    logger.warn(`there is an error: ${err}`);
-                });
-
-                passport.authenticate('local')(req, res, () =>
-                    res.status(201).json({
-                        mail: user.mail,
-                        username: user.username,
-                        displayName: user.displayName,
-                        activated: user.activated
-                    }));
+                if (user && !user.activated) {
+                    // send mail
+                    createActivateLink(
+                        `${req.header('X-Forwarded-Proto') || req.protocol || 'http'}://${req.header('host')}`,
+                        mail,
+                        user.activeToken
+                    ).then(link => {
+                        sendActivateEmail(mail, link);
+                    }).catch(err => {
+                        logger.warn(`there is an error: ${err}`);
+                    });
+                }
+                passport.authenticate('local')(req, res, () => res.redirect('/dashboard'));
             }).catch((err) => {
-                res.status(err.code || 400).json({
-                    err: true,
-                    msg: `无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`,
-                    timestamp: new Date().getTime()
+                return res.render('users/signup', {
+                    validation: [
+                        {msg: `无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`}
+                    ],
+                    form: req.body
                 });
             });
         })
@@ -154,7 +140,7 @@ function createActivateLink(host, mail, activeToken) {
                 resolve(`${host}/users/active?token=${encrypted}&nonce=${nonce}`);
             });
 
-            cipher.write(JSON.stringify({m:mail, a:activeToken, r: random}));
+            cipher.write(JSON.stringify({m: mail, a: activeToken, r: random}));
             cipher.end();
         } catch (any) {
             reject(any);
@@ -243,17 +229,14 @@ function adLogin(config, mail, password, next) {
 
 module.exports = {
     setup(app, config) {
-        app.post('/sapi/accounts/login', passportLogin, postLogin);
-        app.post('/sapi/accounts/signup', createSignupHandle(config));
+        app.post('/login', passportLogin, postLogin);
+        app.post('/signup', createSignupHandle(config));
     },
     ensureAuthenticated(req, res, next) {
         if (req.isAuthenticated()) {
             return next();
         }
-        res.status(401).json({
-            err: true,
-            msg: '未登录或者未授权的访问'
-        });
+        res.redirect(`/login?returnUrl=${req.originalUrl}`);
     }
 };
 

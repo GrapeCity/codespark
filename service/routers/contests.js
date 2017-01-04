@@ -2,10 +2,10 @@ let express = require('express'),
     utils = require('../utils'),
     logger = utils.winston.appLogger,
     router = express.Router(),
-    UserRepository = require('../repositories/userRepository');
+    ContestRepository = require('../repositories/contestRepository');
 
-router.get('/', (req, res) => {
-    res.render('dashboard/index', {});
+router.get('/:name', (req, res) => {
+    res.render('contest/index', {});
 });
 
 module.exports = router;
