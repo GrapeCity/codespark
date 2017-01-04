@@ -1,0 +1,46 @@
+<!--   Core JS Files   -->
+<script src="js/jquery.min.js" type="text/javascript"></script>
+
+<script src="js/bootstrap.min.js" type="text/javascript"></script>
+<script src="js/material.min.js"></script>
+
+<!--&lt;!&ndash;  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ &ndash;&gt;-->
+<!--<script src="js/nouislider.min.js" type="text/javascript"></script>-->
+
+<!--  Plugin for the Datepicker, full documentation here: http://www.eyecon.ro/bootstrap-datepicker/ -->
+<script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+
+<!-- Control Center for Material Kit: activating the ripples, parallax effects, scripts from the example pages etc -->
+<script src="js/material-kit.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    (function ($) {
+        $.extend({
+            loading: {
+                show: function () {
+                    $('.progress-container').removeClass('hide');
+                },
+                hide: function () {
+                    $('.progress-container').addClass('hide');
+                }
+            }
+        });
+    })(jQuery);
+
+    $().ready(function () {
+
+        // the body of this function is in assets/material-kit.js
+//        materialKit.initSliders();
+        var window_width = $(window).width();
+
+        if (window_width >= 992) {
+            big_image = $('.wrapper > .header');
+
+            $(window).on('scroll', materialKitDemo.checkScrollForParallax);
+        }
+        if ($(window).scrollTop() > 300) {
+            $('nav.navbar-transparent').removeClass('navbar-transparent');
+        }
+    });
+</script>

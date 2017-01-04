@@ -3,6 +3,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 let path = require('path'),
     express = require('express'),
     morgan = require('morgan'),
+    helmet = require('helmet'),
+    compression = require('compression'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     RateLimit = require('express-rate-limit'),
@@ -50,6 +52,10 @@ mongoose.setup(config.mongo, resMgr);
 redis.setup(config.redis, resMgr);
 redisCache.setup(redis.client());
 
+// use view engine: ejs
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 // Showing stack errors
 app.set('showStackError', true);
 app.set('trust proxy', true);
@@ -61,17 +67,15 @@ app.use(morgan('combined', {
     stream: stream
 }));
 
-//  apply to all accounts requests
-let apiLimit = new RateLimit({
-    windowMs: 60 * 1000, // 1 minutes
-    max: 60, // limit each IP to 100 requests per windowMs
-    delayMs: 0, // disable delaying - full speed until the max limit is reached
-    store: new RateRedisStore({
-        client: redis.client()
-    }),
-    message: "当前IP尝试访问API次数过多，请1分钟后重试"
-});
-app.use(apiLimit);
+app.use(compression());
+app.use(helmet());
+app.disable('x-powered-by');
+
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/fonts', express.static(path.join(__dirname, 'public/fonts')));
+app.use('/img', express.static(path.join(__dirname, 'public/img')));
+
 
 // Request body parsing middleware should be above methodOverride
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
@@ -79,6 +83,7 @@ app.use(bodyParser.json({limit: '2mb'}));
 
 // Add the cookie parser and flash middleware
 app.use(cookieParser());
+
 
 // Setup session
 sessionStorage = new SessionRedisStore({
@@ -103,35 +108,60 @@ app.use(session({
     }
 }));
 
+
+
 // include models
 require('../common/models');
 
 // setup passport
 require('./utils/passport')(app);
 
-// error handler
+// setup auth
+require('./utils/auth').setup(app, config.adAuth);
+
+// setup server ui router
+require('./routers')(app, config);
+
+//  apply to all accounts requests
+let apiLimit = new RateLimit({
+    windowMs: 60 * 1000, // 1 minutes
+    max: 60, // limit each IP to 100 requests per windowMs
+    delayMs: 0, // disable delaying - full speed until the max limit is reached
+    store: new RateRedisStore({
+        client: redis.client()
+    }),
+    message: "当前IP尝试访问API次数过多，请1分钟后重试"
+});
+app.use(apiLimit);
+
+// setup server api router
+require('./sapi')(app);
+
+
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+    let err = new Error(`Not Found: ${req.url}`);
+    err.status = 404;
+    next(err);
+});
+
 app.use((err, req, res, next) => {
     // If the error object doesn't exists
     if (!err) {
         return next();
     }
 
+    err.status = err.status || 500;
+    err.message = err.message || 'Something unknown error happened!';
+    res.locals.title = 'Error';
+    res.locals.message = err.message;
+    res.locals.error = app.get('env') === 'development' ? err : {};
+
     // Log it
-    logger.error('Server Error: ' + err.stack);
+    logger.error('Error: ' + err.stack);
 
-    res.status(500).send({
-        msg: '抱歉，我们遇到了一些问题，请稍后再试!',
-        data: {
-            err: err.message
-        }
-    });
+    res.status(err.status).render(`error/${err.status}`);
 });
-
-// setup auth
-require('./utils/auth').setup(app, config.adAuth);
-
-// setup server router
-require('./sapi')(app);
 
 // bootstrap http server
 let httpServer = app.listen(process.env.PORT || 5000, function () {
