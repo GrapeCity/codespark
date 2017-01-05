@@ -97,7 +97,7 @@
 }
 
 #buttons .btn {
-    margin: 0 0px 15px;
+    margin: 0 0 15px;
 }
 
 .space-100 {
@@ -449,18 +449,12 @@
     color: #FFF;
 }
 
-.index-page .navbar {
+/* fix ux */
+.navbar {
     min-width: 320px;
 }
 
-.index-page .header-filter:after {
-    background: rgba(51, 32, 75, 0.50);
-    background: linear-gradient(45deg, rgba(51, 32, 75, 0.50) 0%, rgba(125, 46, 185, 0.45) 100%);
-    background: -moz-linear-gradient(135deg, rgba(51, 32, 75, 0.50) 0%, rgba(125, 46, 185, 0.45) 100%);
-    background: -webkit-linear-gradient(135deg, rgba(51, 32, 75, 0.50) 0%, rgba(125, 46, 185, 0.45) 100%);
-}
-
-.index-page .right-separator:after {
+.right-separator:after {
     position: relative;
     left: 10px;
     top: 0;
@@ -470,20 +464,20 @@
     color: #fff
 }
 
-.index-page .wrapper > .header {
+.wrapper > .header {
     min-height: 500px;
     background-position: center top;
 }
 
-.index-page .main-raised {
+.main-raised {
     margin-top: -180px;
 }
 
-.index-page .brand {
+.brand {
     margin-top: 20vh;
 }
 
-.index-page .progress-container {
+.progress-container {
     z-index: 10000;
     background: #eee;
     min-height: 100%;
@@ -495,7 +489,7 @@
     display: table;
 }
 
-.index-page .progress-container .progress-content {
+.progress-container .progress-content {
     color: rgb(141, 36, 170);
     display: table-cell;
     text-align: center;

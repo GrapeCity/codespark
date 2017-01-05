@@ -6,14 +6,14 @@ let express = require('express'),
     UserRepository = require('../repositories/userRepository'),
     ContestRepository = require('../repositories/contestRepository');
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
     let contestRepo = new ContestRepository();
-    contestRepo.getLatestActiveInfo(!req.user || req.user.mail.slice(-14) !== '@grapecity.com')
+    contestRepo.getLatestActiveInfo()
         .then(contest => {
             res.render('index', {contest});
         })
         .catch(err => {
-            res.render('index', {err});
+            next(err);
         });
 });
 

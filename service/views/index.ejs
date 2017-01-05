@@ -27,7 +27,10 @@
             <div class="container">
                 <div class="title">
                     <h2><i class="fa fa-paragraph"></i> 最新战报:
-                        <small>2017年新年挑战赛</small>
+                        <small>
+                            <a href="<%= `/contests/${contest.name}` %>">
+                                <%= contest.displayName %></a>
+                        </small>
                     </h2>
                 </div>
 
@@ -39,7 +42,7 @@
                             </div>
                             <div class="card-content">
                                 <p class="category">挑战题数</p>
-                                <h3 class="title">10
+                                <h3 class="title"><%= contest.problems.length %>
                                     <small>道</small>
                                 </h3>
                             </div>
@@ -52,7 +55,7 @@
                             </div>
                             <div class="card-content">
                                 <p class="category">参与人数</p>
-                                <h3 class="title">79
+                                <h3 class="title"><%= contest.userCount %>
                                     <small>人</small>
                                 </h3>
                             </div>
@@ -65,8 +68,8 @@
                             </div>
                             <div class="card-content">
                                 <p class="category">最高分</p>
-                                <h3 class="title">892/
-                                    <small>1000</small>
+                                <h3 class="title"><%= contest.maxScore %>/
+                                    <small><%= contest.problems.length * 100 %></small>
                                 </h3>
                             </div>
                         </div>

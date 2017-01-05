@@ -67,19 +67,49 @@ class ContestRepository extends CacheableRepository {
         });
     }
 
-    getLatestActiveInfo(openOnly = true) {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:latestActive`, (next) => {
-            Contest.findOne(openOnly ? {open: true} : null)
-                .gte('end', new Date())
-                .lte('begin', new Date())
-                .sort('begin')
-                .exec((err, contest) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    return next(null, contest || {});
-                });
-        });
+    getLatestActiveInfo() {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:latestActive`, this._findLatestActiveInfo);
+    }
+
+    updateLatestActiveInfo() {
+        return redisCache.updateCache(`${this.cacheKeyPrefix}:latestActive`, this._findLatestActiveInfo);
+    }
+
+    _findLatestActiveInfo(next) {
+        Contest.findOne()
+            .gte('end', new Date())
+            .lte('begin', new Date())
+            .sort('begin')
+            .exec((err, contest) => {
+                if (err) {
+                    return next(err);
+                }
+                UserContests.find({contest: contest._id})
+                    .count()
+                    .exec((err, userCount) => {
+                        if (err) {
+                            return next(err);
+                        }
+                        let obj = contest.toObject();
+                        obj.userCount = userCount;
+                        if (userCount > 0) {
+                            UserContests.findOne({contest: contest._id})
+                                .sort('score')
+                                .select('score')
+                                .limit(1)
+                                .exec((err, uc) => {
+                                    if (err) {
+                                        return next(err);
+                                    }
+                                    obj.maxScore = uc.score;
+                                    return next(null, obj);
+                                });
+                        } else {
+                            obj.maxScore = 0;
+                            return next(null, obj);
+                        }
+                    });
+            });
     }
 
     findAllContests(openOnly = true) {
