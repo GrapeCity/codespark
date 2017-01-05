@@ -1059,3 +1059,170 @@
         opacity: 0;
     }
 }
+
+.index-page .card {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    margin: 25px 0;
+    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    color: rgba(0, 0, 0, 0.87);
+    background: #fff;
+}
+
+.index-page .card .title {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.index-page .card .category:not([class*="text-"]) {
+    color: #999999;
+}
+
+.index-page .card .card-content {
+    padding: 15px 20px;
+}
+
+.index-page .card .card-content .category {
+    margin-bottom: 0;
+}
+
+.index-page .card .card-header {
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.42), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+    margin: -20px 15px 0;
+    border-radius: 3px;
+    padding: 15px;
+    background-color: #999999;
+}
+
+.index-page .card .card-header .title {
+    color: #FFFFFF;
+}
+
+.index-page .card .card-header .category {
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.index-page .card .card-header.card-chart {
+    padding: 0;
+    min-height: 160px;
+}
+
+.index-page .card .card-header.card-chart + .content h4 {
+    margin-top: 0;
+}
+
+.index-page .card .card-header .ct-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.index-page .card .card-header .ct-grid {
+    stroke: rgba(255, 255, 255, 0.2);
+}
+
+.index-page .card .card-footer {
+    margin: 0 20px 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eeeeee;
+}
+
+.index-page .card .card-footer .content {
+    display: block;
+}
+
+.index-page .card .card-footer div {
+    display: inline-block;
+}
+
+.index-page .card .card-footer .author {
+    color: #999999;
+}
+
+.index-page .card .card-footer .stats {
+    line-height: 22px;
+    color: #999999;
+    font-size: 12px;
+}
+
+.index-page .card .card-footer .stats .material-icons {
+    position: relative;
+    top: 4px;
+    font-size: 16px;
+}
+
+.index-page .card .card-footer h6 {
+    color: #999999;
+}
+
+.index-page .card .category-social .fa {
+    font-size: 24px;
+    position: relative;
+    margin-top: -4px;
+    top: 2px;
+    margin-right: 5px;
+}
+
+.index-page .card .table {
+    margin-bottom: 0;
+}
+
+.index-page .card .table tr:first-child td {
+    border-top: none;
+}
+
+.index-page .card [data-background-color="purple"] {
+    background: linear-gradient(60deg, #ab47bc, #8e24aa);
+    box-shadow: 0 12px 20px -10px rgba(156, 39, 176, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(156, 39, 176, 0.2);
+}
+
+.index-page .card [data-background-color="blue"] {
+    background: linear-gradient(60deg, #26c6da, #00acc1);
+    box-shadow: 0 12px 20px -10px rgba(0, 188, 212, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(0, 188, 212, 0.2);
+}
+
+.index-page .card [data-background-color="green"] {
+    background: linear-gradient(60deg, #66bb6a, #43a047);
+    box-shadow: 0 12px 20px -10px rgba(76, 175, 80, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(76, 175, 80, 0.2);
+}
+
+.index-page .card [data-background-color="orange"] {
+    background: linear-gradient(60deg, #ffa726, #fb8c00);
+    box-shadow: 0 12px 20px -10px rgba(255, 152, 0, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(255, 152, 0, 0.2);
+}
+
+.index-page .card [data-background-color="red"] {
+    background: linear-gradient(60deg, #ef5350, #e53935);
+    box-shadow: 0 12px 20px -10px rgba(244, 67, 54, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(244, 67, 54, 0.2);
+}
+
+.index-page .card [data-background-color] {
+    color: #FFFFFF;
+}
+
+.index-page .card [data-background-color] a {
+    color: #FFFFFF;
+}
+
+.index-page .card-stats .title {
+    margin: 0;
+}
+
+.index-page .card-stats .card-header {
+    float: left;
+    text-align: center;
+}
+
+.index-page .card-stats .card-header i {
+    font-size: 32px;
+    line-height: 56px;
+    width: 48px;
+    height: 56px;
+}
+
+.index-page .card-stats .card-content {
+    text-align: right;
+    padding-top: 10px;
+    padding-right: 30px;
+}

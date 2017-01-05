@@ -79,7 +79,7 @@ class ContestRepository extends CacheableRepository {
         Contest.findOne()
             .gte('end', new Date())
             .lte('begin', new Date())
-            .sort('begin')
+            .sort('-begin')
             .exec((err, contest) => {
                 if (err) {
                     return next(err);
