@@ -6,5 +6,5 @@ ENV CODESPARK_SITE_VERSION 1.0~nginx1.10.2
 
 COPY ./site/html /usr/share/nginx/html
 
-RUN cp -f conf/nginx.conf /etc/nginx/nginx.conf \
-    && cp -R -f conf/conf.d/* /etc/nginx/conf.d/
+RUN cp -f ./site/conf/nginx.conf /etc/nginx/nginx.conf \
+    && cp -R -f ./site/conf/conf.d/* /etc/nginx/conf.d/
