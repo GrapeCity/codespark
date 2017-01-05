@@ -14,10 +14,17 @@ module.exports = {
         return new Promise((resolve, reject) => {
             this.client.get(key, (err, replies) => {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
-                if (!replies) {
-                    callback((err, value) => {
+                if (replies) {
+                    try {
+                        return resolve(JSON.parse(replies));
+                    } catch (any) {
+                        return reject(any);
+                    }
+                }
+                if (callback) {
+                    return callback((err, value) => {
                         if (err) {
                             return reject(err);
                         }
@@ -38,13 +45,11 @@ module.exports = {
                             resolve(value);
                         });
                     });
-                } else {
-                    try {
-                        resolve(JSON.parse(replies));
-                    } catch (any) {
-                        return reject(any);
-                    }
                 }
+
+                let err1 = new Error('Not found');
+                err1.code = 404;
+                return reject(err1);
             })
         });
     },
@@ -57,6 +62,9 @@ module.exports = {
      */
     updateCache(key, callback) {
         return new Promise((resolve, reject) => {
+            if (!callback) {
+                return reject('There is no callback');
+            }
             callback((err, value) => {
                 if (err) {
                     return reject(err);
@@ -88,6 +96,9 @@ module.exports = {
      */
     removeCache(key, callback) {
         return new Promise((resolve, reject) => {
+            if (!callback) {
+                return reject('There is no callback');
+            }
             callback((err, value) => {
                 if (err) {
                     return reject(err);
