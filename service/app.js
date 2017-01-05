@@ -3,8 +3,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 let path = require('path'),
     express = require('express'),
     morgan = require('morgan'),
-    helmet = require('helmet'),
-    compression = require('compression'),
+    // helmet = require('helmet'),
+    // compression = require('compression'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     RateLimit = require('express-rate-limit'),
@@ -67,8 +67,8 @@ app.use(morgan('combined', {
     stream: stream
 }));
 
-app.use(compression());
-app.use(helmet());
+// app.use(compression());
+// app.use(helmet());
 app.disable('x-powered-by');
 
 app.use('/js', express.static(path.join(__dirname, 'public/js')));
