@@ -1,65 +1,70 @@
 <!DOCTYPE html>
-<html>
-<% include ../partial/head.ejs %>
+<head>
+    <% include ../partial/head.ejs %>
+</head>
 <body class="signup-page">
-<% include ../partial/navbar.ejs %>
+<!-- Navbar -->
+<nav class="navbar navbar-transparent navbar-absolute">
+    <% include ../partial/navbar.ejs %>
+</nav>
+<!-- End Navbar -->
 <div class="wrapper">
     <div class="header header-filter"
          style="background-image: url('img/city.jpg'); background-size: cover; background-position: top center;">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
+                <div class="col-md-5 col-md-offset-4 col-sm-7 col-sm-offset-3">
                     <div class="card card-signup">
-                        <form class="form" method="" action="">
+                        <form class="form" method="post">
                             <div class="header header-primary text-center">
-                                <h4>Sign Up</h4>
+                                <h4>注册</h4>
                                 <div class="social-line">
-                                    <a href="#pablo" class="btn btn-simple btn-just-icon">
-                                        <i class="fa fa-facebook-square"></i>
-                                    </a>
-                                    <a href="#pablo" class="btn btn-simple btn-just-icon">
-                                        <i class="fa fa-twitter"></i>
-                                    </a>
-                                    <a href="#pablo" class="btn btn-simple btn-just-icon">
-                                        <i class="fa fa-google-plus"></i>
-                                    </a>
                                 </div>
                             </div>
-                            <p class="text-divider">Or Be Classical</p>
+                            <div class="text-divider">
+                                使用邮箱和密码注册<br/><br/>
+                                <div class="text-left" style="margin-left: 40px">
+                                    <ul id="errMsg">
+                                        <% validation.forEach((msg) => { %>
+                                        <li class="text-danger"><%= msg %></li>
+                                        <% }) %>
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="content">
-
                                 <div class="input-group">
 										<span class="input-group-addon">
-											<i class="material-icons">face</i>
+											<i class="fa fa-user"></i>
 										</span>
-                                    <input type="text" class="form-control" placeholder="First Name...">
+                                    <input type="email" name="mail" class="form-control"
+                                           placeholder="Email..." value="<%= form.mail %>">
                                 </div>
 
                                 <div class="input-group">
 										<span class="input-group-addon">
-											<i class="material-icons">email</i>
+											<i class="fa fa-key"></i>
 										</span>
-                                    <input type="text" class="form-control" placeholder="Email...">
+                                    <input type="password" name="password" placeholder="Password..."
+                                           class="form-control"/>
                                 </div>
 
                                 <div class="input-group">
 										<span class="input-group-addon">
-											<i class="material-icons">lock_outline</i>
+											<i class="fa fa-key"></i>
 										</span>
-                                    <input type="password" placeholder="Password..." class="form-control"/>
+                                    <input type="password" name="passwordVerify" placeholder="Password again..."
+                                           class="form-control"/>
                                 </div>
 
-                                <!-- If you want to add a checkbox to this form, uncomment this code
-
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="optionsCheckboxes" checked>
-                                        Subscribe to newsletter
-                                    </label>
-                                </div> -->
                             </div>
                             <div class="footer text-center">
-                                <a href="#pablo" class="btn btn-simple btn-primary btn-lg">Get Started</a>
+                                <button type="submit"
+                                        style="border: solid purple 1px"
+                                        class="btn btn-simple btn-primary btn-lg">注册
+                                </button>
+                            </div>
+                            <div class="footer text-left">
+                                <a href="/login" class="btn btn-simple btn-primary btn-lg">已有账号？直接登录</a>
                             </div>
                         </form>
                     </div>
@@ -69,4 +74,39 @@
         <% include ../partial/footer.ejs %>
     </div>
 </div>
+<% include ../partial/scripts.ejs %>
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            $('#errMsg').empty();
+            var mail = $(this).find('[name="mail"]'),
+                password = $(this).find('[name="password"]'),
+                passwordVerify = $(this).find('[name="passwordVerify"]');
+            if (!(mail.val().trim())) {
+                $('#errMsg').append('<li class="text-danger">邮箱不能为空</li>');
+                mail.focus();
+                e.preventDefault();
+                return false;
+            }
+            if (!(password.val().length > 0)) {
+                $('#errMsg').append('<li class="text-danger">密码不能为空</li>')
+                password.focus();
+                e.preventDefault();
+                return false;
+            }
+            if (!(passwordVerify.val().length > 0)) {
+                $('#errMsg').append('<li class="text-danger">验证密码不能为空</li>')
+                passwordVerify.focus();
+                e.preventDefault();
+                return false;
+            }
+            if (password.val() !== passwordVerify.val() ) {
+                $('#errMsg').append('<li class="text-danger">密码和验证密码不相同</li>')
+                passwordVerify.focus();
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
 </body>

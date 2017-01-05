@@ -18,11 +18,11 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/login', (req, res, next) => {
-    res.render('users/login', {});
+    res.render('users/login', {validation: [], form: {}});
 });
 
 router.get('/signup', (req, res, next) => {
-    res.render('users/signup', {});
+    res.render('users/signup', {validation: [], form: {}});
 });
 
 router.get('/active', (req, res) => {

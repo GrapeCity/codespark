@@ -33,16 +33,35 @@ function postLogin(req, res) {
     let user = req.user;
     if (!user) {
         return res.render('users/login', {
-            err: new Error('用户名或者密码错误，请稍后重试！')
+            validation: ['用户名或者密码错误，请稍后重试！'],
+            form: req.body
         });
     }
     if (!user.activated) {
         return res.render('users/login', {
-            err: new Error('该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户')
+            validation: ['该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户'],
+            form: req.body
         });
     }
 
     return res.redirect(req.query.returnUrl || '/');
+}
+
+function preLogin(req, res, next) {
+    let {mail, password} = req.body;
+    if (!mail || !validator.isEmail(mail)) {
+        return res.render('users/login', {
+            validation: ['邮箱不能为空或者不是合法邮箱！'],
+            form: req.body
+        });
+    }
+    if(!password) {
+        return res.render('users/login', {
+            validation: ['密码不能为空！'],
+            form: req.body
+        });
+    }
+    next();
 }
 
 function createSignupHandle(config) {
@@ -51,7 +70,7 @@ function createSignupHandle(config) {
         if (!mail || !validator.isEmail(mail)) {
             return res.render('users/signup', {
                 validation: [
-                    {msg: '用户邮箱为空或者不是合法邮箱'}
+                    '用户邮箱为空或者不是合法邮箱'
                 ],
                 form: req.body
             });
@@ -229,7 +248,7 @@ function adLogin(config, mail, password, next) {
 
 module.exports = {
     setup(app, config) {
-        app.post('/login', passportLogin, postLogin);
+        app.post('/login', preLogin, passportLogin, postLogin);
         app.post('/signup', createSignupHandle(config));
     },
     ensureAuthenticated(req, res, next) {
