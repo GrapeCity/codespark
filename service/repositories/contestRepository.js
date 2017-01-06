@@ -137,62 +137,72 @@ class ContestRepository extends CacheableRepository {
                 }));
     }
 
-    findOneByIdAndUser(contestId, userId) {
-        return new Promise(
-            (resolve, reject) => UserContests.findOne({user: userId, contest: contestId})
-            // .populate('user')
-                .populate('contest')
-                .exec((err, data) => {
+    findByName(contestName) {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
+            Contest.findOne({name: contestName})
+                .populate('problems')
+                .exec((err, contest) => {
                     if (err) {
-                        return reject(err);
+                        return next(err);
                     }
-                    resolve(data);
-                }));
+                    if (!contest) {
+                        err = new Error('Not found');
+                        err.status = 404;
+                        return next(err);
+                    }
+                    let obj = contest.toObject();
+                    obj.begin = moment(obj.begin).format('LLL');
+                    obj.end = moment(obj.end).format('LLL');
+                    next(null, obj);
+                });
+        })
     }
 
-    findOneByNameWithUser(contestName, userId) {
-        return new Promise((resolve, reject) =>
-            redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
-                Contest.findOne({name: contestName})
-                    .populate('problems', '-cases')
-                    .exec((err, contest) => {
-                        if (err) {
-                            return next(err);
-                        }
-                        if (!contest) {
-                            err = new Error('Not found');
-                            err.status = 404;
-                            return next(err);
-                        }
-                        next(null, contest);
-                    });
-            }).then(contest => {
-                redisCache.getCache(`${this.cacheKeyPrefix}:${contest._id}:${userId}`, next => {
-                    UserContests.findOne({contest: contest._id, user: userId})
-                        .exec((err, uc) => {
-                            if(err){
-                                return next(err);
-                            }
-                            if(!uc){
-                                err = new Error('Not found');
-                                err.status = 404;
-                                return next(err);
-                            }
-                            let obj = uc.toObject();
-                            obj.contest = contest.toObject();
-                            obj.contest.begin = moment(obj.contest.begin).format('LLL');
-                            obj.contest.end = moment(obj.contest.end).format('LLL');
-                            next(null, obj);
-                        });
-                }).then(obj => {
-                    resolve(obj);
-                }).catch(err=> {
-                    reject(err);
+    findOneByIdAndUser(contestId, userId) {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:${userId}`, next => {
+            UserContests.findOne({contest: contestId, user: userId})
+                .exec((err, uc) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    if (!uc) {
+                        err = new Error('Not found');
+                        err.status = 404;
+                        return next(err);
+                    }
+                    let obj = uc.toObject();
+                    obj.begin = moment(obj.begin).format('LLL');
+                    obj.end = moment(obj.end).format('LLL');
+                    next(null, obj);
                 });
-            }).catch(err => {
-                reject(err);
-            })
-        );
+        })
+    }
+
+    getTop10(contestId) {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:top10`,
+            next => this._findTop10ById(contestId, next));
+    }
+
+    updateTop10(contestId) {
+        return redisCache.updateCache(`${this.cacheKeyPrefix}:${contestId}:top10`,
+            next => this._findTop10ById(contestId, next));
+    }
+
+    _findTop10ById(contestId, next) {
+        UserContests.find({contest: contestId, score: {$gt: 0}})
+            .sort('-score')
+            .populate('user')
+            .exec((err, uc) => {
+                if (err) {
+                    return next(err);
+                }
+                if (!uc) {
+                    err = new Error('Not found');
+                    err.status = 404;
+                    return next();
+                }
+                next(null, uc);
+            });
     }
 }
 

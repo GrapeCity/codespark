@@ -13,7 +13,7 @@
     position: absolute;
     width: 8px; /* width of 12-6 and 3-9 markers */
     height: 100%;
-    background: black;
+    background: #666;
     z-index: 0;
     left: 50%;
     margin-left: -4px; /* set this value of 1/2 marker width */
@@ -82,11 +82,11 @@
     border-radius: 18px;
     margin-left: -9px; /* set this value of 1/2 width value*/
     margin-top: -9px; /* set this value of 1/2 height value*/
-    background: black;
+    background: #333;
     position: absolute;
     top: 50%;
     left: 50%;
-    box-shadow: 0 0 30px blue;
+    box-shadow: 0 0 30px purple;
 }
 
 .inner_face::after {
@@ -106,7 +106,7 @@
     top: 20%; /* set top to 50% - height */
     left: 50%;
     margin-left: -2px; /* set this value to 1/2 width */
-    background: black;
+    background: #333;
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -webkit-transform: rotate(0deg);
