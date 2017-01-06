@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partial/head.ejs %>
+    <link href="/css/home.css" rel="stylesheet"/>
+</head>
+<body class="index-page">
+<!-- Navbar -->
+<nav class="navbar navbar-transparent navbar-fixed-top navbar-color-on-scroll">
+    <% include ../partial/navbar.ejs %>
+</nav>
+<!-- End Navbar -->
+<div class="wrapper">
+    <div class="header header-filter" style="background-image: url('/img/bg2.jpg');">
+        <div class="container">
+            <a id="contest" name="contest"></a>
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="brand">
+                        <h1>编程挑战赛</h1>
+                        <h3><img src="/img/grapecityxian.png" height="48" alt="西安葡萄城信息技术有限公司"/></h3>
+                        <div class="text-center">
+                            <a class="btn btn-lg btn-success" href="/dashboad">
+                                <span style="font-size: large">参与挑战</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main main-raised">
+        <div class="section section-basic">
+            <div class="container">
+                <div class="title">
+                    <h2><i class="fa fa-paragraph"></i> 最新战报:
+                        <small>2017年新年挑战赛</small>
+                    </h2>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="orange">
+                                <i class="fa fa-tasks"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">挑战题数</p>
+                                <h3 class="title">10
+                                    <small>道</small>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="purple">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">参与人数</p>
+                                <h3 class="title">79
+                                    <small>人</small>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="red">
+                                <i class="fa fa-trophy"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">最高分</p>
+                                <h3 class="title">892/
+                                    <small>1000</small>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="blue">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">下一场</p>
+                                <h3 class="title">2017/1/20</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a id="rules" name="rules"></a>
+                <div class="space-100">
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-md-8 col-md-offset-2 text-center">
+                        <h2>规则和注意事项</h2>
+                        <h4>The kit comes with three pre-built pages to help you get started faster. You can change the
+                            text and images and you're good to go. More importantly, looking at them will give you a
+                            picture of what you can built with this powerful kit.</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section section-download">
+            <div class="container">
+                <div id="root" class="row title text-center">
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-md-8 col-md-offset-2">
+                        <h2>Want more?</h2>
+                        <h4>We've just launched <a
+                                    href="http://demos.creative-tim.com/material-kit-pro/presentation.html?ref=utp-freebie"
+                                    target="_blank">Material Kit PRO</a>. It has a huge number of components, sections
+                            and
+                            example pages. Start Your Development With A Badass Bootstrap UI Kit inspired by Material
+                            Design.</h4>
+                    </div>
+                    <div class="col-xs-8 col-xs-offset-2 col-sm-4 col-sm-offset-4">
+                        <a href="http://demos.creative-tim.com/material-kit-pro/presentation.html?ref=utp-freebie"
+                           class="btn btn-upgrade btn-lg" target="_blank">
+                            <i class="material-icons">unarchive</i> Upgrade to PRO
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row sharing-area text-center">
+                    <h3>Thank you for supporting us!</h3>
+                    <a href="#" class="btn btn-twitter">
+                        <i class="fa fa-twitter"></i>
+                        Tweet
+                    </a>
+                    <a href="#" class="btn btn-facebook">
+                        <i class="fa fa-facebook-square"></i>
+                        Share
+                    </a>
+                    <a href="#" class="btn btn-google-plus">
+                        <i class="fa fa-google-plus"></i>
+                        Share
+                    </a>
+                    <a href="#" class="btn btn-github">
+                        <i class="fa fa-github"></i>
+                        Star
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partial/footer.ejs %>
+</div>
+<% include ../partial/scripts.ejs %>
+</body>
+</html>
