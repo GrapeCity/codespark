@@ -11,12 +11,12 @@
 </head>
 <body class="landing-page">
 <!-- Navbar -->
-<nav class="navbar navbar-transparent navbar-absolute">
+<nav class="navbar navbar-transparent navbar-fixed-top navbar-color-on-scroll">
     <% include ../partial/navbar.ejs %>
 </nav>
 <!-- End Navbar -->
 <div class="wrapper">
-    <div class="header header-filter" style="background-image: url('/img/bg2.jpg');">
+    <div class="header header-filter" style="background-image: url('/img/bg3.jpg');">
         <div class="container" style="padding-top: 20vh">
             <div class="row">
                 <div class="col-md-6">
@@ -88,21 +88,30 @@
                             <% }) %>
                         </ul>
                     </div>
-                    <div class="col-md-8" style="padding-left: 50px">
+                    <div class="col-md-8" style="padding-left: 40px">
                         <div class="tab-content text-left">
                             <% form.contest.problems.forEach((p, i) => { %>
                             <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="<%= p.name %>">
                                 <div class="row">
-                                    <h3 class="title col-md-8"><%= p.title %></h3>
+                                    <h3 class="title col-md-8" style="max-width: 500px"><%= p.title %></h3>
                                     <div class="pull-right">
-                                        <div class="btn-group">
-                                            <a href="/problem" class="btn btn-primary">答题</a>
+                                        <div class="btn-group" style="margin:30px 1px 0 1px">
+                                            <button class="btn btn-success"
+                                                    style="min-width: 120px;"
+                                                    onclick="switchProblemTo('<%= p._id %>','<%= p.title %>')"
+                                                    data-toggle="modal"
+                                                    data-target="#myModal">答题
+                                            </button>
+                                            <a class="btn btn-warning"
+                                               style="min-width: 120px;"
+                                               href="/debug"
+                                               target="_blank">调试工具</a>
                                         </div>
                                     </div>
                                 </div>
+                                <hr/>
                                 <div class="row">
-                                    <hr/>
-                                    <div style="min-height: 400px;">
+                                    <div class="col-md-12" style="min-height: 400px;">
                                         <%= p.description %>
                                     </div>
                                 </div>
@@ -116,6 +125,113 @@
     </div>
     <% include ../partial/footer.ejs %>
 </div>
+
+<!-- Modal Core -->
+<div class="modal fade" id="myModal" tabindex="-1"
+     role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #eee">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title" id="myModalLabel"></h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="contestId" name="contestId" value="<%= form.contest._id %>"/>
+                <input type="hidden" id="problemId" name="problemId" value=""/>
+                <div class="row">
+                    <ul id="warningList">
+                    </ul>
+                </div>
+                <!--<div class="row">-->
+                <!--<div class="col-md-4 dropdown">-->
+                <!--<a href="#" class="btn btn-simple dropdown-toggle" data-toggle="dropdown">-->
+                <!--选择答题环境-->
+                <!--<b class="caret"></b>-->
+                <!--</a>-->
+                <!--<ul class="dropdown-menu">-->
+                <!--<li class="active"><a href="#">javascript</a></li>-->
+                <!--<li><a href="#">java</a></li>-->
+                <!--<li><a href="#">csharp</a></li>-->
+                <!--<li><a href="#">cpp</a></li>-->
+                <!--<li><a href="#">python</a></li>-->
+                <!--</ul>-->
+                <!--</div>-->
+                <!--</div>-->
+                <div class="row">
+                    <h5>请再下面的代码框里贴入你的JavaScript代码</h5>
+                    <pre>
+/**
+ *
+ * @param {string} input
+ * @return {string}
+ */
+function process(input) {
+</pre>
+                    <textarea id="source" name="source" rows="10"
+                              placeholder="在这里输入你的解决方案"
+                              style="width:100%; padding-left: 20px; font-family: Consolas"></textarea>
+                    <pre>}</pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnSubmitSolution"
+                        style="margin-right: 10px;"
+                        class="btn btn-primary btn-round">
+                    <i class="fa fa-code"></i> 提交答案
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <% include ../partial/scripts.ejs %>
+<script type="text/javascript">
+    function switchProblemTo(problemId, title) {
+        $('#warningList').empty();
+        $('#problemId').val(problemId);
+        $('#myModalLabel').text(title);
+    }
+
+    $().ready(function () {
+        var window_width = $(window).width();
+
+        if (window_width >= 992) {
+            big_image = $('.wrapper > .header');
+
+            $(window).on('scroll', materialKitDemo.checkScrollForParallax);
+        }
+        if ($(window).scrollTop() > 300) {
+            $('nav.navbar-transparent').removeClass('navbar-transparent');
+        }
+
+        $('#btnSubmitSolution').click(function () {
+            //need data: contestId problemId
+            var contestId = $('#contestId').val(),
+                problemId = $('#problemId').val(),
+                source = $('#source').val();
+            if (!contestId || !problemId) {
+                $('#warningList').append('<li class="text-danger">当前竞赛或者题目未选择，请刷新页面重试</li>')
+                return false;
+            }
+            if (!source) {
+                $('#warningList').append('<li class="text-danger">没有代码，请输入后提交</li>')
+                return false;
+            }
+            $.ajax({
+                url: '/sapi/workspaces/contests/' + contestId + '/problems/' + problemId,
+                method: 'POST',
+                data: {
+                    source: source
+                },
+                dataType: 'json',
+                success: function (data, status, jqXHR) {
+
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+
+            });
+        });
+    });
+</script>
 </body>
 </html>

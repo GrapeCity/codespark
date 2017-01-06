@@ -133,7 +133,7 @@ router.post('/contests/:contestId/problems/:problemId', (req, res) => {
             let solutionId = (up && (up.solutions.length + 1) ) || 1,
                 solution = {
                     id: solutionId,
-                    runtime: runtime,
+                    runtime: runtime || 'javascript',
                     source: source,
                     result: {score: 0},
                     status: 'submitted'
