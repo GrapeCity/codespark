@@ -3,6 +3,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 let path = require('path'),
     express = require('express'),
     morgan = require('morgan'),
+    moment = require('moment'),
     // helmet = require('helmet'),
     // compression = require('compression'),
     bodyParser = require('body-parser'),
@@ -51,6 +52,8 @@ config.setup('adAuth', {
 mongoose.setup(config.mongo, resMgr);
 redis.setup(config.redis, resMgr);
 redisCache.setup(redis.client());
+
+moment.locale('zh-cn');
 
 // use view engine: ejs
 app.set('views', path.join(__dirname, 'views'));
@@ -149,6 +152,9 @@ app.use((err, req, res, next) => {
     // If the error object doesn't exists
     if (!err) {
         return next();
+    }
+    if(req.url.slice(-4) === '.map'){
+        return res.status(404).end();
     }
 
     err.status = err.status || 500;

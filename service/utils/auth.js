@@ -93,7 +93,7 @@ function createSignupHandle(config) {
                 if (grapecity || mail.slice(-14) === '@grapecity.com') {
                     adLogin(config, mail, password, (err, userInfo) => {
                         if (err) {
-                            err.code = 500;
+                            err.status = 500;
                             return reject(err);
                         }
                         if (!userInfo) {

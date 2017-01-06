@@ -1,4 +1,5 @@
 let _ = require('lodash'),
+    moment = require('moment'),
     redisCache = require('../utils/redisCache'),
     mongoose = require('../utils').mongoose,
     User = mongoose.model('User'),
@@ -147,6 +148,51 @@ class ContestRepository extends CacheableRepository {
                     }
                     resolve(data);
                 }));
+    }
+
+    findOneByNameWithUser(contestName, userId) {
+        return new Promise((resolve, reject) =>
+            redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
+                Contest.findOne({name: contestName})
+                    .populate('problems', '-cases')
+                    .exec((err, contest) => {
+                        if (err) {
+                            return next(err);
+                        }
+                        if (!contest) {
+                            err = new Error('Not found');
+                            err.status = 404;
+                            return next(err);
+                        }
+                        next(null, contest);
+                    });
+            }).then(contest => {
+                redisCache.getCache(`${this.cacheKeyPrefix}:${contest._id}:${userId}`, next => {
+                    UserContests.findOne({contest: contest._id, user: userId})
+                        .exec((err, uc) => {
+                            if(err){
+                                return next(err);
+                            }
+                            if(!uc){
+                                err = new Error('Not found');
+                                err.status = 404;
+                                return next(err);
+                            }
+                            let obj = uc.toObject();
+                            obj.contest = contest.toObject();
+                            obj.contest.begin = moment(obj.contest.begin).format('LLL');
+                            obj.contest.end = moment(obj.contest.end).format('LLL');
+                            next(null, obj);
+                        });
+                }).then(obj => {
+                    resolve(obj);
+                }).catch(err=> {
+                    reject(err);
+                });
+            }).catch(err => {
+                reject(err);
+            })
+        );
     }
 }
 

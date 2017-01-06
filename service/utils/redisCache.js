@@ -34,7 +34,7 @@ module.exports = {
                                     return reject(err);
                                 }
                                 err = new Error('Not found');
-                                err.code = 404;
+                                err.status = 404;
                                 return reject(err);
                             });
                         }

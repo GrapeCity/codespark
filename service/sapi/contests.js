@@ -46,7 +46,7 @@ router.get('/:contestId', (req, res) => {
             res.status(200).json(data);
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()

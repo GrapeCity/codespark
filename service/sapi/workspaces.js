@@ -44,17 +44,17 @@ router.post('/join', (req, res) => {
                                 .json(data);
                         })
                         .catch(err => {
-                            res.status(err.code || 500)
+                            res.status(err.status || 500)
                                 .json({err: true, msg: err.message, timestamp: new Date().getTime()});
                         })
                 })
                 .catch(err => {
-                    res.status(err.code || 500)
+                    res.status(err.status || 500)
                         .json({err: true, msg: err.message, timestamp: new Date().getTime()});
                 });
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()
@@ -69,7 +69,7 @@ router.get('/contests', (req, res) => {
             res.status(200).json(_.map(data, c => c.contest))
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()
@@ -95,7 +95,7 @@ router.get('/contests/:contestId', (req, res) => {
             res.status(200).json(uc.contest);
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()
@@ -142,7 +142,7 @@ router.post('/contests/:contestId/problems/:problemId', (req, res) => {
                 up.solutions.push(solution);
                 up.save(err => {
                     if (err) {
-                        return res.status(err.code || 500).json({
+                        return res.status(err.status || 500).json({
                             err: true,
                             msg: `发生错误：${err.message}`,
                             timestamp: new Date().getTime()
@@ -161,7 +161,7 @@ router.post('/contests/:contestId/problems/:problemId', (req, res) => {
                         res.status(201).json(solution);
                     })
                     .catch((err) => {
-                        res.status(err.code || 500).json({
+                        res.status(err.status || 500).json({
                             err: true,
                             msg: `发生错误：${err.message}`,
                             timestamp: new Date().getTime()
@@ -170,7 +170,7 @@ router.post('/contests/:contestId/problems/:problemId', (req, res) => {
             }
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()
@@ -197,7 +197,7 @@ router.get('/contests/:contestId/problems/:problemId', (req, res) => {
             res.status(200).json(up.solutions);
         })
         .catch(err => {
-            res.status(err.code || 500).json({
+            res.status(err.status || 500).json({
                 err: true,
                 msg: `发生错误：${err.message}`,
                 timestamp: new Date().getTime()
