@@ -140,7 +140,7 @@ class ContestRepository extends CacheableRepository {
     findByName(contestName) {
         return redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
             Contest.findOne({name: contestName})
-                .populate('problems')
+                .populate('problems', '-cases')
                 .exec((err, contest) => {
                     if (err) {
                         return next(err);
