@@ -1060,6 +1060,10 @@
     }
 }
 
+.index-page .brand {
+    margin-top: 25vh;
+}
+
 .index-page .card {
     display: inline-block;
     position: relative;

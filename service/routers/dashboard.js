@@ -5,7 +5,9 @@ let express = require('express'),
     UserRepository = require('../repositories/userRepository');
 
 router.get('/', (req, res) => {
-    res.render('dashboard/index', {});
+    res.locals.validation = [];
+    res.locals.form = {};
+    res.render('dashboard/index');
 });
 
 module.exports = router;

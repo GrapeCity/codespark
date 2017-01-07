@@ -1,5 +1,6 @@
 let express = require('express'),
     crypto = require('crypto'),
+    auth = require('../utils/auth'),
     utils = require('../utils'),
     logger = utils.winston.appLogger,
     router = express.Router(),
@@ -10,7 +11,9 @@ router.get('/', (req, res, next) => {
     let contestRepo = new ContestRepository();
     contestRepo.getLatestActiveInfo()
         .then(contest => {
-            res.render('index', {contest});
+            res.locals.user = req.user;
+            res.locals.contest = contest;
+            res.render('index');
         })
         .catch(err => {
             next(err);
@@ -18,17 +21,28 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/login', (req, res, next) => {
-    res.render('users/login', {validation: [], form: {}});
+    res.locals.validation = [];
+    res.locals.form = {};
+    res.render('users/login');
+});
+
+router.post('/logout', auth.ensureAuthenticated, (req, res, next) => {
+    req.session.destroy();
+    req.logout();
+    res.redirect('/');
 });
 
 router.get('/signup', (req, res, next) => {
-    res.render('users/signup', {validation: [], form: {}});
+    res.locals.validation = [];
+    res.locals.form = {};
+    res.render('users/signup');
 });
 
 router.get('/active', (req, res) => {
     let {token, nonce} = req.query;
     if (!token || !nonce) {
-        return res.render('users/active', {msg: '参数不正确，请重新输入'});
+        res.locals.validation = ['参数不正确，请重新输入'];
+        return res.render('users/active');
     }
     let decipher = crypto.createDecipher('rc4', nonce),
         decrypted = '';
@@ -51,17 +65,21 @@ router.get('/active', (req, res) => {
                         user.activated ||
                         user.activeToken !== activeToken ||
                         user.activeExpires > new Date()) {
-                        return res.render('users/active', {msg: '激活失败：用户不存在或者已经激活或者激活链接已失效'});
+                        res.locals.validation = ['激活失败：用户不存在或者已经激活或者激活链接已失效'];
+                        return res.render('users/active');
                     }
-                    return res.render('users/active', {msg: '激活成功'});
+                    res.locals.validation = ['激活成功'];
+                    return res.render('users/active');
                 })
                 .catch(err => {
                     logger.warn(`database error: ${err}`);
-                    return res.render('users/active', {msg: '参数不正确，请检查参数'});
+                    res.locals.validation = ['参数不正确，请检查参数'];
+                    return res.render('users/active');
                 })
         } catch (any) {
             logger.warn(`parse activate parameters error: ${any}`);
-            return res.render('users/active', {msg: '参数不正确，请检查参数'});
+            res.locals.validation = ['参数不正确，请检查参数'];
+            return res.render('users/active');
         }
     });
 
@@ -69,12 +87,16 @@ router.get('/active', (req, res) => {
     decipher.end();
 });
 
-router.get('/forget', (req, res) => {
-    return res.render('users/forget', {form: {}});
+router.get('/forget', auth.ensureAuthenticated, (req, res) => {
+    res.locals.validation = [];
+    res.locals.form = {};
+    return res.render('users/forget');
 });
 
-router.post('/forget', (req, res) => {
-    return res.render('users/forget', {form: req.body});
+router.post('/forget', auth.ensureAuthenticated, (req, res) => {
+    res.locals.validation = [];
+    res.locals.form = req.body;
+    return res.render('users/forget');
 });
 
 module.exports = router;

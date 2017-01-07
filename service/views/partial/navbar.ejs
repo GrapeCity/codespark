@@ -44,6 +44,28 @@
                     <i class="fa fa-wordpress"></i>
                 </a>
             </li>
+            <% if (typeof user === 'undefined') { %>
+            <li>
+                <a href="/login" target="_self" class="btn btn-simple btn-white">登录</a>
+            </li>
+            <% } else { %>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-user-circle-o"></i>
+                    <b class="caret"></b>
+                    <div class="ripple-container"></div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li class="divider"></li>
+                    <li>
+                        <a onclick="$('#userForm').submit()">注销</a>
+                        <form id="userForm" method="post" action="/logout">
+                        </form>
+                    </li>
+                </ul>
+            </li>
+            <% } %>
         </ul>
     </div>
 </div>

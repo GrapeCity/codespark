@@ -32,16 +32,14 @@ function passportLogin(req, res, next) {
 function postLogin(req, res) {
     let user = req.user;
     if (!user) {
-        return res.render('users/login', {
-            validation: ['用户名或者密码错误，请稍后重试！'],
-            form: req.body
-        });
+        res.locals.validation = ['用户名或者密码错误，请稍后重试！'];
+        res.locals.form = req.body;
+        return res.render('users/login');
     }
     if (!user.activated) {
-        return res.render('users/login', {
-            validation: ['该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户'],
-            form: req.body
-        });
+        res.locals.validation = ['该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户'];
+        res.locals.form = req.body;
+        return res.render('users/login');
     }
 
     return res.redirect(req.query.returnUrl || '/');
@@ -50,16 +48,14 @@ function postLogin(req, res) {
 function preLogin(req, res, next) {
     let {mail, password} = req.body;
     if (!mail || !validator.isEmail(mail)) {
-        return res.render('users/login', {
-            validation: ['邮箱不能为空或者不是合法邮箱！'],
-            form: req.body
-        });
+        res.locals.validation = ['邮箱不能为空或者不是合法邮箱！'];
+        res.locals.form = req.body;
+        return res.render('users/login');
     }
-    if(!password) {
-        return res.render('users/login', {
-            validation: ['密码不能为空！'],
-            form: req.body
-        });
+    if (!password) {
+        res.locals.validation = ['密码不能为空！'];
+        res.locals.form = req.body;
+        return res.render('users/login');
     }
     next();
 }
@@ -68,12 +64,9 @@ function createSignupHandle(config) {
     return function signup(req, res, next) {
         let {mail, password, grapecity} = req.body;
         if (!mail || !validator.isEmail(mail)) {
-            return res.render('users/signup', {
-                validation: [
-                    '用户邮箱为空或者不是合法邮箱'
-                ],
-                form: req.body
-            });
+            res.locals.validation = ['用户邮箱为空或者不是合法邮箱'];
+            res.locals.form = req.body;
+            return res.render('users/signup');
         }
         User.findOne({mail}, (err, existedUser) => {
             if (err) {
@@ -81,12 +74,9 @@ function createSignupHandle(config) {
                 return next(err);
             }
             if (existedUser) {
-                return res.render('users/signup', {
-                    validation: [
-                        {msg: '该邮件已经被注册过'}
-                    ],
-                    form: req.body
-                });
+                res.locals.validation = ['该邮件已经被注册过'];
+                res.locals.form = req.body;
+                return res.render('users/signup');
             }
 
             new Promise((resolve, reject) => {
@@ -127,12 +117,9 @@ function createSignupHandle(config) {
                 }
                 passport.authenticate('local')(req, res, () => res.redirect('/dashboard'));
             }).catch((err) => {
-                return res.render('users/signup', {
-                    validation: [
-                        {msg: `无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`}
-                    ],
-                    form: req.body
-                });
+                res.locals.validation = [`无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`];
+                res.locals.form = req.body;
+                return res.render('users/signup');
             });
         })
     };
@@ -253,6 +240,7 @@ module.exports = {
     },
     ensureAuthenticated(req, res, next) {
         if (req.isAuthenticated()) {
+            res.locals.user = req.user;
             return next();
         }
         res.redirect(`/login?returnUrl=${req.originalUrl}`);
