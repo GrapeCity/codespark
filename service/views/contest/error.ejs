@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partial/head.ejs %>
+    <link rel="stylesheet" type="text/css" href="/css/css3clock.css"/>
+    <style>
+        .landing-page .table-hover > tbody > tr:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body class="landing-page">
+<!-- Navbar -->
+<nav class="navbar navbar-transparent navbar-fixed-top navbar-color-on-scroll">
+    <% include ../partial/navbar.ejs %>
+</nav>
+<!-- End Navbar -->
+<div class="wrapper">
+    <div class="header header-filter" style="background-image: url('/img/bg3.jpg');">
+        <div class="container" style="padding-top: 20vh">
+            <div class="row">
+                <div class="col-md-offset-2 col-md-8">
+                    <h3>好像有哪里不太对……</h3>
+                    <ul>
+                        <% validation.forEach(err => { %>
+                        <li class="text-danger"><%- err %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partial/footer.ejs %>
+</div>
+
+<% include ../partial/scripts.ejs %>
+<script type="text/javascript">
+
+    $().ready(function () {
+        var window_width = $(window).width();
+
+        if (window_width >= 992) {
+            big_image = $('.wrapper > .header');
+
+            $(window).on('scroll', materialKitDemo.checkScrollForParallax);
+        }
+        if ($(window).scrollTop() > 300) {
+            $('nav.navbar-transparent').removeClass('navbar-transparent');
+        }
+    });
+</script>
+</body>
+</html>

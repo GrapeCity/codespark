@@ -24,9 +24,9 @@ router.get('/:name', (req, res, next) => {
                 });
             }).catch(err => {
                 if (err.status === 404) {
-                    return res.render('contest/index', {
+                    return res.render('contest/error', {
                         validation: [
-                            `竞赛（${name}）不存在，或者你没有加入该竞赛`
+                            `竞赛（${name}）不存在，或者你没有加入该竞赛，请从<a href="/dashboard">dashboard</a>页面重试`
                         ]
                     });
                 }
@@ -34,7 +34,7 @@ router.get('/:name', (req, res, next) => {
             });
         })
         .catch(err => {
-            return res.render('contest/index', {
+            return res.render('contest/error', {
                 validation: [
                     `竞赛（${name}）不存在`
                 ]
