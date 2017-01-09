@@ -7,7 +7,7 @@ let express = require('express'),
 router.get('/active', (req, res) => {
     let contentRepo = new ContestRepository(),
         user = req.user;
-    contentRepo.findActiveContest(!user || user.mail.slice(-14) !== '@grapecity.com')
+    contentRepo.findActiveContests(!user || user.mail.slice(-14) !== '@grapecity.com')
         .then(contests => {
             res.status(200).json(contests);
         })

@@ -1,5 +1,6 @@
 let express           = require('express'),
     _                 = require('lodash'),
+    moment            = require('moment'),
     utils             = require('../utils'),
     logger            = utils.winston.appLogger,
     router            = express.Router(),
@@ -7,7 +8,7 @@ let express           = require('express'),
 
 router.get('/', (req, res, next) => {
     let contestRepo = new ContestRepository();
-    contestRepo.findActiveContest(req.user.mail.slice(-14) !== '@grapecity.com')
+    contestRepo.findActiveContests(req.user.mail.slice(-14) !== '@grapecity.com', '-end')
         .then(contests => {
             res.locals.validation = [];
             res.locals.form       = {};
@@ -17,6 +18,7 @@ router.get('/', (req, res, next) => {
                     contests.forEach((c, i) => {
                         contestRepo.findOneByIdAndUser(c._id, req.user._id)
                             .then(uc => {
+                                contests[i].joined   = true;
                                 contests[i].score    = uc.score;
                                 contests[i].progress = uc.progress;
                                 result.push(i);
@@ -35,7 +37,11 @@ router.get('/', (req, res, next) => {
                             })
                     });
                 }).then(() => {
-                    res.locals.contests = contests;
+                    res.locals.contests = _.map(contests, c => {
+                        c.begin = moment(c.begin).format('LLL');
+                        c.end = moment(c.end).format('LLL');
+                        return c;
+                    });
                     res.render('dashboard/index');
                 }).catch(err => {
                     return next(err);

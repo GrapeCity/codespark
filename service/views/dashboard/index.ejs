@@ -61,19 +61,31 @@
                             <% contests.forEach( (c, i) => { %>
                             <tr>
                                 <td class="text-center"><%= i %></td>
-                                <td><a href="<%= `/contests/${c.name}` %>"><%= c.displayName %></a></td>
+                                <td>
+                                    <% if (c.joined) { %>
+                                    <a href="<%= `/contests/${c.name}` %>"><%= c.displayName %></a>
+                                    <% } else { %>
+                                    <%= c.displayName %>
+                                    <% } %>
+                                </td>
                                 <td><%= c.end %></td>
                                 <td><%= c.progress || 0 %>%</td>
                                 <td><%= c.score || 0 %></td>
                                 <td class="td-actions text-right">
-                                    <button type="button" rel="tooltip" title="加入比赛"
-                                            class="btn btn-info btn-simple btn-xs">
-                                        <i class="fa fa-sign-in"></i>
-                                    </button>
-                                    <button type="button" rel="tooltip" title="Edit Profile"
+                                    <% if (!c.joined && !c.open) { %>
+                                    <button type="button" rel="tooltip" title="该比赛为内部比赛，请和管理员联系" disabled
                                             class="btn btn-success btn-simple btn-xs">
-                                        <i class="fa fa-edit"></i>
+                                        <i class="fa fa-lock"></i>
                                     </button>
+                                    <% } else if (!c.joined) { %>
+                                    <a type="button" rel="tooltip" title="加入比赛"
+                                       class="btn btn-success btn-simple btn-xs"
+                                       href="<%= `/contests/${c.name}` %>"><i class="fa fa-unlock"></i></a>
+                                    <% } else { %>
+                                    <a type="button" rel="tooltip" title="继续比赛"
+                                       class="btn btn-info btn-simple btn-xs"
+                                       href="<%= `/contests/${c.name}` %>"><i class="fa fa-sign-in"></i></a>
+                                    <% } %>
                                 </td>
                             </tr>
                             <% }) %>

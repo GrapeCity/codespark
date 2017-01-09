@@ -54,11 +54,12 @@ class ContestRepository extends CacheableRepository {
             .exec(next);
     }
 
-    findActiveContest(openOnly = true) {
+    findActiveContests(openOnly = true, sort = '') {
         return redisCache.getCache(`${this.cacheKeyPrefix}:ActiveContests`, next => {
             Contest.find(openOnly ? {open: true} : null)
                 .gte('end', new Date())
                 .lte('begin', new Date())
+                .sort(sort)
                 .exec((err, contests) => {
                     if (err) {
                         return next(err);
