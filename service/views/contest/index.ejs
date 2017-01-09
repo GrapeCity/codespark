@@ -7,6 +7,10 @@
         .landing-page .table-hover > tbody > tr:hover {
             color: black;
         }
+
+        .pagination {
+            margin: 0;
+        }
     </style>
 </head>
 <body class="landing-page">
@@ -77,7 +81,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-2 col-md-offset-1"
-                         style="min-height: 500px; background-color: #eee; padding: 10px 10px;">
+                         style="min-height: 700px; background-color: #eee; padding: 10px 10px;">
                         <ul class="nav nav-pills" role="tablist">
                             <% form.contest.problems.forEach((p, i) => { %>
                             <li <%= (i == 0) ? 'class=active' : '' %>>
@@ -111,8 +115,28 @@
                                 </div>
                                 <hr/>
                                 <div class="row">
-                                    <div class="col-md-12" style="min-height: 400px;">
+                                    <div class="col-md-12" style="min-height: 200px;">
                                         <%= p.description %>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div class="row">
+                                    <div class="col-md-12" style="min-height: 300px;">
+                                        <h5>
+                                            <div class="pull-left" style="margin-right: 20px;">历史提交记录：</div>
+                                            <ul class="pagination pagination-info">
+                                                <li><a href="#">1</a></li>
+                                                <li><a href="#">2</a></li>
+                                                <li class="active"><a href="#">3</a></li>
+                                                <li><a href="#">4</a></li>
+                                                <li><a href="#">5</a></li>
+                                            </ul>
+                                        </h5>
+                                        <div class="panel panel-default">
+                                            <div class="panel-body">
+                                                Panel content
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -208,7 +232,7 @@ function process(input) {
             //need data: contestId problemId
             var contestId = $('#contestId').val(),
                 problemId = $('#problemId').val(),
-                source = $('#source').val();
+                source    = $('#source').val();
             if (!contestId || !problemId) {
                 $('#warningList').append('<li class="text-danger">当前竞赛或者题目未选择，请刷新页面重试</li>')
                 return false;
@@ -218,17 +242,17 @@ function process(input) {
                 return false;
             }
             $.ajax({
-                url: '/sapi/workspaces/contests/' + contestId + '/problems/' + problemId,
-                method: 'POST',
-                data: {
+                url     : '/sapi/workspaces/contests/' + contestId + '/problems/' + problemId,
+                method  : 'POST',
+                data    : {
                     source: source
                 },
                 dataType: 'json',
-                success: function (data, status, jqXHR) {
-
+                success : function (data, status, jqXHR) {
+                    alert("代码已提交，请等待服务器分配资源并判断正确性\r\n\r\n通常这需要大约30秒左右");
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
-
+                $('#warningList').append('<li class="text-danger">发现问题，请和管理员联系</li>')
             });
         });
     });
