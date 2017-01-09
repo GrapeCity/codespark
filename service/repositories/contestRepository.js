@@ -1,10 +1,10 @@
-let _ = require('lodash'),
-    moment = require('moment'),
-    redisCache = require('../utils/redisCache'),
-    mongoose = require('../utils').mongoose,
-    User = mongoose.model('User'),
-    Contest = mongoose.model('Contest'),
-    UserContests = mongoose.model('UserContests'),
+let _                   = require('lodash'),
+    moment              = require('moment'),
+    redisCache          = require('../utils/redisCache'),
+    mongoose            = require('../utils').mongoose,
+    User                = mongoose.model('User'),
+    Contest             = mongoose.model('Contest'),
+    UserContests        = mongoose.model('UserContests'),
     CacheableRepository = require('./cacheableRepository');
 
 class ContestRepository extends CacheableRepository {
@@ -30,18 +30,18 @@ class ContestRepository extends CacheableRepository {
     createUserContest(user, contest) {
         return new Promise((resolve, reject) => {
             let obj = new UserContests({
-                user: user._id,
+                user   : user._id,
                 contest: contest._id,
-                score: 0,
-                begin: contest.begin,
-                end: contest.end
+                score  : 0,
+                begin  : contest.begin,
+                end    : contest.end
             });
             obj.save(err => {
                 if (err) {
                     return reject(err);
                 }
-                let real = obj.toObject();
-                real.user = user;
+                let real     = obj.toObject();
+                real.user    = user;
                 real.contest = contest.toObject();
                 resolve(real);
             });
@@ -55,15 +55,15 @@ class ContestRepository extends CacheableRepository {
     }
 
     findActiveContest(openOnly = true) {
-        return new Promise((resolve, reject) => {
+        return redisCache.getCache(`${this.cacheKeyPrefix}:ActiveContests`, next => {
             Contest.find(openOnly ? {open: true} : null)
                 .gte('end', new Date())
                 .lte('begin', new Date())
                 .exec((err, contests) => {
                     if (err) {
-                        return reject(err);
+                        return next(err);
                     }
-                    return resolve(contests || []);
+                    return next(null, contests || []);
                 });
         });
     }
@@ -91,7 +91,7 @@ class ContestRepository extends CacheableRepository {
                         if (err) {
                             return next(err);
                         }
-                        let obj = contest.toObject();
+                        let obj       = contest.toObject();
                         obj.userCount = userCount;
                         if (userCount > 0) {
                             UserContests.findOne({contest: contest._id})
@@ -146,13 +146,13 @@ class ContestRepository extends CacheableRepository {
                         return next(err);
                     }
                     if (!contest) {
-                        err = new Error('Not found');
+                        err        = new Error('Not found');
                         err.status = 404;
                         return next(err);
                     }
-                    let obj = contest.toObject();
+                    let obj   = contest.toObject();
                     obj.begin = moment(obj.begin).format('LLL');
-                    obj.end = moment(obj.end).format('LLL');
+                    obj.end   = moment(obj.end).format('LLL');
                     next(null, obj);
                 });
         })
@@ -166,13 +166,13 @@ class ContestRepository extends CacheableRepository {
                         return next(err);
                     }
                     if (!uc) {
-                        err = new Error('Not found');
+                        err        = new Error('Not found');
                         err.status = 404;
                         return next(err);
                     }
-                    let obj = uc.toObject();
+                    let obj   = uc.toObject();
                     obj.begin = moment(obj.begin).format('LLL');
-                    obj.end = moment(obj.end).format('LLL');
+                    obj.end   = moment(obj.end).format('LLL');
                     next(null, obj);
                 });
         })
@@ -197,7 +197,7 @@ class ContestRepository extends CacheableRepository {
                     return next(err);
                 }
                 if (!uc) {
-                    err = new Error('Not found');
+                    err        = new Error('Not found');
                     err.status = 404;
                     return next();
                 }

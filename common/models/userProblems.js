@@ -1,38 +1,39 @@
 let mongoose = require('../utils/mongoose'),
-    Schema = mongoose.Schema;
+    Schema   = mongoose.Schema;
 
 let UserProblemsSchema = new Schema(
     {
-        user: {
+        user     : {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref : 'User'
         },
-        contest: {
+        contest  : {
             type: Schema.Types.ObjectId,
-            ref: 'Contest'
+            ref : 'Contest'
         },
-        problem: {
+        problem  : {
             type: Schema.Types.ObjectId,
-            ref: 'Problem'
+            ref : 'Problem'
         },
         solutions: {
             type: [{
-                id: Number,
+                id     : Number,
                 runtime: {
-                    type: String,
-                    enum: ['javascript', 'java', 'csharp', 'cpp', 'python'],
+                    type   : String,
+                    enum   : ['javascript', 'java', 'csharp', 'cpp', 'python'],
                     default: 'javascript'
                 },
-                status: {
-                    type: String,
-                    enum: ['none', 'submitted', 'accepted', 'rejected',
+                status : {
+                    type   : String,
+                    enum   : ['none', 'submitted', 'accepted', 'rejected',
                         'judging', 'judge retry', 'judge succeeded', 'judge failed'],
                     default: 'none'
                 },
-                source: String,
-                result: {
+                source : String,
+                result : {
                     type: {
-                        score: Number,
+                        score  : Number,
+                        reason : String,
                         console: [String]
                     }
                 }
