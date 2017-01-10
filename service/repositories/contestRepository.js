@@ -33,8 +33,8 @@ class ContestRepository extends CacheableRepository {
                 user   : user._id,
                 contest: contest._id,
                 score  : 0,
-                begin  : contest.begin,
-                end    : contest.end
+                begin  : moment(contest.begin, 'LLL').toDate(),
+                end    : moment(contest.end, 'LLL').toDate()
             });
             obj.save(err => {
                 if (err) {
@@ -42,7 +42,7 @@ class ContestRepository extends CacheableRepository {
                 }
                 let real     = obj.toObject();
                 real.user    = user;
-                real.contest = contest.toObject();
+                real.contest = contest;
                 resolve(real);
             });
         });

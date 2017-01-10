@@ -80,6 +80,7 @@
         <div class="section text-center section-landing">
             <div class="container">
                 <div class="row">
+                    <% if(form.contest.problems.length > 0) { %>
                     <div class="col-md-2 col-md-offset-1"
                          style="min-height: 700px; background-color: #eee; padding: 10px 10px;">
                         <ul class="nav nav-pills" role="tablist">
@@ -143,6 +144,11 @@
                             <% }) %>
                         </div>
                     </div>
+                    <% } else { %>
+                    <div class="col-md-6 col-md-offset-3" style="min-height: 100px;">
+                        <h3>该比赛还没有任何题目，请稍后重试<br/>或者和管理员联系。</h3>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </div>

@@ -60,7 +60,7 @@
                             <tbody>
                             <% contests.forEach( (c, i) => { %>
                             <tr>
-                                <td class="text-center"><%= i %></td>
+                                <td class="text-center"><%= i + 1 %></td>
                                 <td>
                                     <% if (c.joined) { %>
                                     <a href="<%= `/contests/${c.name}` %>"><%= c.displayName %></a>
@@ -78,9 +78,11 @@
                                         <i class="fa fa-lock"></i>
                                     </button>
                                     <% } else if (!c.joined) { %>
-                                    <a type="button" rel="tooltip" title="加入比赛"
-                                       class="btn btn-success btn-simple btn-xs"
-                                       href="<%= `/contests/${c.name}` %>"><i class="fa fa-unlock"></i></a>
+                                    <form method="post" action="<%= `/contests/${c.name}` %>">
+                                        <button type="submit" rel="tooltip" title="加入比赛"
+                                                class="btn btn-success btn-simple btn-xs">
+                                            <i class="fa fa-unlock"></i></button>
+                                    </form>
                                     <% } else { %>
                                     <a type="button" rel="tooltip" title="继续比赛"
                                        class="btn btn-info btn-simple btn-xs"
