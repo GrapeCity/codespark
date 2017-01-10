@@ -86,6 +86,12 @@ class ContestRepository extends CacheableRepository {
                 if (err) {
                     return next(err);
                 }
+                if(!contest){
+                    err = new Error('Not found');
+                    err.status = 404;
+                    return next(err);
+                }
+
                 UserContests.find({contest: contest._id})
                     .count()
                     .exec((err, userCount) => {
