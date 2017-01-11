@@ -16,6 +16,10 @@ router.get('/', (req, res, next) => {
             res.render('index');
         })
         .catch(err => {
+            if(err.status === 404){
+                res.locals.user = req.user;
+                res.render('index');
+            }
             next(err);
         });
 });

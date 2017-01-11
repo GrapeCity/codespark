@@ -33,6 +33,7 @@
     <div class="main main-raised">
         <div class="section section-basic">
             <div class="container">
+                <% if (typeof contest !== 'undefined' ) { %>
                 <div class="title">
                     <h2><i class="fa fa-paragraph"></i> 最新战报:
                         <small>
@@ -83,6 +84,11 @@
                         </div>
                     </div>
                 </div>
+                <% } else { %>
+                <div class="title">
+                    <h3><i class="fa fa-stop"></i>系统中还没有任何竞赛，请和管理员联系</h3>
+                </div>
+                <% } %>
 
                 <div class="space-100">
                 </div>
