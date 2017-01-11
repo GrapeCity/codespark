@@ -1,13 +1,13 @@
-let _ = require('lodash'),
-    crypto = require('crypto'),
-    express = require('express'),
-    validator = require('validator'),
-    kue = require('kue'),
-    json = require('kue/lib/http/routes/json'),
-    utils = require('../utils'),
-    mongoose = utils.mongoose,
-    logger = utils.winston.appLogger,
-    router = express.Router(),
+let _            = require('lodash'),
+    crypto       = require('crypto'),
+    express      = require('express'),
+    validator    = require('validator'),
+    kue          = require('kue'),
+    json         = require('kue/lib/http/routes/json'),
+    utils        = require('../utils'),
+    mongoose     = utils.mongoose,
+    logger       = utils.winston.appLogger,
+    router       = express.Router(),
     UserProblems = mongoose.model('UserProblems'),
     queue;
 
@@ -19,37 +19,41 @@ router.setup = (config) => {
 
 router.get('/', (req, res) => {
     let {userId, contestId, problemId, solutionId} = req.query;
+    logger.info(`fetch solution for user's problem info: u=${userId}, c=${contestId}, p=${problemId}, s=${solutionId}`);
     UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
         .populate('user')
         .populate('contest')
         .populate('problem')
         .exec((err, data) => {
-            if(err){
+            if (err) {
+                logger.error(`Read database error: ${err}`);
                 return res.status(500).json({
-                    err: true,
-                    msg: `Fetch user problems error: ${err}`,
+                    err      : true,
+                    msg      : `Fetch user problems error: ${err}`,
                     timestamp: new Date().getTime()
                 })
             }
-            if(!data || !data.contest || !data.problem) {
+            if (!data || !data.contest || !data.problem) {
+                logger.warn(`data error: missing data, contest, or problem`);
                 return res.status(404).json({
-                    err: true,
-                    msg: `no such data when user=${userId}, contest=${contestId}, problem=${problemId}`,
+                    err      : true,
+                    msg      : `no such data when user=${userId}, contest=${contestId}, problem=${problemId}`,
                     timestamp: new Date().getTime()
                 });
             }
-            let sid = parseInt(solutionId, 10);
+            let sid      = parseInt(solutionId, 10);
             let solution = _.find(data.solutions, s => s.id === sid);
-            if(!solution){
+            if (!solution) {
+                logger.error(`data error: missing solution`);
                 return res.status(404).json({
-                    err: true,
-                    msg: `no such data when user=${userId}, contest=${contestId}, problem=${problemId}, solution=${solutionId}`,
+                    err      : true,
+                    msg      : `no such data when user=${userId}, contest=${contestId}, problem=${problemId}, solution=${solutionId}`,
                     timestamp: new Date().getTime()
                 });
             }
             res.status(200).json({
-                cases: data.problem.cases,
-                source: solution.source,
+                cases  : data.problem.cases,
+                source : solution.source,
                 runtime: solution.runtime
             });
         });
