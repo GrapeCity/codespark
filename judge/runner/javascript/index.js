@@ -1,6 +1,6 @@
-var fs = require('fs'),
-    path = require('path'),
-    util = require('util'),
+let fs      = require('fs'),
+    path    = require('path'),
+    util    = require('util'),
     Sandbox = require("sandbox");
 
 // With following assume, [data] folder will place all data files
@@ -11,29 +11,29 @@ var fs = require('fs'),
 //   |- source.js      * the source code of solution
 //   |- result.json    * the result (score and outputs)
 
-var defaultTimeout = 1000,
-    datadir = 'data',
-    casedir = datadir + '/cases',
-    caseInPostfix = '.in',
-    caseOutPostfix = '.out',
+let defaultTimeout  = 1000,
+    datadir         = process.env.BASEDATA || 'data',
+    casedir         = datadir + '/cases',
+    caseInPostfix   = '.in',
+    caseOutPostfix  = '.out',
     currentRunIndex = 0,
-    result = {score: 0, outputs: []};
+    result          = {score: 0, outputs: [], timestamp: new Date().getTime()};
 
 try {
     // clean old result
     fs.writeFileSync(datadir + '/result.json', JSON.stringify(result), 'utf8');
 
-    var source = fs.readFileSync(datadir + '/source.js', 'utf8'),
-        cases = (function (files) {
+    let source = fs.readFileSync(datadir + '/source.js', 'utf8'),
+        cases  = (function (files) {
             return files.map(function (file) {
                 return path.join(casedir, file);
             }).filter(function (file) {
                 return path.extname(file) === caseInPostfix && fs.statSync(file).isFile();
             }).map(function (file) {
-                var caseId = path.basename(file, caseInPostfix);
+                let caseId = path.basename(file, caseInPostfix);
                 return {
-                    id: parseInt(caseId, 10),
-                    input: readFileContent(file),
+                    id    : parseInt(caseId, 10),
+                    input : readFileContent(file),
                     expect: readExpectFile(caseId)
                 };
             }).sort(function (cs1, cs2) {
@@ -41,8 +41,8 @@ try {
             });
         })(fs.readdirSync(casedir));
 
-    for (var i = 0; i < cases.length; i++) {
-        runCase(i, cases[i]);
+    for (let i = 0; i < cases.length; i++) {
+        runCase(i, source, cases[i]);
     }
 
 } catch (any) {
@@ -50,23 +50,23 @@ try {
     return;
 }
 
-function runCase(index, cs) {
-    var caseId = cs.id;
+function runCase(index, source, cs) {
+    let caseId = cs.id;
     if (index > currentRunIndex) {
         setTimeout(function () {
             // next tick, run again
-            runCase(index, cs);
+            runCase(index, source, cs);
         }, (index - currentRunIndex) * 10);
     } else {
         // yep, resource ready, run the case
-        var box = new Sandbox({timeout: defaultTimeout});
+        let box = new Sandbox({timeout: defaultTimeout});
         box.run(source + '; process("' + cs.input + '");',
             function (output) {
-                var expected = util.inspect(cs.expect),
-                    actual = output.result;
+                let expected = util.inspect(cs.expect),
+                    actual   = output.result;
                 if (expected !== actual) {
                     expected = deepTrim(expected);
-                    actual = deepTrim(actual);
+                    actual   = deepTrim(actual);
                 }
                 if (expected === actual) {
                     result.score += Math.pow(cs.id, 2);
@@ -92,10 +92,10 @@ function readExpectFile(caseId) {
 }
 
 function deepTrim(realString) {
-    realString = realString.trim();
-    var resultString = '', lastChar = '';
-    for (var i = 0; i < realString.length; i++) {
-        var currentChar = realString[i];
+    realString       = realString.trim();
+    let resultString = '', lastChar = '';
+    for (let i = 0; i < realString.length; i++) {
+        let currentChar = realString[i];
         if ((lastChar === ' ' || lastChar === '\u00A0') &&
             (currentChar === ' ' || currentChar === '\u00A0')) {
             continue;
