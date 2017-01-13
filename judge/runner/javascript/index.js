@@ -42,7 +42,7 @@ try {
         })(fs.readdirSync(casedir));
 
     for (let i = 0; i < cases.length; i++) {
-        runCase(i, source, cases[i]);
+        runCase(i, source, cases);
     }
 
 } catch (any) {
@@ -50,8 +50,9 @@ try {
     return;
 }
 
-function runCase(index, source, cs) {
-    let caseId = cs.id;
+function runCase(index, source, cases) {
+    let cs = cases[index],
+        caseId = cs.id;
     if (index > currentRunIndex) {
         setTimeout(function () {
             // next tick, run again
