@@ -60,7 +60,47 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    let {userId, contestId, problemId, solutionId} = req.query;
+    let {score, results}                           = req.body;
+    logger.info(`update solution for user's problem info: u=${userId}, c=${contestId}, p=${problemId}, s=${solutionId}`);
+    UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
+        .exec((err, data) => {
+            if (err) {
+                logger.error(`Read database error: ${err}`);
+                return res.status(500).json({
+                    err      : true,
+                    msg      : `Fetch user problems error: ${err}`,
+                    timestamp: new Date().getTime()
+                })
+            }
+            let sid      = parseInt(solutionId, 10);
+            let solution = _.find(data.solutions, s => s.id === sid);
+            if (!solution) {
+                logger.error(`data error: missing solution`);
+                return res.status(404).json({
+                    err      : true,
+                    msg      : `no such data when user=${userId}, contest=${contestId}, problem=${problemId}, solution=${solutionId}`,
+                    timestamp: new Date().getTime()
+                });
+            }
 
+            solution.result = {
+                score,
+                results
+            };
+            data.save(err => {
+                if (err) {
+                    logger.error(`save data error: ${err}`);
+                    return res.status(500).json({
+                        err      : true,
+                        msg      : `save data error: ${err}`,
+                        timestamp: new Date().getTime()
+                    });
+                }
+
+                return res.status(201).json({});
+            })
+        });
 });
 
 router.get('/stats', json.stats);
