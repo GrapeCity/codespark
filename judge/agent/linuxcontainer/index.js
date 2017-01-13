@@ -119,14 +119,12 @@ queue.process('judge', maxConcurrent, (job, done) => {
                 Env            : ['BASEDATA=/codespark/judge/agent/linuxcontainer/data'],
                 HostConfig     : {
                     // binds      : [`/data/${userId}/${contestId}/${problemId}/${solutionId}:/app/data`],
-                    VolumesFrom: process.env.HOSTNAME || 'agent',
+                    VolumesFrom: [process.env.HOSTNAME || 'agent'],
                     Memory     : 1024 * 1024 * 250,
                     NetworkMode: 'none'
                 }
             },
             (err, data, container) => {
-                logger.info(`[${contestId}] [${problemId}] [${userId}] judging is now finished, report back`);
-                job.progress(80, 100, {msg: 'judge finished'});
                 try {
                     if (err) {
                         logger.error(`run docker error: ${err}`);
@@ -138,6 +136,9 @@ queue.process('judge', maxConcurrent, (job, done) => {
                         }
                         return done(err);
                     }
+
+                    logger.info(`[${contestId}] [${problemId}] [${userId}] judging is now finished, report back`);
+                    job.progress(80, 100, {msg: 'judge finished'});
 
                     // container is now stopped
                     // safe to check result of the solution
