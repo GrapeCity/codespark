@@ -11,58 +11,48 @@ let fs      = require('fs'),
 //   |- source.js      * the source code of solution
 //   |- result.json    * the result (score and outputs)
 
-let defaultTimeout  = 1000,
-    datadir         = process.env.BASEDATA || '/data',
-    casedir         = datadir + '/cases',
-    caseInPostfix   = '.in',
-    caseOutPostfix  = '.out',
-    currentRunIndex = 0,
-    result          = {score: 0, outputs: [], timestamp: new Date().getTime()};
+let defaultTimeout = 1000,
+    datadir        = process.env.BASEDATA || '/data',
+    casedir        = datadir + '/cases',
+    caseInPostfix  = '.in',
+    caseOutPostfix = '.out',
+    final          = {score: 0, count: 0, results: [], timestamp: new Date().getTime()};
 
 try {
     // clean old result
-    fs.writeFileSync(datadir + '/result.json', JSON.stringify(result), 'utf8');
+    fs.writeFileSync(datadir + '/result.json', JSON.stringify(final), 'utf8');
 
     let source = fs.readFileSync(datadir + '/source.js', 'utf8'),
-        cases  = (function (files) {
-            return files.map(function (file) {
-                return path.join(casedir, file);
-            }).filter(function (file) {
-                return path.extname(file) === caseInPostfix && fs.statSync(file).isFile();
-            }).map(function (file) {
+        cases  = (files => files.map(file => path.join(casedir, file))
+            .filter(file => path.extname(file) === caseInPostfix && fs.statSync(file).isFile())
+            .map(file => {
                 let caseId = path.basename(file, caseInPostfix);
                 return {
                     id    : parseInt(caseId, 10),
                     input : readFileContent(file),
                     expect: readExpectFile(caseId)
                 };
-            }).sort(function (cs1, cs2) {
-                return cs1.id - cs2.id;
-            });
-        })(fs.readdirSync(casedir));
+            })
+            .sort((cs1, cs2) => cs1.id - cs2.id))(fs.readdirSync(casedir));
 
-    for (let i = 0; i < cases.length; i++) {
-        runCase(i, source, cases);
-    }
-
+    runCaseAsync(cases, source, () => {
+        process.stdout.write(`calc final score, write result to file`);
+        final.score = final.count * final.count;
+        fs.writeFileSync(datadir + '/result.json', JSON.stringify(final), 'utf8');
+    });
 } catch (any) {
-    process.stderr.write('Run case error: ' + any);
+    process.stderr.write('Internal error: ' + any);
     return;
 }
 
-function runCase(index, source, cases) {
-    let cs = cases[index],
-        caseId = cs.id;
-    if (index > currentRunIndex) {
-        setTimeout(function () {
-            // next tick, run again
-            runCase(index, source, cs);
-        }, (index - currentRunIndex) * 10);
-    } else {
-        // yep, resource ready, run the case
-        let box = new Sandbox({timeout: defaultTimeout});
-        box.run(source + '; process("' + cs.input + '");',
-            function (output) {
+function runCaseAsync(cases, source, next) {
+    let cs   = cases.shift(),
+        csId = cs.id;
+    process.stdout.write(`run case [id: ${csId}], left ${cases.length} in pending`);
+    new Sandbox({timeout: defaultTimeout})
+        .run(source + '; process("' + cs.input + '");',
+            output => {
+                output.id    = csId;
                 let expected = util.inspect(cs.expect),
                     actual   = output.result;
                 if (expected !== actual) {
@@ -70,18 +60,17 @@ function runCase(index, source, cases) {
                     actual   = deepTrim(actual);
                 }
                 if (expected === actual) {
-                    result.score += Math.pow(cs.id, 2);
+                    output.passed = true;
+                    final.count += 1;
                 }
-                result.outputs[caseId - 1] = output;
+                final.results[csId - 1] = output;
 
-                // done, move to next case
-                currentRunIndex++;
-
-                if (currentRunIndex === cases.length) { // run last one
-                    fs.writeFileSync(datadir + '/result.json', JSON.stringify(result), 'utf8');
+                if (cases.length > 0) {
+                    runCaseAsync(cases, source, next);
+                } else {
+                    next();
                 }
             });
-    }
 }
 
 function readFileContent(file) {
