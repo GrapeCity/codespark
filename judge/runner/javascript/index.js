@@ -12,7 +12,7 @@ let fs      = require('fs'),
 //   |- result.json    * the result (score and outputs)
 
 let defaultTimeout  = 1000,
-    datadir         = process.env.BASEDATA || 'data',
+    datadir         = process.env.BASEDATA || '/data',
     casedir         = datadir + '/cases',
     caseInPostfix   = '.in',
     caseOutPostfix  = '.out',

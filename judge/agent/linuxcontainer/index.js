@@ -116,7 +116,7 @@ queue.process('judge', maxConcurrent, (job, done) => {
             {
                 Tty            : false,
                 NetworkDisabled: true,
-                Env            : ['BASEDATA=/codespark/judge/agent/linuxcontainer/data'],
+                Env            : [`BASEDATA=/data/${userId}/${contestId}/${problemId}/${solutionId}`],
                 HostConfig     : {
                     // binds      : [`/data/${userId}/${contestId}/${problemId}/${solutionId}:/app/data`],
                     VolumesFrom: [process.env.HOSTNAME || 'agent'],

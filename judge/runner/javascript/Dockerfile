@@ -5,7 +5,7 @@ MAINTAINER Zhang Wenqing "winking.zhang@grapecity.com"
 ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
 WORKDIR /app
-VOLUME /app/data
+VOLUME /data
 COPY ./judge/runner/javascript /app
 
 RUN npm install --production
