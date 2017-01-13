@@ -1,13 +1,14 @@
-let redis = require('redis'),
-    _ = require('lodash'),
-    kue = require('kue'),
-    logger = require('../../common/utils/winston').appLogger,
-    mongoose = require('../../common/utils/mongoose'),
+let redis        = require('redis'),
+    inspect      = require('util').inspect,
+    _            = require('lodash'),
+    kue          = require('kue'),
+    logger       = require('../../common/utils/winston').appLogger,
+    mongoose     = require('../../common/utils/mongoose'),
     UserProblems = mongoose.model('UserProblems');
 
 module.exports = (config, resMgr) => {
     let client = redis.createClient(config),
-        queue = kue.createQueue(config);
+        queue  = kue.createQueue(config);
     resMgr.add('subscriber', client, () => {
         client.unsubscribe();
         client.quit();
@@ -30,7 +31,13 @@ module.exports = (config, resMgr) => {
                 }
                 solution.status = status;
                 if (result) {
-                    solution.result = result;
+                    if (solution.result) {
+                        solution.result.score = result.score;
+                    } else {
+                        solution.result = {
+                            score: result.score
+                        };
+                    }
                 }
                 up.save(err => {
                     if (err) {
@@ -58,9 +65,10 @@ module.exports = (config, resMgr) => {
             console.log(`judge #${judge.id} is started`);
             updateSolution(userId, contestId, problemId, solutionId, 'judging');
         }).on('complete', result => {
-            console.log(`judge #${judge.id} is done, with result: ${result}`);
+            console.log(`judge #${judge.id} is done, with result: ${inspect(result, null)}`);
             // write data to db
-            updateSolution(userId, contestId, problemId, solutionId, 'judge succeeded', JSON.parse(result));
+            updateSolution(userId, contestId, problemId, solutionId,
+                'judge succeeded', result);
         }).on('failed attempt', function (errMessage, doneAttempts) {
             console.log(`judge #${judge.id} ${doneAttempts}th failed: ${errMessage}`);
             updateSolution(userId, contestId, problemId, solutionId, 'judge retry');
@@ -68,7 +76,7 @@ module.exports = (config, resMgr) => {
             console.log(`judge #${judge.id} has failed: ${errMessage}`);
             updateSolution(userId, contestId, problemId, solutionId, 'judge failed');
         }).on('progress', function (progress, data) {
-            console.log(`\r  judge #${judge.id} ${progress}% complete with data: ${data}`);
+            console.log(`\r  judge #${judge.id} ${progress}% complete with data: ${inspect(data, null)}`);
         });
         judge.save();
     }
