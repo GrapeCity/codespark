@@ -131,6 +131,9 @@ queue.process('judge', maxConcurrent, (job, done) => {
                         if (container) {
                             job.progress(95, 100, {msg: 'judge finished with error'});
                             return container.remove((err2, data) => {
+                                if (err2) {
+                                    logger.error(`remove docker error: ${err2}`);
+                                }
                                 done(err2 || err);
                             });
                         }
@@ -157,26 +160,34 @@ queue.process('judge', maxConcurrent, (job, done) => {
                     }, (err /*, res, body*/) => {
                         if (err) {
                             // error while reporting
+                            logger.error(`report judge error: ${err}`);
                             job.progress(95, 100, {msg: 'judge report error'});
                             return container.remove((err, data) => {
+                                if (err) {
+                                    logger.error(`run docker error: ${err}`);
+                                }
                                 done(err);
                             });
                         }
                         container.remove((err, data) => {
                             if (err) {
+                                logger.error(`run docker error: ${err}`);
                                 return done(err);
                             }
                             done(null, {score: JSON.parse(out).score});
                         });
                     });
                 } catch (any) {
+                    logger.error(`unknown error: ${any}`);
                     return done(any);
                 }
             })
             .on('container', () => {
+                logger.info(`judge container is created`);
                 job.progress(20, 100, {msg: 'docker container is ready'})
             })
             .on('stream', () => {
+                logger.info(`judge container is ready to run`);
                 job.progress(30, 100, {msg: 'judge started'})
             });
     });
