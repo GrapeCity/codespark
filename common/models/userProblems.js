@@ -33,8 +33,12 @@ let UserProblemsSchema = new Schema(
                 result : {
                     type: {
                         score  : Number,
-                        reason : String,
-                        console: [String]
+                        results: [{
+                            id     : Number,
+                            result : String,
+                            console: String,
+                            passed : Boolean
+                        }]
                     }
                 }
             }]
