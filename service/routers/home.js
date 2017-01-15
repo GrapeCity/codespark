@@ -1,22 +1,22 @@
-let express = require('express'),
-    crypto = require('crypto'),
-    auth = require('../utils/auth'),
-    utils = require('../utils'),
-    logger = utils.winston.appLogger,
-    router = express.Router(),
-    UserRepository = require('../repositories/userRepository'),
+let express           = require('express'),
+    crypto            = require('crypto'),
+    auth              = require('../utils/auth'),
+    utils             = require('../utils'),
+    logger            = utils.winston.appLogger,
+    router            = express.Router(),
+    UserRepository    = require('../repositories/userRepository'),
     ContestRepository = require('../repositories/contestRepository');
 
 router.get('/', (req, res, next) => {
     let contestRepo = new ContestRepository();
     contestRepo.getLatestActiveInfo()
         .then(contest => {
-            res.locals.user = req.user;
+            res.locals.user    = req.user;
             res.locals.contest = contest;
             res.render('index');
         })
         .catch(err => {
-            if(err.status === 404){
+            if (err.status === 404) {
                 res.locals.user = req.user;
                 res.render('index');
             }
@@ -24,9 +24,19 @@ router.get('/', (req, res, next) => {
         });
 });
 
+router.get('/rules', (req, res, next) => {
+    res.locals.rules = [];
+    res.render('rules');
+});
+
+router.get('/videos', (req, res, next) => {
+    res.locals.videos = [];
+    res.render('videos');
+});
+
 router.get('/login', (req, res, next) => {
     res.locals.validation = [];
-    res.locals.form = {};
+    res.locals.form       = {};
     res.render('users/login');
 });
 
@@ -38,7 +48,7 @@ router.post('/logout', auth.ensureAuthenticated, (req, res, next) => {
 
 router.get('/signup', (req, res, next) => {
     res.locals.validation = [];
-    res.locals.form = {};
+    res.locals.form       = {};
     res.render('users/signup');
 });
 
@@ -48,7 +58,7 @@ router.get('/active', (req, res) => {
         res.locals.validation = ['参数不正确，请重新输入'];
         return res.render('users/active');
     }
-    let decipher = crypto.createDecipher('rc4', nonce),
+    let decipher  = crypto.createDecipher('rc4', nonce),
         decrypted = '';
     decipher.on('readable', () => {
         let data = decipher.read();
@@ -59,10 +69,10 @@ router.get('/active', (req, res) => {
     decipher.on('end', () => {
         // Prints: some clear text data
         try {
-            let data = JSON.parse(decrypted),
-                mail = data.m,
+            let data        = JSON.parse(decrypted),
+                mail        = data.m,
                 activeToken = data.a,
-                userRepo = new UserRepository();
+                userRepo    = new UserRepository();
             userRepo.findOneByMail(mail)
                 .then(user => {
                     if (!user ||
@@ -93,13 +103,13 @@ router.get('/active', (req, res) => {
 
 router.get('/forget', auth.ensureAuthenticated, (req, res) => {
     res.locals.validation = [];
-    res.locals.form = {};
+    res.locals.form       = {};
     return res.render('users/forget');
 });
 
 router.post('/forget', auth.ensureAuthenticated, (req, res) => {
     res.locals.validation = [];
-    res.locals.form = req.body;
+    res.locals.form       = req.body;
     return res.render('users/forget');
 });
 

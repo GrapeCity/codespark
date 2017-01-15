@@ -188,11 +188,26 @@ router.get('/contests/:contestId/problems/:problemId', (req, res) => {
     problemRepo.findOneByIdAndUserWithContest(problemId, contestId, userId)
         .then(up => {
             if (!up) {
-                return res.status(404).json({
-                    err: true,
-                    msg: '指定的竞赛和题目不存在或者没有加入该竞赛，或者没有提交任何解决方案',
-                    timestamp: new Date().getTime()
-                });
+                let contestRepo = new ContestRepository();
+                contestRepo.findOneByIdAndUser(contestId, userId)
+                    .then(uc => {
+                        if (!uc) {
+                            return res.status(404).json({
+                                err: true,
+                                msg: '指定的竞赛不存在或者没有加入该竞赛',
+                                timestamp: new Date().getTime()
+                            });
+                        }
+                        res.status(200).json([]);
+                    })
+                    .catch(err => {
+                        res.status(err.status || 500).json({
+                            err: true,
+                            msg: `发生错误：${err.message}`,
+                            timestamp: new Date().getTime()
+                        });
+                    });
+                return;
             }
             res.status(200).json(up.solutions);
         })

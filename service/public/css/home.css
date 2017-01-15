@@ -1230,3 +1230,19 @@
     padding-top: 10px;
     padding-right: 30px;
 }
+
+@media (max-width: 991px) {
+    .landing-page .header .container {
+        font-size: 0.8em;
+    }
+
+    .landing-page .main-raised {
+        margin-top: -20px;
+    }
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 80%;
+    }
+}

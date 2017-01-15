@@ -21,7 +21,7 @@
 <!-- End Navbar -->
 <div class="wrapper">
     <div class="header header-filter" style="background-image: url('/img/bg3.jpg');">
-        <div class="container" style="padding-top: 20vh">
+        <div class="container" style="padding-top: 15vh">
             <div class="row">
                 <div class="col-md-6">
                     <h3 class="title">
@@ -81,11 +81,11 @@
             <div class="container">
                 <div class="row">
                     <% if(form.contest.problems.length > 0) { %>
-                    <div class="col-md-2 col-md-offset-1"
+                    <div class="col-md-2 col-md-offset-1 col-sm-3 col-xs-3"
                          style="min-height: 700px; background-color: #eee; padding: 10px 10px;">
                         <ul class="nav nav-pills" role="tablist">
                             <% form.contest.problems.forEach((p, i) => { %>
-                            <li <%= (i == 0) ? 'class=active' : '' %>>
+                            <li <%= (i == 0) ? 'class=active' : '' %> style="width:100%;">
                                 <a class="problemLink" href="#<%= p.name %>" role="tab" data-toggle="tab"
                                    data-pid="<%= p._id %>">
                                     <%= i + 1 %>. <%= p.title %>
@@ -94,7 +94,7 @@
                             <% }) %>
                         </ul>
                     </div>
-                    <div class="col-md-8" style="padding-left: 40px">
+                    <div class="col-md-8 col-sm-8 col-xs-9" style="padding-left: 40px">
                         <div class="tab-content text-left">
                             <% form.contest.problems.forEach((p, i) => { %>
                             <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="<%= p.name %>">
@@ -103,13 +103,13 @@
                                     <div class="pull-right">
                                         <div class="btn-group" style="margin:30px 1px 0 1px">
                                             <button class="btn btn-success"
-                                                    style="min-width: 120px;"
+                                                    style="min-width: 100px;"
                                                     onclick="switchProblemTo('<%= p._id %>','<%= p.title %>')"
                                                     data-toggle="modal"
                                                     data-target="#myModal">答题
                                             </button>
                                             <a class="btn btn-warning"
-                                               style="min-width: 120px;"
+                                               style="min-width: 100px;"
                                                href="/debug"
                                                target="_blank">调试工具</a>
                                         </div>
@@ -291,8 +291,9 @@ function process(input) {
         <% } %>
 
         $(".problemLink").click(function () {
+            var pid = $(this).data('pid');
             setTimeout(function () {
-                loadProblemInfo($(this).data('pid'));
+                loadProblemInfo(pid);
             }, 0);
         });
 
