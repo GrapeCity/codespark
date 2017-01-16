@@ -26,7 +26,7 @@
                 <div class="col-md-6">
                     <h3 class="title">
                         <small style="color:white">欢迎参加：</small><%= form.contest.displayName %></h3>
-                    <p><%= form.contest.description %></p>
+                    <p><%- form.contest.description %></p>
                     <br/>
                     <h4>比赛时间</h4>
                     <p>
@@ -86,7 +86,7 @@
                         <ul class="nav nav-pills" role="tablist">
                             <% form.contest.problems.forEach((p, i) => { %>
                             <li <%= (i == 0) ? 'class=active' : '' %> style="width:100%;">
-                                <a class="problemLink" href="#<%= p.name %>" role="tab" data-toggle="tab"
+                                <a class="problemLink" href="#p_<%= i %>" role="tab" data-toggle="tab"
                                    data-pid="<%= p._id %>">
                                     <%= i + 1 %>. <%= p.title %>
                                 </a>
@@ -97,7 +97,7 @@
                     <div class="col-md-8 col-sm-8 col-xs-9" style="padding-left: 40px">
                         <div class="tab-content text-left">
                             <% form.contest.problems.forEach((p, i) => { %>
-                            <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="<%= p.name %>">
+                            <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="p<%= i %>">
                                 <div class="row">
                                     <h3 class="title col-md-8" style="max-width: 500px"><%= p.title %></h3>
                                     <div class="pull-right">
@@ -118,7 +118,7 @@
                                 <hr/>
                                 <div class="row">
                                     <div class="col-md-12" style="min-height: 200px;">
-                                        <%= p.description %>
+                                        <%- p.description %>
                                     </div>
                                 </div>
                                 <hr/>
