@@ -97,7 +97,7 @@
                     <div class="col-md-8 col-sm-8 col-xs-9" style="padding-left: 40px">
                         <div class="tab-content text-left">
                             <% form.contest.problems.forEach((p, i) => { %>
-                            <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="p<%= i %>">
+                            <div class="tab-pane <%= (i == 0) ? 'active' : 'text-left' %>" id="p_<%= i %>">
                                 <div class="row">
                                     <h3 class="title col-md-8" style="max-width: 500px"><%= p.title %></h3>
                                     <div class="pull-right">
