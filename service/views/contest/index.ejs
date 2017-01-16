@@ -254,17 +254,53 @@ function process(input) {
                                 $.each(data, function (i, d) {
                                     ul.append('<li ' + (i === 0 ? 'class="active"' : '') + '><a href="#ps_' + d.id
                                         + '" data-toggle="tab" aria-expanded="false">' + (i + 1) + '</a></li>');
-                                    var p = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + d.id + '"></div>');
-                                    p.append('<div>' + d.runtime + '</div>');
-                                    p.append('<div>' + d.status + '</div>');
+                                    var p     = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + d.id + '"></div>');
+                                    var table = $('<table class="table table-bordered"></table>');
+                                    p.append(table);
+
+                                    var tbody = $('<tbody></tbody>');
+                                    table.append(tbody);
+
+                                    var tr1 = $('<tr></tr>');
+                                    tr1.append('<td colspan="2" class="text-info">runtime</td>');
+                                    tr1.append('<td style="min-width: 200px;">' + d.runtime + '</td>');
+                                    tbody.append(tr1);
+
+                                    var tr2 = $('<tr></tr>');
+                                    tr2.append('<td colspan="2" class="text-info">status</td>');
+                                    tr2.append('<td>' + d.status + '</td>');
+                                    tbody.append(tr2);
+
                                     if (d.result) {
-                                        p.append('<div>' + (d.result.score || 0) + '</div>');
-                                        p.append('<div>' + (d.result.reason || "") + '</div>');
-                                        if (d.result.console) {
-                                            p.append('<div><pre>' + d.result.console.join('') + '</pre></div>');
+                                        var tr3 = $('<tr></tr>'), tr4 = $('<tr></tr>');
+                                        tr3.append('<td rowspan="2" class="text-info">result</td>');
+                                        tr3.append('<td class="text-info">score</td>');
+                                        tr3.append('<td>' + (d.result.score || 0) + '</td>');
+
+                                        tr4.append('<td class="text-info">details</td>');
+                                        var td4 = $('<td></td>');
+                                        if (d.result.results) {
+                                            var tres = $('<table class="table"></table>');
+                                            tres.append('<thead><tr><th>id</th><th>pass</th><th>output</th></tr></thead>');
+                                            var tbres = $('<tbody></tbody>');
+                                            $.each(data, function (ri, rd) {
+                                                var tmptr = $('<tr></tr>');
+                                                tmptr.append('<td>' + rd.id + '</td>');
+                                                tmptr.append('<td>' + rd.passed + '</td>');
+                                                tmptr.append('<td>' + rd.result + '</td>');
+                                                tbres.append(tmptr);
+                                            });
+                                            tres.append(tbres);
+                                            td4.append(tres);
                                         }
+                                        tr4.append(td4);
+                                        tbody.append(tr3);
+                                        tbody.append(tr4);
                                     }
-                                    p.append('<div><pre>' + d.source + '</pre></div>');
+
+                                    var tr5 = $('<tr></tr>');
+                                    tr5.append('<td class="text-info" >source</td>');
+                                    tr5.append('<td><pre>' + d.source + '</pre></td>');
                                     page.append(p);
                                 });
                                 $('#submitHistoryList').append(ul);
@@ -317,7 +353,13 @@ function process(input) {
                 },
                 dataType: 'json',
                 success : function (data, status, jqXHR) {
-                    alert("代码已提交，请等待服务器分配资源并判断正确性\r\n\r\n通常这需要大约30秒左右");
+                    $('#warningList').append('<li class="text-success">' +
+                        '代码已提交，请等待服务器分配资源并判断正确性<br />' +
+                        '通常这需要大约30秒左右<br /><br />' +
+                        '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>' +
+                        '<span class="sr-only">加载中...</span>' +
+                        '</li>');
+
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 $('#warningList').append('<li class="text-danger">发现问题，请和管理员联系</li>')
