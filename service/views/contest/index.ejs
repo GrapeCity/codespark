@@ -297,7 +297,7 @@ function process(input) {
                                     }
 
                                     var tr5 = $('<tr></tr>');
-                                    tr5.append('<td class="text-info" >source</td>');
+                                    tr5.append('<td colspan="2" class="text-info" >source</td>');
                                     tr5.append('<td><pre>' + d.source + '</pre></td>');
                                     tbody.append(tr5);
 
@@ -361,7 +361,6 @@ function process(input) {
                         '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>' +
                         '<span class="sr-only">加载中...</span>' +
                         '</li>');
-
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 $('#warningList').append('<li class="text-danger">发现问题，请和管理员联系</li>')
