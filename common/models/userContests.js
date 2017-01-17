@@ -14,6 +14,9 @@ let UserContestsSchema = new Schema(
         score: {
             type: Number
         },
+        progress: {
+            type: Number
+        },
         begin: {
             type: Date
         },
