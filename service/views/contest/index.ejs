@@ -283,7 +283,7 @@ function process(input) {
                                             var tres = $('<table class="table"></table>');
                                             tres.append('<thead><tr><th>id</th><th>pass</th><th>output</th></tr></thead>');
                                             var tbres = $('<tbody></tbody>');
-                                            $.each(data, function (ri, rd) {
+                                            $.each(d.result.results, function (ri, rd) {
                                                 var tmptr = $('<tr></tr>');
                                                 tmptr.append('<td>' + rd.id + '</td>');
                                                 tmptr.append('<td>' + rd.passed + '</td>');
