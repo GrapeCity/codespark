@@ -278,14 +278,14 @@ function process(input) {
                                         tr4.append('<td class="text-info">details</td>');
                                         var td4 = $('<td></td>');
                                         if (d.result.results) {
-                                            var tres = $('<table class="table"></table>');
-                                            tres.append('<thead><tr><th>id</th><th>pass</th><th>output</th></tr></thead>');
+                                            var tres = $('<table class="table table-hover"></table>');
+                                            tres.append('<thead class="text-info"><tr><th>id</th><th>passed</th><th>output</th></tr></thead>');
                                             var tbres = $('<tbody></tbody>');
                                             $.each(d.result.results, function (ri, rd) {
                                                 var tmptr = $('<tr></tr>');
                                                 tmptr.append('<td>' + rd.id + '</td>');
-                                                tmptr.append('<td>' + rd.passed + '</td>');
-                                                tmptr.append('<td>' + rd.result + '</td>');
+                                                tmptr.append('<td>' + (!!rd.passed) + '</td>');
+                                                tmptr.append('<td>' + (rd.result != null ? rd.result.toString().substr(0, 50) : '' ) + '</td>');
                                                 tbres.append(tmptr);
                                             });
                                             tres.append(tbres);
