@@ -79,7 +79,7 @@ queue.process('judge', maxConcurrent, (job, done) => {
             });
             fs.writeFileSync(
                 `/data/${userId}/${contestId}/${problemId}/${solutionId}/source.js`,
-                `function process(input) {\n ${userData.source} \n }`,
+                `function __proc__(input) {\n ${userData.source} \n }`,
                 'utf8'
             );
             fs.writeFileSync(

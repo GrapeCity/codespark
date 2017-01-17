@@ -109,7 +109,7 @@ router.post('/', (req, res) => {
 
             solution.score   = score;
             solution.results = results;
-            data.score       = Math.max(score - (Math.min(data.solutions.length * 5, 20)), 0);
+            data.score       = Math.max(score - (Math.min(Math.max(data.solutions.length - 1, 0) * 5, 25)), 0);
             data.save(err => {
                 if (err) {
                     logger.error(`save data error: ${err}`);

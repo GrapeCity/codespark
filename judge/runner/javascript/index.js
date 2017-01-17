@@ -50,7 +50,7 @@ function runCaseAsync(cases, source, next) {
         csId = cs.id;
     process.stdout.write(`run case [id: ${csId}], left ${cases.length} in pending\n`);
     new Sandbox({timeout: defaultTimeout})
-        .run(source + '; process("' + cs.input + '");',
+        .run(source + '; __proc__("' + cs.input + '");',
             output => {
                 output.id    = csId;
                 let expected = cs.expect,

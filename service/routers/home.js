@@ -34,6 +34,12 @@ router.get('/videos', (req, res, next) => {
     res.render('videos');
 });
 
+router.get('/debug', (req, res, next) => {
+    res.locals.user  = req.user;
+    res.locals.forms = {};
+    res.render('debug');
+});
+
 router.get('/login', (req, res, next) => {
     res.locals.validation = [];
     res.locals.form       = {};
