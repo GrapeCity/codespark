@@ -55,22 +55,42 @@ class ContestRepository extends CacheableRepository {
     }
 
     findActiveContests(openOnly = true, sort = '') {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:ActiveContests`, next => {
+        // return redisCache.getCache(`${this.cacheKeyPrefix}:ActiveContests`, next => {
+        //     Contest.find(openOnly ? {open: true} : null)
+        //         .gte('end', new Date())
+        //         .lte('begin', new Date())
+        //         .sort(sort)
+        //         .exec((err, contests) => {
+        //             if (err) {
+        //                 return next(err);
+        //             }
+        //             return next(null, contests || []);
+        //         });
+        // });
+        return new Promise((reslve, reject) => {
             Contest.find(openOnly ? {open: true} : null)
                 .gte('end', new Date())
                 .lte('begin', new Date())
                 .sort(sort)
                 .exec((err, contests) => {
                     if (err) {
-                        return next(err);
+                        return reject(err);
                     }
-                    return next(null, contests || []);
+                    return reslve(null, contests || []);
                 });
         });
     }
 
     getLatestActiveInfo() {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:latestActive`, this._findLatestActiveInfo);
+        //return redisCache.getCache(`${this.cacheKeyPrefix}:latestActive`, this._findLatestActiveInfo);
+        return new Promise((resolve, reject) => {
+            this._findLatestActiveInfo((err, value) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(value);
+            });
+        });
     }
 
     updateLatestActiveInfo() {
@@ -86,8 +106,8 @@ class ContestRepository extends CacheableRepository {
                 if (err) {
                     return next(err);
                 }
-                if(!contest){
-                    err = new Error('Not found');
+                if (!contest) {
+                    err        = new Error('Not found');
                     err.status = 404;
                     return next(err);
                 }
@@ -145,49 +165,93 @@ class ContestRepository extends CacheableRepository {
     }
 
     findByName(contestName) {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
+        // return redisCache.getCache(`${this.cacheKeyPrefix}:${contestName}`, next => {
+        //     Contest.findOne({name: contestName})
+        //         .populate('problems', '-cases')
+        //         .exec((err, contest) => {
+        //             if (err) {
+        //                 return next(err);
+        //             }
+        //             if (!contest) {
+        //                 err        = new Error('Not found');
+        //                 err.status = 404;
+        //                 return next(err);
+        //             }
+        //             let obj   = contest.toObject();
+        //             obj.begin = moment(obj.begin).format('LLL');
+        //             obj.end   = moment(obj.end).format('LLL');
+        //             next(null, obj);
+        //         });
+        // })
+        return new Promise((resolve, reject) => {
             Contest.findOne({name: contestName})
                 .populate('problems', '-cases')
                 .exec((err, contest) => {
                     if (err) {
-                        return next(err);
+                        return reject(err);
                     }
                     if (!contest) {
                         err        = new Error('Not found');
                         err.status = 404;
-                        return next(err);
+                        return reject(err);
                     }
                     let obj   = contest.toObject();
                     obj.begin = moment(obj.begin).format('LLL');
                     obj.end   = moment(obj.end).format('LLL');
-                    next(null, obj);
+                    resolve(obj);
                 });
-        })
+        });
+
     }
 
     findOneByIdAndUser(contestId, userId) {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:${userId}`, next => {
+        // return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:${userId}`, next => {
+        //     UserContests.findOne({contest: contestId, user: userId})
+        //         .exec((err, uc) => {
+        //             if (err) {
+        //                 return next(err);
+        //             }
+        //             if (!uc) {
+        //                 err        = new Error('Not found');
+        //                 err.status = 404;
+        //                 return next(err);
+        //             }
+        //             let obj   = uc.toObject();
+        //             obj.begin = moment(obj.begin).format('LLL');
+        //             obj.end   = moment(obj.end).format('LLL');
+        //             next(null, obj);
+        //         });
+        // })
+        return new Promise((resolve, reject) => {
             UserContests.findOne({contest: contestId, user: userId})
                 .exec((err, uc) => {
                     if (err) {
-                        return next(err);
+                        return reject(err);
                     }
                     if (!uc) {
                         err        = new Error('Not found');
                         err.status = 404;
-                        return next(err);
+                        return reject(err);
                     }
                     let obj   = uc.toObject();
                     obj.begin = moment(obj.begin).format('LLL');
                     obj.end   = moment(obj.end).format('LLL');
-                    next(null, obj);
+                    resolve(obj);
                 });
         })
     }
 
     getTop10(contestId) {
-        return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:top10`,
-            next => this._findTop10ById(contestId, next));
+        // return redisCache.getCache(`${this.cacheKeyPrefix}:${contestId}:top10`,
+        //     next => this._findTop10ById(contestId, next));
+        return new Promise((resolve, reject) => {
+            this._findTop10ById(contestId, (err, value) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(value);
+            });
+        });
     }
 
     updateTop10(contestId) {

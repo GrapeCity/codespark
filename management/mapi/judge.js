@@ -140,7 +140,8 @@ router.post('/', (req, res) => {
                                 return;
                             }
                             if (uc) {
-                                uc.score = ((((ag || [])[0]) || {}).total || 0);
+                                uc.score    = ((((ag || [])[0]) || {}).total || 0);
+                                uc.progress = ((((ag || [])[0]) || {}).count || 0) * 10;
                                 uc.save((err) => {
                                     if (err) {
                                         logger.error(`Save UserContest [user=${userId}, contest=${contestId}] error: ${err }`);
