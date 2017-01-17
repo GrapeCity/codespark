@@ -25,11 +25,13 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/rules', (req, res, next) => {
+    res.locals.user = req.user;
     res.locals.rules = [];
     res.render('rules');
 });
 
 router.get('/videos', (req, res, next) => {
+    res.locals.user = req.user;
     res.locals.videos = [];
     res.render('videos');
 });
@@ -108,12 +110,14 @@ router.get('/active', (req, res) => {
 });
 
 router.get('/forget', auth.ensureAuthenticated, (req, res) => {
+    res.locals.user = req.user;
     res.locals.validation = [];
     res.locals.form       = {};
     return res.render('users/forget');
 });
 
 router.post('/forget', auth.ensureAuthenticated, (req, res) => {
+    res.locals.user = req.user;
     res.locals.validation = [];
     res.locals.form       = req.body;
     return res.render('users/forget');
