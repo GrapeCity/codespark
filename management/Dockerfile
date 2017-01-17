@@ -6,6 +6,7 @@ ENV CODESPARK_SERVICE_VERSION 1.0~node6.9.2
 
 WORKDIR /codespark/management
 VOLUME /codespark/management/conf
+VOLUME /codespark/management/data
 VOLUME /codespark/management/logs
 COPY ./common /codespark/common
 COPY ./management /codespark/management

@@ -1,4 +1,6 @@
 let _            = require('lodash'),
+    fs           = require('fs'),
+    path         = require('path'),
     crypto       = require('crypto'),
     express      = require('express'),
     validator    = require('validator'),
@@ -53,8 +55,26 @@ router.get('/', (req, res) => {
                     timestamp: new Date().getTime()
                 });
             }
+            let cases = [];
+            try {
+                cases = fs.readdirSync(path.join(process.cwd(), 'data', problemId))
+                    .filter(f => path.extname(f) === '.in')
+                    .map(f => parseInt(path.basename(f, '.in'), 10) || 1)
+                    .map(id => {
+                        let fin  = path.join(process.cwd(), 'data', problemId, `${id}.in`),
+                            fout = path.join(process.cwd(), 'data', problemId, `${id}.out`);
+                        return {
+                            id,
+                            input : fs.readFileSync(fin, 'utf8'),
+                            expect: fs.readFileSync(fout, 'utf8')
+                        };
+                    });
+            } catch (any) {
+                logger.error(`reading folder error: ${any}`);
+            }
+
             res.status(200).json({
-                cases  : data.problem.cases,
+                cases  : cases.length > 0 ? cases : data.problem.cases,
                 source : solution.source,
                 runtime: solution.runtime
             });
