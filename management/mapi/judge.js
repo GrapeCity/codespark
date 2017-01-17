@@ -7,8 +7,10 @@ let _            = require('lodash'),
     utils        = require('../utils'),
     mongoose     = utils.mongoose,
     logger       = utils.winston.appLogger,
+    redis        = utils.redis,
     router       = express.Router(),
     UserProblems = mongoose.model('UserProblems'),
+    UserContests = mongoose.model('UserContests'),
     queue;
 
 router.setup = (config) => {
@@ -19,6 +21,7 @@ router.setup = (config) => {
 
 router.get('/', (req, res) => {
     let {userId, contestId, problemId, solutionId} = req.query;
+    solutionId                                     = parseInt(solutionId, 10) || 0;
     logger.info(`fetch solution for user's problem info: u=${userId}, c=${contestId}, p=${problemId}, s=${solutionId}`);
     UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
         .populate('user')
@@ -41,8 +44,7 @@ router.get('/', (req, res) => {
                     timestamp: new Date().getTime()
                 });
             }
-            let sid      = parseInt(solutionId, 10);
-            let solution = _.find(data.solutions, s => s.id === sid);
+            let solution = _.find(data.solutions, s => s.id === solutionId);
             if (!solution) {
                 logger.error(`data error: missing solution`);
                 return res.status(404).json({
@@ -62,7 +64,9 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     let {userId, contestId, problemId, solutionId} = req.query;
     let {score, results}                           = req.body;
-    logger.info(`update solution for user's problem info: u=${userId}, c=${contestId}, p=${problemId}, s=${solutionId}`);
+    solutionId                                     = parseInt(solutionId, 10) || 0;
+    score                                          = parseInt(score, 10) || 0;
+    logger.info(`update solution for user's problem info: u=${userId}, c=${contestId}, p=${problemId}, s=${solutionId || 0}`);
     UserProblems.findOne({user: userId, contest: contestId, problem: problemId})
         .exec((err, data) => {
             if (err) {
@@ -73,8 +77,7 @@ router.post('/', (req, res) => {
                     timestamp: new Date().getTime()
                 })
             }
-            let sid      = parseInt(solutionId, 10);
-            let solution = _.find(data.solutions, s => s.id === sid);
+            let solution = _.find(data.solutions, s => s.id === solutionId);
             if (!solution) {
                 logger.error(`data error: missing solution`);
                 return res.status(404).json({
@@ -84,10 +87,9 @@ router.post('/', (req, res) => {
                 });
             }
 
-            solution.result = {
-                score,
-                results
-            };
+            solution.score   = score;
+            solution.results = results;
+            data.score       = Math.max(score - (Math.min(data.solutions.length * 5, 20)), 0);
             data.save(err => {
                 if (err) {
                     logger.error(`save data error: ${err}`);
@@ -97,6 +99,46 @@ router.post('/', (req, res) => {
                         timestamp: new Date().getTime()
                     });
                 }
+                UserProblems.aggregate([{
+                    $match: {
+                        user   : data.user,
+                        contest: data.contest
+                    }
+                }, {
+                    $limit: 1
+                }, {
+                    $group: {
+                        _id  : "$_id",
+                        total: {$sum: "$score"},
+                        count: {$sum: 1}
+                    }
+                }]).exec((err, ag) => {
+                    UserContests.findOne({user: userId, contest: contestId})
+                        .exec((err, uc) => {
+                            if (err) {
+                                logger.error(`Save UserContest [user=${userId}, contest=${contestId}] error: ${err }`);
+                                return;
+                            }
+                            if (uc) {
+                                uc.score = ((((ag || [])[0]) || {}).total || 0);
+                                uc.save((err) => {
+                                    if (err) {
+                                        logger.error(`Save UserContest [user=${userId}, contest=${contestId}] error: ${err }`);
+                                        return;
+                                    }
+                                    let client = redis.client();
+                                    client.keys('contest:*', (err, keys) => {
+                                        if (keys && keys.length > 0) {
+                                            client.del(keys, (err) => {
+                                            });
+                                        }
+                                    });
+                                });
+                            } else {
+                                logger.warn(`the UserContest [user=${userId}, contest=${contestId}] is not found`);
+                            }
+                        });
+                });
 
                 return res.status(201).json({});
             })

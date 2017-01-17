@@ -15,6 +15,10 @@ let UserProblemsSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref : 'Problem'
         },
+        score    : {
+            type   : Number,
+            default: 0
+        },
         solutions: {
             type: [{
                 id     : Number,
@@ -30,17 +34,16 @@ let UserProblemsSchema = new Schema(
                     default: 'none'
                 },
                 source : String,
-                result : {
-                    type: {
-                        score  : Number,
-                        results: [{
-                            id     : Number,
-                            result : String,
-                            console: String,
-                            passed : Boolean
-                        }]
-                    }
-                }
+                score  : {
+                    type   : Number,
+                    default: 0
+                },
+                results: [{
+                    id     : Number,
+                    result : String,
+                    console: String,
+                    passed : Boolean
+                }]
             }]
         }
     },
