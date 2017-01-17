@@ -256,10 +256,8 @@ function process(input) {
                                         + '" data-toggle="tab" aria-expanded="false">' + (i + 1) + '</a></li>');
                                     var p     = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + d.id + '"></div>');
                                     var table = $('<table class="table table-bordered"></table>');
-                                    p.append(table);
 
                                     var tbody = $('<tbody></tbody>');
-                                    table.append(tbody);
 
                                     var tr1 = $('<tr></tr>');
                                     tr1.append('<td colspan="2" class="text-info">runtime</td>');
@@ -301,6 +299,10 @@ function process(input) {
                                     var tr5 = $('<tr></tr>');
                                     tr5.append('<td class="text-info" >source</td>');
                                     tr5.append('<td><pre>' + d.source + '</pre></td>');
+                                    tbody.append(tr5);
+
+                                    table.append(tbody);
+                                    p.append(table);
                                     page.append(p);
                                 });
                                 $('#submitHistoryList').append(ul);
