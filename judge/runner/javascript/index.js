@@ -80,10 +80,10 @@ function runCaseAsync(cases, source, next) {
                 } else if (actual.substr(0, 10) === 'JSON Error') {
                     process.stdout.write(` ${actual}`);
                     final.results[csId - 1].result = 'JSON Error';
-                } else if (actual.substr(0, 13) === 'SyntaxError: ') {
+                } else if (actual.substr(0, 14) === '\'SyntaxError: ') {
                     process.stdout.write(` ${actual}`);
                     final.results[csId - 1].result = 'SyntaxError';
-                } else if (actual.substr(0, 16) === 'ReferenceError: ') {
+                } else if (actual.substr(0, 17) === '\'ReferenceError: ') {
                     process.stdout.write(` ${actual}`);
                     final.results[csId - 1].result = 'ReferenceError';
                 }
