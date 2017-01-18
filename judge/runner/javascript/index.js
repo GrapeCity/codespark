@@ -58,7 +58,7 @@ function runCaseAsync(cases, source, next) {
         csId = cs.id;
     process.stdout.write(`${formatDate(new Date())} run case [id: ${csId}], left ${cases.length} in pending\n`);
     let sb     = new Sandbox();
-    sb.timeout = defaultTimeout;
+    sb.options.timeout = defaultTimeout;
     sb.run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
         output => {
             output.id    = csId;
