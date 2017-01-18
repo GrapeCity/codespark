@@ -198,7 +198,7 @@ router.get('/contests/:contestId/problems/:problemId', (req, res) => {
                                 timestamp: new Date().getTime()
                             });
                         }
-                        res.status(200).json({score: up.score, solutions: []});
+                        res.status(200).json({score: 0, solutions: []});
                     })
                     .catch(err => {
                         res.status(err.status || 500).json({
