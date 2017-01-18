@@ -197,7 +197,7 @@ function __proc__(input) {
                     <textarea id="source" name="source" rows="10"
                               placeholder="在这里输入你的解决方案"
                               style="width:100%; padding-left: 20px; font-family: Consolas"></textarea>
-<pre>}; __proc__(cases)</pre>
+                    <pre>}; __proc__(cases)</pre>
                 </div>
             </div>
             <div class="modal-footer">
@@ -273,32 +273,30 @@ function __proc__(input) {
                                     tr2.append('<td>' + sln.status + '</td>');
                                     tbody.append(tr2);
 
-                                    if (sln.result) {
-                                        var tr3 = $('<tr></tr>'), tr4 = $('<tr></tr>');
-                                        tr3.append('<td rowspan="2" class="text-info">result</td>');
-                                        tr3.append('<td class="text-info">score</td>');
-                                        tr3.append('<td>' + (sln.result.score || 0) + '</td>');
+                                    var tr3 = $('<tr></tr>'), tr4 = $('<tr></tr>');
+                                    tr3.append('<td rowspan="2" class="text-info">result</td>');
+                                    tr3.append('<td class="text-info">score</td>');
+                                    tr3.append('<td>' + (sln.result.score || 0) + '</td>');
 
-                                        tr4.append('<td class="text-info">details</td>');
-                                        var td4 = $('<td></td>');
-                                        if (sln.results) {
-                                            var tres = $('<table class="table table-hover"></table>');
-                                            tres.append('<thead class="text-info"><tr><th>id</th><th>passed</th><th>reason</th></tr></thead>');
-                                            var tbres = $('<tbody></tbody>');
-                                            $.each(sln.results, function (ri, rd) {
-                                                var tmptr = $('<tr></tr>');
-                                                tmptr.append('<td>' + rd.id + '</td>');
-                                                tmptr.append('<td>' + (!!rd.passed) + '</td>');
-                                                tmptr.append('<td>' + (rd.result != null ? rd.result.toString().substr(0, 50) : '' ) + '</td>');
-                                                tbres.append(tmptr);
-                                            });
-                                            tres.append(tbres);
-                                            td4.append(tres);
-                                        }
-                                        tr4.append(td4);
-                                        tbody.append(tr3);
-                                        tbody.append(tr4);
+                                    tr4.append('<td class="text-info">details</td>');
+                                    var td4 = $('<td></td>');
+                                    if (sln.results) {
+                                        var tres = $('<table class="table table-hover"></table>');
+                                        tres.append('<thead class="text-info"><tr><th>id</th><th>passed</th><th>reason</th></tr></thead>');
+                                        var tbres = $('<tbody></tbody>');
+                                        $.each(sln.results, function (ri, rd) {
+                                            var tmptr = $('<tr></tr>');
+                                            tmptr.append('<td>' + rd.id + '</td>');
+                                            tmptr.append('<td>' + (!!rd.passed) + '</td>');
+                                            tmptr.append('<td>' + (rd.result != null ? rd.result.toString().substr(0, 50) : '' ) + '</td>');
+                                            tbres.append(tmptr);
+                                        });
+                                        tres.append(tbres);
+                                        td4.append(tres);
                                     }
+                                    tr4.append(td4);
+                                    tbody.append(tr3);
+                                    tbody.append(tr4);
 
                                     var tr5 = $('<tr></tr>');
                                     tr5.append('<td colspan="2" class="text-info" >source</td>');
