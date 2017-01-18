@@ -120,7 +120,7 @@ queue.process('judge', maxConcurrent, (job, done) => {
                 HostConfig     : {
                     // binds      : [`/data/${userId}/${contestId}/${problemId}/${solutionId}:/app/data`],
                     VolumesFrom: [process.env.HOSTNAME || 'agent'],
-                    Memory     : 1024 * 1024 * 250,
+                    Memory     : 1024 * 1024 * (process.env.MEMORY || 250),
                     NetworkMode: 'none'
                 }
             },
