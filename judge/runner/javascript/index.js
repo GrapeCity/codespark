@@ -18,6 +18,14 @@ let defaultTimeout = 2000,
     caseOutPostfix = '.out',
     final          = {score: 0, count: 0, results: [], timestamp: new Date().getTime()};
 
+function formatDate(date) {
+    let hours       = date.getHours(),
+        minutes     = date.getMinutes(),
+        seconds     = date.getSeconds(),
+        millisecond = date.getMilliseconds();
+    return `[${hours}:${minutes}:${seconds}.${millisecond}]`;
+}
+
 try {
     // clean old result
     fs.writeFileSync(datadir + '/result.json', JSON.stringify(final), 'utf8');
@@ -36,28 +44,28 @@ try {
             .sort((cs1, cs2) => cs1.id - cs2.id))(fs.readdirSync(casedir));
 
     runCaseAsync(cases, source, () => {
-        process.stdout.write(`calc final score, write result to file\n`);
+        process.stdout.write(`${formatDate(new Date())} calc final score, write result to file\n`);
         final.score = final.count * final.count;
         fs.writeFileSync(datadir + '/result.json', JSON.stringify(final), 'utf8');
     });
 } catch (any) {
-    process.stderr.write(`Internal error: ${any} \n`);
+    process.stderr.write(`${formatDate(new Date())} Internal error: ${any} \n`);
     return;
 }
 
 function runCaseAsync(cases, source, next) {
     let cs   = cases.shift(),
         csId = cs.id;
-    process.stdout.write(`run case [id: ${csId}], left ${cases.length} in pending\n`);
+    process.stdout.write(`${formatDate(new Date())} run case [id: ${csId}], left ${cases.length} in pending\n`);
     new Sandbox({timeout: defaultTimeout})
-        .run(source + '; __proc__("' + cs.input.replace(/\n/g,'\\n') + '");',
+        .run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
             output => {
                 output.id    = csId;
                 let expected = cs.expect,
                     actual   = output.result;
-                process.stdout.write(`comparing expected and actual for case [id: ${csId}]: \n`);
-                process.stdout.write(`expected=${expected}\n`);
-                process.stdout.write(`actual  =${actual}\n`);
+                process.stdout.write(`${formatDate(new Date())} comparing expected and actual for case [id: ${csId}]: \n`);
+                process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
+                process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
                 // first compare all original output
                 if (expected !== actual) {
                     // second deep trim all blank and newline
