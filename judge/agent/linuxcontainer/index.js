@@ -146,8 +146,14 @@ queue.process('judge', maxConcurrent, (job, done) => {
                     // container is now stopped
                     // safe to check result of the solution
                     logger.info(`[${contestId}] [${problemId}] [${userId}] report data back to management`);
-                    let out = fs.readFileSync(
+                    let out  = fs.readFileSync(
                         `/data/${userId}/${contestId}/${problemId}/${solutionId}/result.json`, 'utf8');
+                    let body = JSON.parse(out);
+                    if (body.results) {
+                        for (let i = 0; i < body.results.length; i++) {
+                            body.results[i].output = null;
+                        }
+                    }
                     request({
                         method : 'POST',
                         uri    : `http://${reqHost}/mapi/judge`,
@@ -155,7 +161,7 @@ queue.process('judge', maxConcurrent, (job, done) => {
                         headers: {
                             'Authorization': `Basic ${accessToken}`
                         },
-                        body   : JSON.parse(out),
+                        body   : body,
                         json   : true
                     }, (err /*, res, body*/) => {
                         if (err) {
@@ -174,7 +180,7 @@ queue.process('judge', maxConcurrent, (job, done) => {
                                 logger.error(`run docker error: ${err}`);
                                 return done(err);
                             }
-                            done(null, {score: JSON.parse(out).score});
+                            done(null, {score: body.score});
                         });
                     });
                 } catch (any) {
