@@ -58,7 +58,15 @@
                                 </tr>
                                 <tr>
                                     <td>Open</td>
-                                    <td><%= form.open ? 'yes' : 'no' %></td>
+                                    <td><%= contest.open ? 'yes' : 'no' %></td>
+                                </tr>
+                                <tr>
+                                    <td>Public</td>
+                                    <td><%= contest.public ? 'yes' : 'no' %></td>
+                                </tr>
+                                <tr>
+                                    <td>Hide Board</td>
+                                    <td><%= contest.hideBoard ? 'yes' : 'no' %></td>
                                 </tr>
                                 <tr>
                                     <td>Description</td>

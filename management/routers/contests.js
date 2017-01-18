@@ -1,25 +1,27 @@
-let express = require('express'),
+let express     = require('express'),
     querystring = require('querystring'),
-    _ = require('lodash'),
-    moment = require('moment'),
-    utils = require('../utils'),
-    mongoose = utils.mongoose,
-    logger = utils.winston.appLogger,
-    router = express.Router(),
-    Contest = mongoose.model('Contest'),
-    Problem = mongoose.model('Problem');
+    _           = require('lodash'),
+    moment      = require('moment'),
+    utils       = require('../utils'),
+    mongoose    = utils.mongoose,
+    logger      = utils.winston.appLogger,
+    router      = express.Router(),
+    Contest     = mongoose.model('Contest'),
+    Problem     = mongoose.model('Problem');
 
 
 function formatContest(contest) {
     return {
-        _id: contest._id,
-        name: contest.name,
+        _id        : contest._id,
+        name       : contest.name,
         displayName: contest.displayName,
-        open: contest.open,
+        open       : contest.open,
+        public     : contest.public,
+        hideBoard  : contest.hideBoard,
         description: contest.description,
-        begin: moment(contest.begin).format('YYYY/MM/DD HH:mm:ss'),
-        end: moment(contest.end).format('YYYY/MM/DD HH:mm:ss'),
-        problems: contest.problems
+        begin      : moment(contest.begin).format('YYYY/MM/DD HH:mm:ss'),
+        end        : moment(contest.end).format('YYYY/MM/DD HH:mm:ss'),
+        problems   : contest.problems
     };
 }
 
@@ -27,10 +29,10 @@ function formatContest(contest) {
 router.get('/', (req, res, next) => {
 
     let search = req.query.search,
-        limit = parseInt(req.query.limit, 10) || 10,
-        page = parseInt(req.query.page) || 0,
-        skip = (parseInt(req.query.skip, 10) || 0) + limit * page;
-    let q = Contest.find();
+        limit  = parseInt(req.query.limit, 10) || 10,
+        page   = parseInt(req.query.page) || 0,
+        skip   = (parseInt(req.query.skip, 10) || 0) + limit * page;
+    let q      = Contest.find();
     if (search) {
         q = q.regex('displayName', `.*${search}.*`)
     }
@@ -48,19 +50,19 @@ router.get('/', (req, res, next) => {
                 search, page: page + 1, limit
             });
             res.render('contests/index', {
-                index: 3,
-                title: 'Contests List',
+                index   : 3,
+                title   : 'Contests List',
                 messages: [],
                 contests: _.map(contests || [], formatContest),
-                form: {
+                form    : {
                     search,
                     prev: {
                         enable: page > 0,
-                        url: `/contests${ prevUrl ? '?' + prevUrl : '' }`
+                        url   : `/contests${ prevUrl ? '?' + prevUrl : '' }`
                     },
                     next: {
                         enable: contests.length >= limit,
-                        url: `/contests${ nextUrl ? '?' + nextUrl : '' }`
+                        url   : `/contests${ nextUrl ? '?' + nextUrl : '' }`
                     }
                 }
             });
@@ -79,11 +81,11 @@ router.get('/:name/', (req, res, next) => {
                 return next();
             }
             res.render('contests/detail', {
-                index: 3,
-                title: 'Contest Details',
+                index   : 3,
+                title   : 'Contest Details',
                 messages: [],
-                contest: formatContest(contest),
-                form: {}
+                contest : formatContest(contest),
+                form    : {}
             });
         });
 });
@@ -91,16 +93,16 @@ router.get('/:name/', (req, res, next) => {
 
 router.get('/add', (req, res, next) => {
     res.render('contests/add', {
-        index: 3,
-        title: 'Create Contest',
+        index   : 3,
+        title   : 'Create Contest',
         messages: [],
-        form: {}
+        form    : {}
     });
 });
 
 router.post('/add', (req, res, next) => {
     let {name, displayName, open, begin, end, description} = req.body,
-        validation = [];
+        validation                                         = [];
     if (!name) {
         validation.push({msg: 'name must be provided'});
     }
@@ -115,11 +117,11 @@ router.post('/add', (req, res, next) => {
     }
     if (validation.length > 0) {
         return res.render('contests/add', {
-            index: 3,
-            title: 'Create Contest',
-            messages: [],
+            index     : 3,
+            title     : 'Create Contest',
+            messages  : [],
             validation: validation,
-            form: req.body
+            form      : req.body
         });
     }
     Contest.findOne({name}, (err, existed) => {
@@ -128,11 +130,11 @@ router.post('/add', (req, res, next) => {
         }
         if (existed) {
             return res.render('contests/add', {
-                index: 3,
-                title: 'Create Contest',
-                messages: [],
+                index     : 3,
+                title     : 'Create Contest',
+                messages  : [],
                 validation: [{msg: `Contest with ${name} is already existed`}],
-                form: req.body
+                form      : req.body
             });
         }
         let one = new Contest({name, displayName, open, begin, end, description});
@@ -163,16 +165,16 @@ router.get('/:name/edit', (req, res, next) => {
                     let available = [];
                     if (!err && aps && aps.length > 0) {
                         available = aps.map(ap => ({
-                            _id: ap._id,
-                            name: ap.name,
+                            _id  : ap._id,
+                            name : ap.name,
                             title: ap.title
                         }))
                     }
                     res.render('contests/edit', {
-                        index: 3,
-                        title: 'Edit Contest',
+                        index   : 3,
+                        title   : 'Edit Contest',
                         messages: [],
-                        form: formatContest(contest),
+                        form    : formatContest(contest),
                         problems: available
                     });
                 });
@@ -181,7 +183,7 @@ router.get('/:name/edit', (req, res, next) => {
 
 router.post('/:name/edit', (req, res, next) => {
     let {_id, name} = req.body,
-        validation = [];
+        validation  = [];
     if (!_id) {
         validation.push({
             msg: 'missing contest id to operated'
@@ -219,18 +221,18 @@ router.post('/:name/edit', (req, res, next) => {
                             let available = [];
                             if (!err && aps && aps.length > 0) {
                                 available = aps.map(ap => ({
-                                    _id: ap._id,
-                                    name: ap.name,
+                                    _id  : ap._id,
+                                    name : ap.name,
                                     title: ap.title
                                 }))
                             }
                             res.render('contests/edit', {
-                                index: 3,
-                                title: 'Edit Contest',
-                                messages: [],
+                                index     : 3,
+                                title     : 'Edit Contest',
+                                messages  : [],
                                 validation: validation,
-                                form: formatContest(contest),
-                                problems: available
+                                form      : formatContest(contest),
+                                problems  : available
                             });
                         });
                 });
@@ -242,6 +244,8 @@ router.post('/:name/edit', (req, res, next) => {
             }
         });
         update.open = req.body.open;
+        update.public = req.body.public;
+        update.hideBoard = req.body.hideBoard;
         Contest.findByIdAndUpdate(_id, update, {new: true})
             .populate('problems')
             .exec((err, contest) => {
@@ -257,18 +261,18 @@ router.post('/:name/edit', (req, res, next) => {
                         let available = [];
                         if (!err && aps && aps.length > 0) {
                             available = aps.map(ap => ({
-                                _id: ap._id,
-                                name: ap.name,
+                                _id  : ap._id,
+                                name : ap.name,
                                 title: ap.title
                             }))
                         }
                         res.render('contests/edit', {
-                            index: 3,
-                            title: 'Edit Contest',
+                            index   : 3,
+                            title   : 'Edit Contest',
                             messages: [{
                                 msg: `contest "${contest.name}" have been updated`
                             }],
-                            form: formatContest(contest),
+                            form    : formatContest(contest),
                             problems: available
                         });
                     });
@@ -289,17 +293,17 @@ router.get('/:name/remove', (req, res, next) => {
             return next();
         }
         res.render('contests/remove', {
-            index: 3,
-            title: 'Delete Contest',
+            index   : 3,
+            title   : 'Delete Contest',
             messages: [],
-            form: contest
+            form    : contest
         });
     });
 });
 
 router.post('/:name/remove', (req, res, next) => {
-    let name = req.params.name,
-        _id = req.body._id,
+    let name       = req.params.name,
+        _id        = req.body._id,
         nameVerify = req.body.name,
         validation = [];
     if (!_id) {
@@ -321,11 +325,11 @@ router.post('/:name/remove', (req, res, next) => {
                 return next();
             }
             res.render('contests/remove', {
-                index: 3,
-                title: 'Delete Contest',
-                messages: [],
+                index     : 3,
+                title     : 'Delete Contest',
+                messages  : [],
                 validation: validation,
-                form: contest
+                form      : contest
             });
         });
     }

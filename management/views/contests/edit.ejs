@@ -75,7 +75,35 @@
                                                 <label>
                                                     <input type="checkbox" name="open"
                                                             <%= form.open ? 'checked' : '' %> >
-                                                    Make the contest public to everyone
+                                                    Make the contest open (visible) to everyone
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="public"
+                                                            <%= form.public ? 'checked' : '' %> >
+                                                    Make the contest public to everyone or only for GrapeCity
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="hideBoard"
+                                                            <%= form.hideBoard ? 'checked' : '' %> >
+                                                    Make the contest hidden the score board
                                                 </label>
                                             </div>
                                         </div>
