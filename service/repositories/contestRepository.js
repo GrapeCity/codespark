@@ -67,7 +67,7 @@ class ContestRepository extends CacheableRepository {
         //             return next(null, contests || []);
         //         });
         // });
-        return new Promise((reslve, reject) => {
+        return new Promise((resolve, reject) => {
             Contest.find(openOnly ? {open: true} : null)
                 .gte('end', new Date())
                 .lte('begin', new Date())
@@ -76,7 +76,7 @@ class ContestRepository extends CacheableRepository {
                     if (err) {
                         return reject(err);
                     }
-                    return reslve(null, contests || []);
+                    return resolve(contests || []);
                 });
         });
     }
