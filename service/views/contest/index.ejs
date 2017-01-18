@@ -190,14 +190,14 @@
 /**
  *
  * @param {string} input
- * @return {string}
+ * @return {*}
  */
-function process(input) {
+function __proc__(input) {
 </pre>
                     <textarea id="source" name="source" rows="10"
                               placeholder="在这里输入你的解决方案"
                               style="width:100%; padding-left: 20px; font-family: Consolas"></textarea>
-                    <pre>}</pre>
+<pre>}; __proc__(cases)</pre>
                 </div>
             </div>
             <div class="modal-footer">
@@ -256,9 +256,9 @@ function process(input) {
                                 var ul   = $('<ul class="pagination pagination-info"></ul>');
                                 var page = $('<div class="tab-content" style="min-height: 120px;"></div>');
                                 $.each(data.solutions, function (i, sln) {
-                                    ul.append('<li ' + (i === 0 ? 'class="active"' : '') + '><a href="#ps_' + sln.id
+                                    ul.append('<li ' + (i === 0 ? 'class="active"' : '') + '><a href="#ps_' + pid + '_' + sln.id
                                         + '" data-toggle="tab" aria-expanded="false">' + (i + 1) + '</a></li>');
-                                    var p     = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + sln.id + '"></div>');
+                                    var p     = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + pid + '_' + sln.id + '"></div>');
                                     var table = $('<table class="table table-bordered"></table>');
 
                                     var tbody = $('<tbody></tbody>');
