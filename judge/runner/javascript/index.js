@@ -57,45 +57,46 @@ function runCaseAsync(cases, source, next) {
     let cs   = cases.shift(),
         csId = cs.id;
     process.stdout.write(`${formatDate(new Date())} run case [id: ${csId}], left ${cases.length} in pending\n`);
-    new Sandbox({timeout: defaultTimeout})
-        .run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
-            output => {
-                output.id    = csId;
-                let expected = cs.expect,
-                    actual   = output.result;
-                process.stdout.write(`${formatDate(new Date())} comparing expected and actual for case [id: ${csId}]: \n`);
-                process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
-                process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
-                // first compare all original output
+    let sb     = new Sandbox();
+    sb.timeout = defaultTimeout;
+    sb.run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
+        output => {
+            output.id    = csId;
+            let expected = cs.expect,
+                actual   = output.result;
+            process.stdout.write(`${formatDate(new Date())} comparing expected and actual for case [id: ${csId}]: \n`);
+            process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
+            process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
+            // first compare all original output
+            if (expected !== actual) {
+                // second deep trim all blank and newline
+                expected = deepTrim(expected);
+                actual   = deepTrim(actual);
+
                 if (expected !== actual) {
-                    // second deep trim all blank and newline
-                    expected = deepTrim(expected);
-                    actual   = deepTrim(actual);
+                    // third wrap data if result is string
+                    expected = util.inspect(cs.expect);
+                    actual   = output.result;
 
                     if (expected !== actual) {
-                        // third wrap data if result is string
-                        expected = util.inspect(cs.expect);
-                        actual   = output.result;
-
-                        if (expected !== actual) {
-                            // fourth deep trim again
-                            expected = deepTrim(expected);
-                            actual   = deepTrim(actual);
-                        }
+                        // fourth deep trim again
+                        expected = deepTrim(expected);
+                        actual   = deepTrim(actual);
                     }
                 }
-                if (expected === actual) {
-                    output.passed = true;
-                    final.count += 1;
-                }
-                final.results[csId - 1] = output;
+            }
+            if (expected === actual) {
+                output.passed = true;
+                final.count += 1;
+            }
+            final.results[csId - 1] = output;
 
-                if (cases.length > 0) {
-                    runCaseAsync(cases, source, next);
-                } else {
-                    next();
-                }
-            });
+            if (cases.length > 0) {
+                runCaseAsync(cases, source, next);
+            } else {
+                next();
+            }
+        });
 }
 
 function readFileContent(file) {
