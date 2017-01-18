@@ -11,7 +11,7 @@ let fs      = require('fs'),
 //   |- source.js      * the source code of solution
 //   |- result.json    * the result (score and outputs)
 
-let defaultTimeout = 2000,
+let defaultTimeout = 1000,
     datadir        = process.env.BASEDATA || '/data',
     casedir        = datadir + '/cases',
     caseInPostfix  = '.in',
@@ -61,13 +61,32 @@ function runCaseAsync(cases, source, next) {
     sb.options.timeout = defaultTimeout;
     sb.run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
         output => {
-            output.id    = csId;
-            let expected = cs.expect,
-                actual   = output.result;
+            final.results[csId - 1] = {
+                id    : csId,
+                result: '',
+                passed: false,
+                output: output
+            };
+            let expected            = cs.expect,
+                actual              = output.result;
             process.stdout.write(`${formatDate(new Date())} judge [id: ${csId}]: `);
-            if (typeof actual === 'string' &&
-                (actual === 'TimeoutError' || actual === 'Error' || actual.substr(0, 10) === 'JSON Error')) {
-                process.stdout.write(` ${actual}`);
+            if (typeof actual === 'string') {
+                if (actual === 'TimeoutError') {
+                    process.stdout.write(` ${actual}`);
+                    final.results[csId - 1].result = 'Timeout';
+                } else if (actual === 'Error') {
+                    process.stdout.write(` ${actual}`);
+                    final.results[csId - 1].result = 'Internal Error';
+                } else if (actual.substr(0, 10) === 'JSON Error') {
+                    process.stdout.write(` ${actual}`);
+                    final.results[csId - 1].result = 'JSON Error';
+                } else if (actual.substr(0, 13) === 'SyntaxError: ') {
+                    process.stdout.write(` ${actual}`);
+                    final.results[csId - 1].result = 'SyntaxError';
+                } else if (actual.substr(0, 16) === 'ReferenceError: ') {
+                    process.stdout.write(` ${actual}`);
+                    final.results[csId - 1].result = 'ReferenceError';
+                }
             }
             process.stdout.write('\n');
             // process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
@@ -91,10 +110,10 @@ function runCaseAsync(cases, source, next) {
                 }
             }
             if (expected === actual) {
-                output.passed = true;
+                final.results[csId - 1].passed = true;
                 final.count += 1;
             }
-            final.results[csId - 1] = output;
+            // final.results[csId - 1] = output;
 
             if (cases.length > 0) {
                 runCaseAsync(cases, source, next);
