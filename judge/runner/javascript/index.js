@@ -57,14 +57,19 @@ function runCaseAsync(cases, source, next) {
     let cs   = cases.shift(),
         csId = cs.id;
     process.stdout.write(`${formatDate(new Date())} run case [id: ${csId}], left ${cases.length} in pending\n`);
-    let sb     = new Sandbox();
+    let sb             = new Sandbox();
     sb.options.timeout = defaultTimeout;
     sb.run(source + '; __proc__("' + cs.input.replace(/\n/g, '\\n') + '");',
         output => {
             output.id    = csId;
             let expected = cs.expect,
                 actual   = output.result;
-            process.stdout.write(`${formatDate(new Date())} comparing expected and actual for case [id: ${csId}]: \n`);
+            process.stdout.write(`${formatDate(new Date())} judge [id: ${csId}]: `);
+            if (typeof actual === 'string' &&
+                (actual === 'TimeoutError' || actual === 'Error' || actual.substr(0, 10) === 'JSON Error')) {
+                process.stdout.write(` ${actual}`);
+            }
+            process.stdout.write('\n');
             // process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
             // process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
             // first compare all original output
