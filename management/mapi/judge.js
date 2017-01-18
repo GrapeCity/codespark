@@ -126,7 +126,7 @@ router.post('/', (req, res) => {
                     }
                 }, {
                     $group: {
-                        _id  : "$_id",
+                        _id  : null,
                         total: {$sum: "$score"},
                         count: {$sum: 1}
                     }
