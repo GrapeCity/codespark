@@ -124,15 +124,15 @@
                                 <hr/>
                                 <div class="row">
                                     <div class="col-md-12" style="min-height: 300px;">
-                                        <h5>Score: <span id="displyScore">0</span></h5>
-                                        <h5 id="submitHistoryList">
+                                        <h5>Score: <span id="displyScore_<%= p._id %>">0</span></h5>
+                                        <h5 id="submitHistoryList_<%= p._id %>">
                                             <div class="pull-left" style="margin-right: 20px;">历史提交记录：</div>
                                             <ul class="pagination pagination-info">
                                                 <!--<li class="active"><a href="#">1</a></li>-->
                                             </ul>
                                         </h5>
                                         <div class="panel panel-default">
-                                            <div id="submitHistoryContainer" class="panel-body">
+                                            <div id="submitHistoryContainer_<%= p._id %>" class="panel-body">
                                                 请提交后在刷新查看
                                             </div>
                                         </div>
@@ -236,29 +236,29 @@ function process(input) {
         function loadProblemInfo(pid) {
             loadingProbemId = pid;
             $.ajax({
-                url: '/sapi/workspaces/contests/<%= form.contest._id %>/problems/' + pid,
-                method: 'GET',
+                url    : '/sapi/workspaces/contests/<%= form.contest._id %>/problems/' + pid,
+                method : 'GET',
                 success: function (data, status, jqXHR) {
                     if (pid === loadingProbemId) {
                         if (data.err) {
                             $('#warningList').append('<li class="text-danger">' + data.msg + '</li>');
                         } else {
-                            $('#submitHistoryList').empty();
-                            $('#submitHistoryContainer').empty();
+                            $('#submitHistoryList_' + pid).empty();
+                            $('#submitHistoryContainer_' + pid).empty();
 
-                            $('#displyScore').text(data.score);
+                            $('#displyScore_' + pid).text(data.score);
 
                             if (data.solutions.length === 0) {
-                                $('#submitHistoryList').text('没有提交数据');
-                                $('#submitHistoryContainer').text('请提交后在刷新查看');
+                                $('#submitHistoryList_' + pid).text('没有提交数据');
+                                $('#submitHistoryContainer_' + pid).text('请提交后在刷新查看');
                             } else {
-                                $('#submitHistoryList').append('<div class="pull-left" style="margin-right: 20px;">历史提交记录：</div>');
-                                var ul = $('<ul class="pagination pagination-info"></ul>');
+                                $('#submitHistoryList_' + pid).append('<div class="pull-left" style="margin-right: 20px;">历史提交记录：</div>');
+                                var ul   = $('<ul class="pagination pagination-info"></ul>');
                                 var page = $('<div class="tab-content" style="min-height: 120px;"></div>');
                                 $.each(data.solutions, function (i, sln) {
                                     ul.append('<li ' + (i === 0 ? 'class="active"' : '') + '><a href="#ps_' + sln.id
                                         + '" data-toggle="tab" aria-expanded="false">' + (i + 1) + '</a></li>');
-                                    var p = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + sln.id + '"></div>');
+                                    var p     = $('<div class="tab-pane ' + (i === 0 ? 'active' : '') + ' " id="ps_' + sln.id + '"></div>');
                                     var table = $('<table class="table table-bordered"></table>');
 
                                     var tbody = $('<tbody></tbody>');
@@ -309,8 +309,8 @@ function process(input) {
                                     p.append(table);
                                     page.append(p);
                                 });
-                                $('#submitHistoryList').append(ul);
-                                $('#submitHistoryContainer').append(page);
+                                $('#submitHistoryList_' + pid).append(ul);
+                                $('#submitHistoryContainer_' + pid).append(page);
                                 console.log("done.......");
                             }
                         }
@@ -319,7 +319,7 @@ function process(input) {
                     }
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('failed');
+                alert('出现通信错误，请刷新重试或者和管理员联系');
             }).always(function () {
                 // remove this task
                 delete loadingProbemId;
@@ -342,7 +342,7 @@ function process(input) {
         $('#btnSubmitSolution').click(function () {
             //need data: contestId problemId
             var problemId = $('#problemId').val(),
-                source = $('#source').val();
+                source    = $('#source').val();
             if (!problemId) {
                 $('#warningList').append('<li class="text-danger">当前竞赛或者题目未选择，请刷新页面重试</li>')
                 return false;
@@ -352,13 +352,13 @@ function process(input) {
                 return false;
             }
             $.ajax({
-                url: '/sapi/workspaces/contests/<%= form.contest._id %>/problems/' + problemId,
-                method: 'POST',
-                data: {
+                url     : '/sapi/workspaces/contests/<%= form.contest._id %>/problems/' + problemId,
+                method  : 'POST',
+                data    : {
                     source: source
                 },
                 dataType: 'json',
-                success: function (data, status, jqXHR) {
+                success : function (data, status, jqXHR) {
                     $('#warningList').append('<li class="text-success">' +
                         '代码已提交，请等待服务器分配资源并判断正确性<br />' +
                         '通常这需要大约30秒左右<br /><br />' +
