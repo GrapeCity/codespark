@@ -11,7 +11,7 @@ let fs      = require('fs'),
 //   |- source.js      * the source code of solution
 //   |- result.json    * the result (score and outputs)
 
-let defaultTimeout = 1000,
+let defaultTimeout = 2000,
     datadir        = process.env.BASEDATA || '/data',
     casedir        = datadir + '/cases',
     caseInPostfix  = '.in',
