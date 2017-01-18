@@ -34,6 +34,6 @@ then
     remove_image "codespark-management:1.0-$BUILD_VERSION"
     remove_image "codespark-service:1.0-$BUILD_VERSION"
     remove_image "codespark-site:1.0-$BUILD_VERSION"
-    remove_image "codespark-runner-agent:1.0-$BUILD_VERSION"
-    remove_image "codespark-runner-javascript:1.0-$BUILD_VERSION"
+    remove_image "codespark-judge-agent:1.0-$BUILD_VERSION"
+    remove_image "codespark-judge-javascript:1.0-$BUILD_VERSION"
 fi

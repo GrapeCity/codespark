@@ -11,6 +11,7 @@ docker run -d \
     --restart=always \
     --link mongo:mongo \
     --link redis:redis \
+    -e REDIS_PASSWORD=xA123456 \
     -v $(pwd)/conf/service:/app/conf \
     codespark-service:1.0-$BUILD_VERSION
 
@@ -19,5 +20,6 @@ docker run -d \
     --restart=always \
     --link mongo:mongo \
     --link redis:redis \
+    -e REDIS_PASSWORD=xA123456 \
     -v $(pwd)/conf/service:/app/conf \
     codespark-service:1.0-$BUILD_VERSION
