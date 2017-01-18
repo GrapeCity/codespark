@@ -13,14 +13,20 @@ router.get('/', (req, res, next) => {
             res.locals.validation = [];
             res.locals.form       = {};
             if (contests && contests.length > 0) {
+                let contestsObj = _.map(contests, c => {
+                    let co   = c.toObject();
+                    co.begin = moment(c.begin).format('LLL');
+                    co.end   = moment(c.end).format('LLL');
+                    return co;
+                });
                 new Promise((resolve, reject) => {
                     let result = [];
                     contests.forEach((c, i) => {
                         contestRepo.findOneByIdAndUser(c._id, req.user._id)
                             .then(uc => {
-                                contests[i].joined   = true;
-                                contests[i].score    = uc.score;
-                                contests[i].progress = uc.progress;
+                                contestsObj[i].joined   = true;
+                                contestsObj[i].score    = uc.score;
+                                contestsObj[i].progress = uc.progress;
                                 result.push(i);
                                 if (result.length >= contests.length) {
                                     resolve(result);
@@ -37,11 +43,7 @@ router.get('/', (req, res, next) => {
                             })
                     });
                 }).then(() => {
-                    res.locals.contests = _.map(contests, c => {
-                        c.begin = moment(c.begin).format('LLL');
-                        c.end = moment(c.end).format('LLL');
-                        return c;
-                    });
+                    res.locals.contests = contestsObj;
                     res.render('dashboard/index');
                 }).catch(err => {
                     return next(err);
