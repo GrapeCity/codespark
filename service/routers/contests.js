@@ -11,7 +11,7 @@ router.get('/:name', (req, res, next) => {
     contestRepo.findByName(name)
         .then(contest => {
             Promise.all([
-                contestRepo.findOneByIdAndUser(contest._id, req.user._id),
+                contest.hideBoard ? Promise.resolve([]) : contestRepo.findOneByIdAndUser(contest._id, req.user._id),
                 contestRepo.getTop10(contest._id)
             ]).then(data => {
                 res.locals.validation = [];

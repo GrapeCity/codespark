@@ -1,37 +1,45 @@
 let mongoose = require('../utils/mongoose'),
-    Schema = mongoose.Schema;
+    Schema   = mongoose.Schema;
 
 let ContestSchema = new Schema(
     {
-        name: {
-            type: String,
-            trim: true,
+        name       : {
+            type    : String,
+            trim    : true,
             required: true,
-            unique: true
+            unique  : true
         },
         displayName: {
             type: String,
             trim: true
         },
-        open: {
-            type: Boolean,
+        public     : {
+            type   : Boolean,
+            default: false
+        },
+        open       : {
+            type   : Boolean,
+            default: true
+        },
+        hideBoard  : {
+            type   : Boolean,
             default: false
         },
         description: {
             type: String
         },
-        begin: {
-            type: Date,
+        begin      : {
+            type    : Date,
             required: true
         },
-        end: {
-            type: Date,
+        end        : {
+            type    : Date,
             required: true
         },
-        problems: {
+        problems   : {
             type: [{
                 type: Schema.Types.ObjectId,
-                ref: 'Problem'
+                ref : 'Problem'
             }]
         }
     },

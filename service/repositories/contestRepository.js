@@ -68,7 +68,7 @@ class ContestRepository extends CacheableRepository {
         //         });
         // });
         return new Promise((resolve, reject) => {
-            Contest.find(openOnly ? {open: true} : null)
+            Contest.find(openOnly ? {open: true, public: true} : {open: true})
                 .gte('end', new Date())
                 .lte('begin', new Date())
                 .sort(sort)
@@ -98,7 +98,7 @@ class ContestRepository extends CacheableRepository {
     }
 
     _findLatestActiveInfo(next) {
-        Contest.findOne()
+        Contest.findOne({open: true})
             .gte('end', new Date())
             .lte('begin', new Date())
             .sort('-begin')
@@ -142,7 +142,7 @@ class ContestRepository extends CacheableRepository {
 
     findAllContests(openOnly = true) {
         return redisCache.getCache(`${this.cacheKeyPrefix}:all`, next => {
-            Contest.find(openOnly ? {open: true} : null)
+            Contest.find(openOnly ? {open: true, public: true} : {open: true})
             // .populate('problems')
                 .exec((err, contests) => {
                     if (err) {

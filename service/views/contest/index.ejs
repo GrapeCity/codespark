@@ -45,10 +45,11 @@
 
                 <div class="col-md-6">
                     <h3 class="title">荣誉榜</h3>
-
-                    <% if (!form.top10 || form.top10.length === 0) { %>
+                    <% if(form.contest.hideBoard) { %>
+                    <h4>荣誉榜已关闭，请等待稍后公布最终榜单</h4>
+                    <% } else if (!form.top10 || form.top10.length === 0) { %>
                     <h5>该竞赛还没有人得分</h5>
-                    <% } else { %>
+                    <% } else  { %>
                     <table class="table table-hover">
                         <thead>
                         <tr>
