@@ -3,6 +3,7 @@
 <head>
     <% include partial/head.ejs %>
     <link href="/css/home.css" rel="stylesheet"/>
+    <link href="//vjs.zencdn.net/5.8.8/video-js.css" rel="stylesheet">
 </head>
 <body class="index-page">
 <!-- Navbar -->
@@ -118,12 +119,12 @@
                 <div class="row text-center">
                     <div class="col-md-8 col-md-offset-2">
                         <h2>更多帮助?</h2>
-                        <h4>我们精心准备了一些入门视频，你可以在这里点播</h4>
+                        <h4>我们精心准备了一个入门视频，你可以在这里点播</h4>
                     </div>
                     <div class="col-xs-8 col-xs-offset-2 col-sm-4 col-sm-offset-4">
-                        <a href="/videos" class="btn btn-upgrade btn-lg" target="_blank">
-                            全部视频
-                        </a>
+                        <button class="btn btn-upgrade btn-lg" data-toggle="modal" data-target="#myModal">
+                            开始播放视频
+                        </button>
                     </div>
                 </div>
             </div>
@@ -131,6 +132,34 @@
     </div>
     <% include partial/footer.ejs %>
 </div>
+<!-- Sart Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">视频教程</h4>
+            </div>
+            <div class="modal-body">
+                <video id="my-video" class="video-js" controls preload="auto" width="720" height="480"
+                       poster="/img/avatar.jpg" data-setup="{}">
+                    <source src="/video/play.mp4" type='video/mp4'>
+                    <source src="/video/play.webm" type='video/webm'>
+                    <p class="vjs-no-js">
+                        To view this video please enable JavaScript, and consider upgrading to a web browser that
+                        <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                    </p>
+                </video>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-simple"
+                        data-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  End Modal -->
 <% include partial/scripts.ejs %>
 <script type="text/javascript">
     $().ready(function () {
@@ -149,5 +178,6 @@
         }
     });
 </script>
+<script src="//vjs.zencdn.net/5.8.8/video.js"></script>
 </body>
 </html>
