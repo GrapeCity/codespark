@@ -52,7 +52,7 @@
                                 <th class="text-center">#</th>
                                 <th>名称</th>
                                 <th>结束时间</th>
-                                <th>进度</th>
+                                <!--<th>进度</th>-->
                                 <th>分数</th>
                                 <th class="text-right">操作</th>
                             </tr>
@@ -69,7 +69,7 @@
                                     <% } %>
                                 </td>
                                 <td><%= c.end %></td>
-                                <td><%= c.progress || 0 %>%</td>
+                                <!--<td><%= c.progress || 0 %>%</td>-->
                                 <td><%= c.score || 0 %></td>
                                 <td class="td-actions text-right">
                                     <% if (!c.joined && !c.open) { %>
