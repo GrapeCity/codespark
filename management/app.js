@@ -1,46 +1,53 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-let path = require('path'),
-    express = require('express'),
-    morgan = require('morgan'),
-    helmet = require('helmet'),
-    compression = require('compression'),
-    bodyParser = require('body-parser'),
+let path         = require('path'),
+    express      = require('express'),
+    morgan       = require('morgan'),
+    helmet       = require('helmet'),
+    compression  = require('compression'),
+    bodyParser   = require('body-parser'),
     cookieParser = require('cookie-parser'),
-    kue = require('kue'),
-    utils = require('./utils'),
-    mongoose = utils.mongoose,
-    redis = utils.redis,
-    winston = utils.winston,
-    stream = winston.stream,
-    logger = winston.appLogger,
-    app = express(),
-    config = new utils.Configure(),
-    resMgr = new utils.ResourceManager();
+    kue          = require('kue'),
+    utils        = require('./utils'),
+    mongoose     = utils.mongoose,
+    redis        = utils.redis,
+    winston      = utils.winston,
+    stream       = winston.stream,
+    logger       = winston.appLogger,
+    app          = express(),
+    config       = new utils.Configure(),
+    resMgr       = new utils.ResourceManager();
 
 resMgr.add('config', config, () => config.close(() => {
     logger.info('Config disposed successfully');
 }));
 config.setup('mongo', {
-    uri: `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
+    uri    : `${process.env.MONGO_PORT_27017_TCP_ADDR || '127.0.0.1'}:${process.env.MONGO_PORT_27017_TCP_PORT || '27017'}/codespark`,
     options: {},
-    debug: (process.env.NODE_ENV === 'development')
+    debug  : (process.env.NODE_ENV === 'development')
 });
 config.setup('redis', {
-    host: process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
-    port: process.env.REDIS_PORT_6379_TCP_PORT || '6379',
+    host    : process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
+    port    : process.env.REDIS_PORT_6379_TCP_PORT || '6379',
     password: process.env.REDIS_PASSWORD || ''
 });
 config.setup('basicAuth', {
-    user: process.env.MANAGE_USER || require('crypto').randomBytes(6).toString('base64'),
+    user    : process.env.MANAGE_USER || require('crypto').randomBytes(6).toString('base64'),
     password: process.env.MANAGE_PASSWORD || require('crypto').randomBytes(12).toString('base64')
 });
 mongoose.setup(config.mongo, resMgr);
 redis.setup(config.redis, resMgr);
 
+// Fix for kue redis client, it won't read password but use auth
+// ---------------------
+let redisConf = Object.assign({}, config.redis);
+if (redisConf.password) {
+    redisConf.auth = redisConf.password;
+}
 let queue = kue.createQueue({
-    redis: config.redis
+    redis: redisConf
 });
+// ---------------------
 resMgr.add('queue', queue, () => {
     queue.shutdown(5000, (err) => {
         if (err) {
@@ -94,7 +101,7 @@ require('./routers')(app, config);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-    let err = new Error(`Not Found: ${req.url}`);
+    let err    = new Error(`Not Found: ${req.url}`);
     err.status = 404;
     next(err);
 });
@@ -105,11 +112,11 @@ app.use((err, req, res, next) => {
         return next();
     }
 
-    err.status = err.status || 500;
-    err.message = err.message || 'Something unknown error happened!';
-    res.locals.title = 'Error';
+    err.status         = err.status || 500;
+    err.message        = err.message || 'Something unknown error happened!';
+    res.locals.title   = 'Error';
     res.locals.message = err.message;
-    res.locals.error = app.get('env') === 'development' ? err : {};
+    res.locals.error   = app.get('env') === 'development' ? err : {};
 
     // Log it
     logger.error('Error: ' + err.stack);
