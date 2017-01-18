@@ -65,8 +65,8 @@ function runCaseAsync(cases, source, next) {
             let expected = cs.expect,
                 actual   = output.result;
             process.stdout.write(`${formatDate(new Date())} comparing expected and actual for case [id: ${csId}]: \n`);
-            process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
-            process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
+            // process.stdout.write(`${formatDate(new Date())} expected=${expected}\n`);
+            // process.stdout.write(`${formatDate(new Date())} actual  =${actual}\n`);
             // first compare all original output
             if (expected !== actual) {
                 // second deep trim all blank and newline
