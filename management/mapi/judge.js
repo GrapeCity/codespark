@@ -125,8 +125,6 @@ router.post('/', (req, res) => {
                         contest: data.contest
                     }
                 }, {
-                    $limit: 1
-                }, {
                     $group: {
                         _id  : "$_id",
                         total: {$sum: "$score"},
