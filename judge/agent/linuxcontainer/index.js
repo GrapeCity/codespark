@@ -15,6 +15,7 @@ let fs            = require('fs'),
         host          : process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1',
         port          : process.env.REDIS_PORT_6379_TCP_PORT || '6379',
         password      : process.env.REDIS_PASSWORD,
+        auth          : process.env.REDIS_PASSWORD,
         retry_strategy: opt => {
             if (opt.error && opt.error.code === 'ECONNREFUSED') {
                 // End reconnecting on a specific error and flush all commands with a individual error
