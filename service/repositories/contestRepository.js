@@ -122,7 +122,7 @@ class ContestRepository extends CacheableRepository {
                         obj.userCount = userCount;
                         if (userCount > 0) {
                             UserContests.findOne({contest: contest._id})
-                                .sort('score')
+                                .sort('-score')
                                 .select('score')
                                 .limit(1)
                                 .exec((err, uc) => {
