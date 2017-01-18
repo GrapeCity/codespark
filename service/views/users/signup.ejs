@@ -15,6 +15,16 @@
             <div class="row">
                 <div class="col-md-5 col-md-offset-4 col-sm-7 col-sm-offset-3">
                     <div class="card card-signup">
+                        <% if (form.created) { %>
+                        <div class="header header-primary text-center">
+                            <h4>注册成功</h4>
+                            <div class="social-line">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <h3><%= form.message %></h3>
+                        </div>
+                        <% } else { %>
                         <form class="form" method="post">
                             <div class="header header-primary text-center">
                                 <h4>注册</h4>
@@ -67,6 +77,7 @@
                                 <a href="/login" class="btn btn-simple btn-primary btn-lg">已有账号？直接登录</a>
                             </div>
                         </form>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -78,7 +89,7 @@
 <script>
     $(document).ready(function () {
         $('form input[name="mail"]').change(function (evt) {
-            if($(this).val().slice(-14) === '@grapecity.com') {
+            if ($(this).val().slice(-14) === '@grapecity.com') {
                 $('form input[name="password"]').attr('placeholder', '请输入GrapeCity域账号密码');
             } else {
                 $('form input[name="password"]').attr('placeholder', 'Password...');
@@ -87,8 +98,8 @@
 
         $('form').submit(function (e) {
             $('#errMsg').empty();
-            var mail = $(this).find('[name="mail"]'),
-                password = $(this).find('[name="password"]'),
+            var mail           = $(this).find('[name="mail"]'),
+                password       = $(this).find('[name="password"]'),
                 passwordVerify = $(this).find('[name="passwordVerify"]');
             if (!(mail.val().trim())) {
                 $('#errMsg').append('<li class="text-danger">邮箱不能为空</li>');
@@ -108,7 +119,7 @@
                 e.preventDefault();
                 return false;
             }
-            if (password.val() !== passwordVerify.val() ) {
+            if (password.val() !== passwordVerify.val()) {
                 $('#errMsg').append('<li class="text-danger">密码和验证密码不相同</li>')
                 passwordVerify.focus();
                 e.preventDefault();

@@ -115,7 +115,16 @@ function createSignupHandle(config) {
                         logger.warn(`there is an error: ${err}`);
                     });
                 }
-                passport.authenticate('local')(req, res, () => res.redirect('/dashboard'));
+                if (user && user.activated) {
+                    passport.authenticate('local')(req, res, () => res.redirect('/dashboard'));
+                } else {
+                    res.locals.validation = [];
+                    res.locals.form = {
+                        created: true,
+                        message: `用户（邮箱：${mail}）已创建并发送激活链接，请检查邮箱！`
+                    };
+                    return res.render('users/signup');
+                }
             }).catch((err) => {
                 res.locals.validation = [`无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`];
                 res.locals.form = req.body;
