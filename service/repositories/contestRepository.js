@@ -184,7 +184,7 @@ class ContestRepository extends CacheableRepository {
         //         });
         // })
         return new Promise((resolve, reject) => {
-            Contest.findOne({name: contestName})
+            Contest.findOne({name: contestName, open: true})
                 .populate('problems', '-cases')
                 .exec((err, contest) => {
                     if (err) {
@@ -260,7 +260,11 @@ class ContestRepository extends CacheableRepository {
     }
 
     _findTop10ById(contestId, next) {
-        UserContests.find({contest: contestId, score: {$gt: 0}, user: {$exists: true}})
+        UserContests.find({
+            contest: contestId,
+            score  : {$gt: 0},
+            user   : {$exists: true}
+        })
             .limit(10)
             .sort('-score')
             .populate('user')
