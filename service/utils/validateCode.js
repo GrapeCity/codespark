@@ -25,7 +25,7 @@ CodeValidator.patterns = {};
 
 class JavaScriptCodeValidator extends CodeValidator {
     getKeywords() {
-        return _.union(super.getKeywords(), ['eval', 'new function']);
+        return _.union(super.getKeywords(), ['eval', 'require', 'import', 'new Function']);
     }
 }
 

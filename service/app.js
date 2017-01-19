@@ -78,6 +78,7 @@ app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/fonts', express.static(path.join(__dirname, 'public/fonts')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
+app.use('/video', express.static(path.join(__dirname, 'public/video')));
 
 
 // Request body parsing middleware should be above methodOverride
