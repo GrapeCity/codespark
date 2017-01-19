@@ -17,7 +17,7 @@
 </head>
 <body class="profile-page">
 <!-- Navbar -->
-<nav class="navbar navbar-transparent navbar-fixed-top navbar-color-on-scroll">
+<nav class="navbar navbar-fixed-top navbar-info">
     <% include partial/navbar.ejs %>
 </nav>
 <!-- End Navbar -->
@@ -28,33 +28,33 @@
         <div class="section section-basic">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        <button id="btn" class="btn btn-lg btn-primary pull-right">Execute</button>
+                    <div class="col-md-12">
+                        <button id="btn" class="btn btn-lg btn-success pull-right">执行代码</button>
                         <h3>
-                            <span>Time cost:</span>
+                            <span>总时间消耗:</span>
                             <span id="t_ms">0</span>
-                            <span>ms</span>
+                            <span>毫秒</span>
                         </h3>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="block">
-                            <h3>Input</h3>
+                            <h3>输入参数字符串（input）</h3>
                             <textarea id="input"></textarea>
                         </div>
                         <div class="block">
-                            <h3>Solution</h3>
+                            <h3>解决方案源代码（source）</h3>
                             <textarea id="source"></textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="block">
-                            <h3>Expected result</h3>
+                            <h3>预期结果</h3>
                             <textarea id="answer"></textarea>
                         </div>
                         <div class="block">
-                            <h3>Output</h3>
+                            <h3>实际输出</h3>
                             <textarea id="output"></textarea>
                         </div>
                     </div>
