@@ -60,9 +60,10 @@ queue.process('judge', maxConcurrent, (job, done) => {
         }
 
         // 2. write users' data to /data/user_id/contest_id/problem_id/solution_id/source.js
-        let userData = JSON.parse(data);
+        let userData;
         try {
             logger.info(`[${contestId}] [${problemId}] [${userId}] write judge data: ${data}`);
+            userData = JSON.parse(data);
             mkdirp.sync(`/data/${userId}/${contestId}/${problemId}/${solutionId}/cases`);
 
             userData.cases.forEach(c => {
