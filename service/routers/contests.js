@@ -10,6 +10,10 @@ router.get('/:name', (req, res, next) => {
 
     contestRepo.findByName(name)
         .then(contest => {
+            if (!contest) {
+                res.locals.validation = [`请求的竞赛（${name}）不存在或者没有开放`];
+                return res.render('contest/error');
+            }
             Promise.all([
                 contestRepo.findOneByIdAndUser(contest._id, req.user._id),
                 contest.hideBoard ? Promise.resolve([]) : contestRepo.getTop10(contest._id)
@@ -82,6 +86,47 @@ router.post('/:name', (req, res, next) => {
                 });
         })
         .catch(er => {
+            res.locals.validation = [`竞赛（${name}）不存在`];
+            return res.render('contest/error');
+        });
+});
+
+router.get('/:name/top10', (req, res, next) => {
+    let name        = req.params.name,
+        contestRepo = new ContestRepository();
+
+    contestRepo.findByName(name)
+        .then(contest => {
+            if (!contest) {
+                res.locals.validation = [`请求的竞赛（${name}）不存在或者没有开放`];
+                return res.render('contest/error');
+            }
+            if (contest.hideBoard) {
+                res.locals.form = {
+                    contest: contest,
+                    top10  : []
+                };
+                return res.render('contest/board');
+            } else {
+                contestRepo.getTop10(contest._id)
+                    .then(data => {
+                        res.locals.validation = [];
+                        res.locals.form       = {
+                            contest: contest,
+                            top10  : data
+                        };
+                        return res.render('contest/board');
+                    })
+                    .catch(err => {
+                        if (err.status === 404) {
+                            res.locals.validation = [`竞赛（${name}）不存在，或者你没有加入该竞赛，请从<a href="/dashboard">dashboard</a>页面重试`];
+                            return res.render('contest/error');
+                        }
+                        next(err);
+                    });
+            }
+        })
+        .catch(err => {
             res.locals.validation = [`竞赛（${name}）不存在`];
             return res.render('contest/error');
         });

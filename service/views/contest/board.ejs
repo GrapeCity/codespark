@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partial/head.ejs %>
+    <link href="/css/home.css" rel="stylesheet"/>
+    <style>
+        .landing-page .header {
+            height: 90vh;
+        }
+
+        .landing-page .table-hover > tbody > tr:hover {
+            color: black;
+        }
+
+        .landing-page .title > .small {
+            color: white;
+        }
+
+        .pagination {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="landing-page">
+<!-- Navbar -->
+<nav class="navbar navbar-transparent navbar-fixed-top navbar-color-on-scroll">
+    <% include ../partial/navbar.ejs %>
+</nav>
+<!-- End Navbar -->
+<div class="wrapper">
+    <div class="header header-filter" style="background-image: url('/img/bg3.jpg');">
+        <div class="container" style="padding-top: 15vh">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <h3 class="title">荣誉榜 || <span class="small"><%= form.contest.displayName %></span></h3>
+                    <% if(form.contest.hideBoard) { %>
+                    <h4>荣誉榜已关闭，请等待稍后公布最终榜单</h4>
+                    <% } else if (!form.top10 || form.top10.length === 0) { %>
+                    <h5>该竞赛还没有人得分</h5>
+                    <% } else  { %>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>姓名</th>
+                            <th>得分</th>
+                            <th class="text-right">邮箱</th>
+                        </tr>
+                        </thead>
+                        <tbody class="small">
+                        <% form.top10.forEach( (uc, i) => { %>
+                        <tr>
+                            <td class="text-center"><%= i + 1 %></td>
+                            <td><%= uc.user.displayName %></td>
+                            <td><%= uc.score %></td>
+                            <td class="text-right"><%= uc.user.mail %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                    <% } %>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<div class="main main-raised">-->
+    <!--<div class="section text-center section-landing">-->
+    <!--<div class="container">-->
+    <!--<div class="row">-->
+    <!--<div class="space-50">&nbsp;</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <% include ../partial/footer.ejs %>
+</div>
+
+<% include ../partial/scripts.ejs %>
+<script type="text/javascript">
+
+    $().ready(function () {
+        var window_width = $(window).width();
+
+        if (window_width >= 992) {
+            big_image = $('.wrapper > .header');
+
+            $(window).on('scroll', materialKitDemo.checkScrollForParallax);
+        }
+        if ($(window).scrollTop() > 300) {
+            $('nav.navbar-transparent').removeClass('navbar-transparent');
+        }
+    });
+</script>
+</body>
+</html>
