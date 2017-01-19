@@ -260,19 +260,20 @@ class ContestRepository extends CacheableRepository {
     }
 
     _findTop10ById(contestId, next) {
-        UserContests.find({contest: contestId, score: {$gt: 0}})
+        UserContests.find({contest: contestId, score: {$gt: 0}, user: {$exists: true}})
+            .limit(10)
             .sort('-score')
             .populate('user')
-            .exec((err, uc) => {
+            .exec((err, ucs) => {
                 if (err) {
                     return next(err);
                 }
-                if (!uc) {
+                if (!ucs) {
                     err        = new Error('Not found');
                     err.status = 404;
                     return next();
                 }
-                next(null, uc);
+                next(null, ucs.filter(uc => !!uc.user));
             });
     }
 }

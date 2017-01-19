@@ -125,7 +125,11 @@
                                 <hr/>
                                 <div class="row">
                                     <div class="col-md-12" style="min-height: 300px;">
-                                        <h5>Score: <span id="displyScore_<%= p._id %>">0</span></h5>
+                                        <h5>Score: <span id="displyScore_<%= p._id %>">0</span>
+                                            <button type="button" class="btn btn-info pull-right"
+                                                    data-func="refresh" data-pid="<%= p._id %>">刷新
+                                            </button>
+                                        </h5>
                                         <h5 id="submitHistoryList_<%= p._id %>">
                                             <div class="pull-left" style="margin-right: 20px;">历史提交记录：</div>
                                             <ul class="pagination pagination-info">
@@ -231,6 +235,13 @@ function __proc__(input) {
         if ($(window).scrollTop() > 300) {
             $('nav.navbar-transparent').removeClass('navbar-transparent');
         }
+
+        $('button[data-func="refresh"]').click(function () {
+            var btn = $(this), pid = btn.data('pid');
+            setTimeout(function () {
+                loadProblemInfo(pid);
+            }, 0);
+        })
 
         var loadingProbemId;
 
