@@ -1,12 +1,12 @@
-let http = require('http'),
-    crypto = require('crypto'),
-    passport = require('passport'),
+let http      = require('http'),
+    crypto    = require('crypto'),
+    passport  = require('passport'),
     validator = require('validator'),
-    _ = require('lodash'),
-    utils = require('../utils'),
-    mongoose = utils.mongoose,
-    User = mongoose.model('User'),
-    logger = utils.winston.appLogger;
+    _         = require('lodash'),
+    utils     = require('../utils'),
+    mongoose  = utils.mongoose,
+    User      = mongoose.model('User'),
+    logger    = utils.winston.appLogger;
 
 function passportLogin(req, res, next) {
     passport.authenticate('local', (err, user, info) => {
@@ -33,12 +33,12 @@ function postLogin(req, res) {
     let user = req.user;
     if (!user) {
         res.locals.validation = ['用户名或者密码错误，请稍后重试！'];
-        res.locals.form = req.body;
+        res.locals.form       = req.body;
         return res.render('users/login');
     }
     if (!user.activated) {
         res.locals.validation = ['该用户未激活，请检查注册时使用的邮箱，并使用其中的激活链接激活注册用户'];
-        res.locals.form = req.body;
+        res.locals.form       = req.body;
         return res.render('users/login');
     }
 
@@ -49,12 +49,12 @@ function preLogin(req, res, next) {
     let {mail, password} = req.body;
     if (!mail || !validator.isEmail(mail)) {
         res.locals.validation = ['邮箱不能为空或者不是合法邮箱！'];
-        res.locals.form = req.body;
+        res.locals.form       = req.body;
         return res.render('users/login');
     }
     if (!password) {
         res.locals.validation = ['密码不能为空！'];
-        res.locals.form = req.body;
+        res.locals.form       = req.body;
         return res.render('users/login');
     }
     next();
@@ -65,9 +65,14 @@ function createSignupHandle(config) {
         let {mail, password, grapecity} = req.body;
         if (!mail || !validator.isEmail(mail)) {
             res.locals.validation = ['用户邮箱为空或者不是合法邮箱'];
-            res.locals.form = req.body;
+            res.locals.form       = req.body;
             return res.render('users/signup');
         }
+        // Fix for all variant typing with email
+        // -------------------------
+        mail = mail.toLowerCase();
+        // -------------------------
+
         User.findOne({mail}, (err, existedUser) => {
             if (err) {
                 logger.error(`Database error: ${err}`);
@@ -75,7 +80,7 @@ function createSignupHandle(config) {
             }
             if (existedUser) {
                 res.locals.validation = ['该邮件已经被注册过'];
-                res.locals.form = req.body;
+                res.locals.form       = req.body;
                 return res.render('users/signup');
             }
 
@@ -95,8 +100,8 @@ function createSignupHandle(config) {
                     });
                 } else {
                     let {username, displayName} = req.body;
-                    username = username || mail.substr(0, req.body.mail.indexOf('@'));
-                    displayName = displayName || username;
+                    username                    = username || req.body.mail.substr(0, req.body.mail.indexOf('@'));
+                    displayName                 = displayName || username;
                     createLocalUser(mail, password,
                         username, displayName,
                         false, resolve, reject);
@@ -119,7 +124,7 @@ function createSignupHandle(config) {
                     passport.authenticate('local')(req, res, () => res.redirect('/dashboard'));
                 } else {
                     res.locals.validation = [];
-                    res.locals.form = {
+                    res.locals.form       = {
                         created: true,
                         message: `用户（邮箱：${mail}）已创建并发送激活链接，请检查邮箱！`
                     };
@@ -127,7 +132,7 @@ function createSignupHandle(config) {
                 }
             }).catch((err) => {
                 res.locals.validation = [`无法创建用户（邮箱：${mail}）: ${err}，请和管理员联系`];
-                res.locals.form = req.body;
+                res.locals.form       = req.body;
                 return res.render('users/signup');
             });
         })
@@ -141,9 +146,9 @@ function sendActivateEmail(mail, link) {
 function createActivateLink(host, mail, activeToken) {
     return new Promise((resolve, reject) => {
         try {
-            let nonce = crypto.randomBytes(4).toString('hex'),
-                random = crypto.randomBytes(3).toString('base64'),
-                cipher = crypto.createCipher('rc4', nonce),
+            let nonce     = crypto.randomBytes(4).toString('hex'),
+                random    = crypto.randomBytes(3).toString('base64'),
+                cipher    = crypto.createCipher('rc4', nonce),
                 encrypted = '';
             cipher.on('readable', () => {
                 let data = cipher.read();
@@ -165,13 +170,13 @@ function createActivateLink(host, mail, activeToken) {
 
 function createLocalUser(mail, password, username, displayName, adUser, resolve, reject) {
     let user = new User({
-        provider: 'local',
-        mail: mail,
-        password: password,
-        username: username,
-        displayName: displayName,
-        activated: adUser,
-        activeToken: crypto.randomBytes(12).toString('base64'), // 16 characters
+        provider     : 'local',
+        mail         : mail,
+        password     : password,
+        username     : username,
+        displayName  : displayName,
+        activated    : adUser,
+        activeToken  : crypto.randomBytes(12).toString('base64'), // 16 characters
         activeExpires: new Date(new Date().getTime() + (2 * 24 * 60 * 60 * 1000)) // two days
     });
     user.save(function (err) {
@@ -185,10 +190,10 @@ function createLocalUser(mail, password, username, displayName, adUser, resolve,
 function adLogin(config, mail, password, next) {
     let timeoutHandler,
         req = http.request({
-            host: config.host,
-            port: config.port,
-            path: config.path,
-            method: 'POST',
+            host   : config.host,
+            port   : config.port,
+            path   : config.path,
+            method : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
