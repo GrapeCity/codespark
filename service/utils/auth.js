@@ -4,6 +4,7 @@ let http      = require('http'),
     validator = require('validator'),
     _         = require('lodash'),
     utils     = require('../utils'),
+    sendgrid  = require('sendgrid'),
     mongoose  = utils.mongoose,
     User      = mongoose.model('User'),
     logger    = utils.winston.appLogger;
@@ -62,7 +63,7 @@ function preLogin(req, res, next) {
 
 function createSignupHandle(config) {
     return function signup(req, res, next) {
-        let {mail, password, grapecity} = req.body;
+        let {mail, password} = req.body;
         if (!mail || !validator.isEmail(mail)) {
             res.locals.validation = ['用户邮箱为空或者不是合法邮箱'];
             res.locals.form       = req.body;
@@ -85,27 +86,12 @@ function createSignupHandle(config) {
             }
 
             new Promise((resolve, reject) => {
-                if (grapecity || mail.slice(-14) === '@grapecity.com') {
-                    adLogin(config, mail, password, (err, userInfo) => {
-                        if (err) {
-                            err.status = 500;
-                            return reject(err);
-                        }
-                        if (!userInfo) {
-                            return reject(new Error('无法访问到域控制器'));
-                        }
-                        createLocalUser(mail, password,
-                            userInfo.userName, userInfo.displayName,
-                            true, resolve, reject);
-                    });
-                } else {
-                    let {username, displayName} = req.body;
-                    username                    = username || req.body.mail.substr(0, req.body.mail.indexOf('@'));
-                    displayName                 = displayName || username;
-                    createLocalUser(mail, password,
-                        username, displayName,
-                        false, resolve, reject);
-                }
+                let {username, displayName} = req.body;
+                username                    = username || req.body.mail.substr(0, req.body.mail.indexOf('@'));
+                displayName                 = displayName || username;
+                createLocalUser(mail, password,
+                    username, displayName,
+                    false, resolve, reject);
             }).then((user) => {
 
                 if (user && !user.activated) {
@@ -139,8 +125,35 @@ function createSignupHandle(config) {
     };
 }
 
-function sendActivateEmail(mail, link) {
-    console.log(`mail=${mail}, linnk=${link}`)
+function sendActivateEmail(mailAddress, link) {
+    console.log(`mail=${mailAddress}, linnk=${link}`);
+
+    let helper     = sendgrid.mail,
+        from_email = new helper.Email('contest@grapecity.com', '葡萄城编程挑战赛'),
+        to_email   = new helper.Email(mailAddress),
+        subject    = '欢迎参加葡萄城编程挑战赛!',
+        content    = new helper.Content('text/plain', `您好，${mailAddress}，
+    欢迎参加葡萄城编程挑战赛！
+ 
+    感谢您注册葡萄城编程挑战赛系统，开启挑战之道，还需要点击下方的链接（或拷贝到浏览器地址栏直接访问），以激活您的账号：
+    ${link}`),
+        mail       = new helper.Mail(from_email, subject, to_email, content);
+
+    let sendgridApi = new sendgrid.Email(
+        process.env.SENDGRID_API_KEY || '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');
+    let request     = sendgridApi.emptyRequest({
+        method: 'POST',
+        path  : '/v3/mail/send',
+        body  : mail.toJSON(),
+    });
+    sendgridApi.API(request, function (error, response) {
+        if (error) {
+            logger.error('send email failed: %s\r\n%s', error, error.stack);
+            return;
+        }
+        logger.info('send email succeed, response {status:%s, body:%s}',
+            response.statusCode, response.body);
+    });
 }
 
 function createActivateLink(host, mail, activeToken) {
@@ -185,66 +198,6 @@ function createLocalUser(mail, password, username, displayName, adUser, resolve,
         }
         resolve(user);
     })
-}
-
-function adLogin(config, mail, password, next) {
-    let timeoutHandler,
-        req = http.request({
-            host   : config.host,
-            port   : config.port,
-            path   : config.path,
-            method : 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }, res => {
-            // require accepted
-            clearTimeout(timeoutHandler);
-
-            // response timeout due to large stream?
-            timeoutHandler = setTimeout(function () {
-                res.destroy();
-                next(new Error("获取HTTP响应流超时"));
-            }, 5000);
-
-            let succeeded = (res.statusCode == 200);
-            res.setEncoding('utf8');
-
-            // all data must be less than 65535 strings
-            let resBody = "";
-            res.on('data', data => {
-                resBody += data;
-            });
-
-            res.on('end', () => {
-                // data ready
-                clearTimeout(timeoutHandler);
-
-                // process data
-                let userInfo = null;
-                if (succeeded) {
-                    try {
-                        userInfo = JSON.parse(resBody);
-                        next(null, userInfo);
-                    } catch (any) {
-                        next(any, userInfo);
-                    }
-                } else {
-                    next(new Error(resBody), userInfo);
-                }
-            });
-        });
-    req.on('error', err => {
-        clearTimeout(timeoutHandler);
-        next(err, null);
-    });
-    req.write(JSON.stringify({mail: mail, password: password}));
-    req.end();
-
-    // performance: make sure require must be back in 5 seconds
-    timeoutHandler = setTimeout(function () {
-        req.abort();
-    }, 5000);
 }
 
 module.exports = {
