@@ -139,7 +139,7 @@ function sendActivateEmail(mailAddress, link) {
     ${link}`),
         mail       = new helper.Mail(from_email, subject, to_email, content);
 
-    let sendgridApi = new sendgrid.Email(
+    let sendgridApi = new sendgrid(
         process.env.SENDGRID_API_KEY || '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');
     let request     = sendgridApi.emptyRequest({
         method: 'POST',
