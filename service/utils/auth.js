@@ -170,7 +170,7 @@ function createActivateLink(host, mail, activeToken) {
                 }
             });
             cipher.on('end', () => {
-                resolve(`${host}/users/active?token=${encrypted}&nonce=${nonce}`);
+                resolve(`${host}/active?token=${encrypted}&nonce=${nonce}`);
             });
 
             cipher.write(JSON.stringify({m: mail, a: activeToken, r: random}));
