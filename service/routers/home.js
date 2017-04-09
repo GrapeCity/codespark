@@ -86,15 +86,23 @@ router.get('/active', (req, res) => {
                     if (!user ||
                         user.activated ||
                         user.activeToken !== activeToken ||
-                        user.activeExpires > new Date()) {
+                        user.activeExpires < new Date()) {
                         res.locals.validation = ['激活失败：用户不存在或者已经激活或者激活链接已失效'];
                         return res.render('users/active');
                     }
-                    res.locals.validation = ['激活成功'];
-                    return res.render('users/active');
+                    user.activated = true;
+                    user.activeExpires = new Date();
+                    user.save((err)=> {
+                        if(err) {
+                            logger.error(`database error: ${err}`);
+                            return res.render('error/500');
+                        }
+                        res.locals.validation = ['激活成功'];
+                        return res.render('users/active');
+                    });
                 })
                 .catch(err => {
-                    logger.warn(`database error: ${err}`);
+                    logger.error(`database error: ${err}`);
                     res.locals.validation = ['参数不正确，请检查参数'];
                     return res.render('users/active');
                 })

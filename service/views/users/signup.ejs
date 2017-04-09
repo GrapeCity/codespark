@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
     <% include ../partial/head.ejs %>
 </head>
@@ -89,11 +90,7 @@
 <script>
     $(document).ready(function () {
         $('form input[name="mail"]').change(function (evt) {
-            if ($(this).val().slice(-14) === '@grapecity.com') {
-                $('form input[name="password"]').attr('placeholder', '请输入GrapeCity域账号密码');
-            } else {
-                $('form input[name="password"]').attr('placeholder', 'Password...');
-            }
+            $('form input[name="password"]').attr('placeholder', 'Password...');
         })
 
         $('form').submit(function (e) {
@@ -129,3 +126,4 @@
     });
 </script>
 </body>
+</html>
