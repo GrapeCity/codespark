@@ -25,13 +25,13 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/rules', (req, res, next) => {
-    res.locals.user = req.user;
+    res.locals.user  = req.user;
     res.locals.rules = [];
     res.render('rules');
 });
 
 router.get('/videos', (req, res, next) => {
-    res.locals.user = req.user;
+    res.locals.user   = req.user;
     res.locals.videos = [];
     res.render('videos');
 });
@@ -90,10 +90,10 @@ router.get('/active', (req, res) => {
                         res.locals.validation = ['激活失败：用户不存在或者已经激活或者激活链接已失效'];
                         return res.render('users/active');
                     }
-                    user.activated = true;
+                    user.activated     = true;
                     user.activeExpires = new Date();
-                    user.save((err)=> {
-                        if(err) {
+                    user.save((err) => {
+                        if (err) {
                             logger.error(`database error: ${err}`);
                             return res.render('error/500');
                         }
@@ -117,15 +117,13 @@ router.get('/active', (req, res) => {
     decipher.end();
 });
 
-router.get('/forget', auth.ensureAuthenticated, (req, res) => {
-    res.locals.user = req.user;
+router.get('/forget', (req, res) => {
     res.locals.validation = [];
     res.locals.form       = {};
     return res.render('users/forget');
 });
 
-router.post('/forget', auth.ensureAuthenticated, (req, res) => {
-    res.locals.user = req.user;
+router.post('/forget', (req, res) => {
     res.locals.validation = [];
     res.locals.form       = req.body;
     return res.render('users/forget');

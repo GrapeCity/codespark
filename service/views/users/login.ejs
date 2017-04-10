@@ -24,7 +24,7 @@
                                 </div>
                             </div>
                             <div class="text-divider">
-                                使用邮箱和密码登录<br/><br/>
+                                使用邮箱和密码登录<br/>
                                 <div class="text-left" style="margin-left: 40px">
                                     <ul id="errMsg">
                                         <% validation.forEach((msg) => { %>
@@ -66,6 +66,7 @@
                             </div>
                             <div class="footer text-left">
                                 <a href="/signup" class="btn btn-simple btn-primary btn-lg">还没有账号？注册一个</a>
+                                <a href="/forget" style="float:right" class="btn btn-simple btn-primary btn-lg">忘记密码</a>
                             </div>
                         </form>
                     </div>
@@ -80,7 +81,7 @@
     $(document).ready(function () {
         $('form').submit(function (e) {
             $('#errMsg').empty();
-            var mail = $(this).find('[name="mail"]'),
+            var mail     = $(this).find('[name="mail"]'),
                 password = $(this).find('[name="password"]');
             if (!(mail.val().trim())) {
                 $('#errMsg').append('<li class="text-danger">邮箱不能为空</li>');
