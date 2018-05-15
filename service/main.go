@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"fmt"
+
+	"github.com/gorilla/mux"
 )
 
 func handleDefault(w http.ResponseWriter, r *http.Request) {
@@ -14,41 +15,41 @@ func handleDefault(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleContest(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "Contest: %v\n", vars["contest"])
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleTop10(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "Contest: %v\n", vars["contest"])
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleJoinContest(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "Contest: %v\n", vars["contest"])
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleSolutions(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "Contest: %v, Problem: %v\n", vars["contestId"], vars["problemId"])
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func handleSolveProblem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "Contest: %v, Problem: %v\n", vars["contestId"], vars["problemId"])
-	handleDefault(w, r);
+	handleDefault(w, r)
 }
 
 func main() {

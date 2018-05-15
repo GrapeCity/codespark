@@ -39,8 +39,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch p := strings.TrimPrefix(r.URL.Path, "/"); p {
 	case "/":
 		t = s.template.home
+		break
 	default:
 		t = s.template.home
+		break
 	}
 	err := t.ExecuteTemplate(w, "layout", nil)
 	if err != nil {
